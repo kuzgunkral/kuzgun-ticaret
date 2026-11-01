@@ -224,6 +224,73 @@
 
 
 <title>KuZGuN Ticaret Oyunu</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ============================================================
+// SUPABASE ENTEGRASYONU
+// ============================================================
+const SUPA_URL = 'https://lvqeatihvyplioitrtiu.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2cWVhdGlodnlwbGlvaXRydGl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1NDk4MjMsImV4cCI6MjEwOTEyNTgyM30.4DSEKiRc7JILzsU0LzTav-fC2c-GL_syYfPZEa-00DY';
+const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+// Mevcut giriş yapmış kullanıcı
+window._supaUser = null;
+
+// ---- KAYIT OL ----
+async function supaKayitOl(kullaniciAdi, sifre, gercekEmail) {
+  // Email varsa gerçek email kullan, yoksa sahte email oluştur
+  var email = gercekEmail && gercekEmail.length > 0 ? gercekEmail : kullaniciAdi.toLowerCase().replace(/[^a-z0-9]/g,'') + '@kuzgun.game';
+  var {data, error} = await supa.auth.signUp({email: email, password: sifre, options:{emailRedirectTo: 'https://kuzgunkral.github.io/kuzgun-ticaret/', data:{kullanici_adi: kullaniciAdi}}});
+  if(error) return {hata: error.message};
+  window._supaUser = data.user;
+  // Oyun kaydı oluştur
+  if(data.user) {
+    await supa.from('oyun_kayitlari').insert({kullanici_id: data.user.id, kullanici_adi: kullaniciAdi, veri: {}});
+  }
+  var onayGerekli = data.user && !data.user.confirmed_at && gercekEmail && gercekEmail.length > 0;
+  return {basari: true, user: data.user, onayGerekli: onayGerekli};
+}
+
+// ---- GİRİŞ YAP ----
+async function supaGirisYap(kullaniciAdi, sifre, gercekEmail) {
+  var email = (gercekEmail && gercekEmail.length > 0) ? gercekEmail : kullaniciAdi.toLowerCase().replace(/[^a-z0-9]/g,'') + '@kuzgun.game';
+  var {data, error} = await supa.auth.signInWithPassword({email: email, password: sifre});
+  if(error) return {hata: 'Kullanıcı adı veya şifre yanlış!'};
+  window._supaUser = data.user;
+  return {basari: true, user: data.user};
+}
+
+// ---- ÇIKIŞ YAP ----
+async function supaGirisYapCikis() {
+  await supa.auth.signOut();
+  window._supaUser = null;
+}
+
+// ---- OYUN KAYDET ----
+async function supaKaydet(kullaniciAdi, veri) {
+  if(!window._supaUser) return;
+  await supa.from('oyun_kayitlari')
+    .update({veri: veri, updated_at: new Date().toISOString()})
+    .eq('kullanici_id', window._supaUser.id);
+}
+
+// ---- OYUN YUKLE ----
+async function supaYukle(kullaniciAdi) {
+  if(!window._supaUser) return null;
+  var {data, error} = await supa.from('oyun_kayitlari')
+    .select('veri')
+    .eq('kullanici_id', window._supaUser.id)
+    .single();
+  if(error || !data) return null;
+  return data.veri;
+}
+
+// ---- OTURUM KONTROL ----
+supa.auth.onAuthStateChange(function(event, session) {
+  if(session) { window._supaUser = session.user; }
+  else { window._supaUser = null; }
+});
+</script>
 
 
 
@@ -11142,6 +11209,7 @@ button,input,select{font-family:inherit}
 
 
 
+      <div class="fg"><label>E-posta <span style="color:#6b7280;font-weight:400">(Gerçek mailinizi girin)</span></label><input type="email" id="inpLoginEmail" autocomplete="email" placeholder="ornek@email.com"></div>
       <div class="fg"><label>Şifre</label><input type="password" id="inpLoginPass" autocomplete="current-password" placeholder="••••••"></div>
 
 
@@ -11703,6 +11771,8 @@ button,input,select{font-family:inherit}
 
 
       <div class="fg"><label>Şifre</label><input type="password" id="inpRegPass" autocomplete="new-password" placeholder="••••••"></div>
+<div class="fg"><label>E-posta</label><input type="email" id="inpRegEmail" autocomplete="email" placeholder="ornek@email.com"></div>
+
 
 
 
@@ -75623,6 +75693,13 @@ function save() {
 
   
   localStorage.setItem(key, JSON.stringify(G));
+  // Supabase'e de kaydet (debounce: 10sn'de bir)
+  if(window._supaUser && window._currentUser){
+    if(window._supaSaveTimer) clearTimeout(window._supaSaveTimer);
+    window._supaSaveTimer = setTimeout(function(){
+      supaKaydet(window._currentUser, G).catch(function(e){console.warn('Supabase kayıt hatası:', e);});
+    }, 10000);
+  }
 
 
 
@@ -86566,7 +86643,7 @@ function saveUsers(users) {
 
 
 
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  // Sifreler artik localStorage'a kaydedilmiyor - Supabase kullaniliyor
 
 
 
@@ -87462,6 +87539,25 @@ function doLogin() {
 
 
 
+// Supabase ile giriş yap
+  var btnLogin = document.getElementById('btnLogin');
+  if(btnLogin) { btnLogin.disabled = true; btnLogin.textContent = 'Giriş yapılıyor...'; }
+  var loginEmail = (document.getElementById('inpLoginEmail') ? document.getElementById('inpLoginEmail').value.trim() : '');
+  supaGirisYap(u, p, loginEmail).then(function(sonuc) {
+    if(btnLogin) { btnLogin.disabled = false; btnLogin.textContent = 'Giriş Yap'; }
+    if(sonuc.hata) {
+      errEl.textContent = sonuc.hata;
+      return;
+    }
+    window._currentUser = u;
+    localStorage.setItem(CURRENT_USER_KEY, u);
+    loadUserGame(u);
+  }).catch(function(e) {
+    if(btnLogin) { btnLogin.disabled = false; btnLogin.textContent = 'Giriş Yap'; }
+    errEl.textContent = 'Bağlantı hatası! Tekrar dene.';
+  });
+  return;
+
   var users = getUsers();
 
 
@@ -87518,7 +87614,7 @@ function doLogin() {
 
 
 
-  // Lokal kullanici kontrolu kaldirildi - Supabase dogruluyor
+  if (!users[u]) { errEl.textContent = 'Kullanıcı bulunamadı. Önce kayıt ol!'; return; }
 
 
 
@@ -87574,7 +87670,7 @@ function doLogin() {
 
 
 
-  if (users[u].pass !== btoa(p)) { errEl.textContent = 'Şifre yanlış!'; return; }
+  // Sifre kontrolu Supabase tarafindan yapiliyor
 
 
 
@@ -88638,6 +88734,38 @@ function doRegister() {
 
 
 
+// Supabase ile kayıt ol
+  var emailVal = (document.getElementById('inpRegEmail') ? document.getElementById('inpRegEmail').value.trim() : '');
+  if(emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) { errEl.textContent = 'Geçerli bir email gir!'; return; }
+  var btnReg = document.getElementById('btnRegister');
+  if(btnReg) { btnReg.disabled = true; btnReg.textContent = 'Kayıt yapılıyor...'; }
+  supaKayitOl(u, p, emailVal).then(function(sonuc) {
+    if(btnReg) { btnReg.disabled = false; btnReg.textContent = 'Kayıt Ol'; }
+    if(sonuc.hata) {
+      if(sonuc.hata.indexOf('already')>-1 || sonuc.hata.indexOf('taken')>-1) {
+        errEl.textContent = 'Bu kullanıcı adı alınmış!';
+      } else {
+        errEl.textContent = sonuc.hata;
+      }
+      return;
+    }
+    // Supabase başarılı
+    if(sonuc.onayGerekli) {
+      // Email onayı gerekiyor
+      errEl.style.color = '#10b981';
+      errEl.textContent = '✅ Kayıt başarılı! E-postanıza onay linki gönderildi. Onayladıktan sonra giriş yapabilirsiniz.';
+      return;
+    }
+    // Email yoksa veya onay gerekmiyorsa direkt giriş
+    window._currentUser = u;
+    localStorage.setItem(CURRENT_USER_KEY, u);
+    loadUserGame(u);
+  }).catch(function(e) {
+    if(btnReg) { btnReg.disabled = false; btnReg.textContent = 'Kayıt Ol'; }
+    errEl.textContent = 'Bağlantı hatası! Tekrar dene.';
+  });
+  return;
+
   var users = getUsers();
 
 
@@ -88750,7 +88878,7 @@ function doRegister() {
 
 
 
-  users[u] = { pass: btoa(p) };
+  // Sifre artik localStorage a kaydedilmiyor
 
 
 
@@ -88806,7 +88934,7 @@ function doRegister() {
 
 
 
-  saveUsers(users);
+  // saveUsers kaldirildi - Supabase kullaniliyor
 
 
 
@@ -89339,6 +89467,18 @@ function loadUserGame(username) {
 
 
   var raw = localStorage.getItem(key);
+// Supabase'den yükle (öncelikli) — sadece ilk yüklemede, döngüye girmesin
+  if(window._supaUser && !window._supaYuklendi) {
+    window._supaYuklendi = true;
+    supaYukle(username).then(function(supaVeri) {
+      if(supaVeri && Object.keys(supaVeri).length > 0) {
+        var key2 = getSaveKey(username);
+        localStorage.setItem(key2, JSON.stringify(supaVeri));
+        window._supaYuklendi = false;
+        loadUserGame(username);
+      }
+    }).catch(function(e){ console.warn('Supabase yükleme hatası:', e); });
+  }
 
 
 
