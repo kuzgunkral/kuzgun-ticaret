@@ -86643,7 +86643,7 @@ function saveUsers(users) {
 
 
 
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  // Sifreler artik localStorage'a kaydedilmiyor - Supabase kullaniliyor
 
 
 
@@ -87551,8 +87551,6 @@ function doLogin() {
     }
     window._currentUser = u;
     localStorage.setItem(CURRENT_USER_KEY, u);
-    var users2 = getUsers();
-    if(!users2[u]) { users2[u] = {pass: btoa(p)}; localStorage.setItem('kuzgun_users', JSON.stringify(users2)); }
     loadUserGame(u);
   }).catch(function(e) {
     if(btnLogin) { btnLogin.disabled = false; btnLogin.textContent = 'Giriş Yap'; }
@@ -87672,7 +87670,7 @@ function doLogin() {
 
 
 
-  if (users[u].pass !== btoa(p)) { errEl.textContent = 'Şifre yanlış!'; return; }
+  // Sifre kontrolu Supabase tarafindan yapiliyor
 
 
 
@@ -88759,9 +88757,6 @@ function doRegister() {
       return;
     }
     // Email yoksa veya onay gerekmiyorsa direkt giriş
-    var users2 = getUsers();
-    users2[u] = {pass: btoa(p)};
-    saveUsers(users2);
     window._currentUser = u;
     localStorage.setItem(CURRENT_USER_KEY, u);
     loadUserGame(u);
@@ -88883,7 +88878,7 @@ function doRegister() {
 
 
 
-  users[u] = { pass: btoa(p) };
+  // Sifre artik localStorage a kaydedilmiyor
 
 
 
@@ -88939,7 +88934,7 @@ function doRegister() {
 
 
 
-  saveUsers(users);
+  // saveUsers kaldirildi - Supabase kullaniliyor
 
 
 
