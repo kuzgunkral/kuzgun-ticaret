@@ -252,8 +252,8 @@ async function supaKayitOl(kullaniciAdi, sifre, gercekEmail) {
 }
 
 // ---- GİRİŞ YAP ----
-async function supaGirisYap(kullaniciAdi, sifre) {
-  var email = kullaniciAdi.toLowerCase().replace(/[^a-z0-9]/g,'') + '@kuzgun.game';
+async function supaGirisYap(kullaniciAdi, sifre, gercekEmail) {
+  var email = (gercekEmail && gercekEmail.length > 0) ? gercekEmail : kullaniciAdi.toLowerCase().replace(/[^a-z0-9]/g,'') + '@kuzgun.game';
   var {data, error} = await supa.auth.signInWithPassword({email: email, password: sifre});
   if(error) return {hata: 'Kullanıcı adı veya şifre yanlış!'};
   window._supaUser = data.user;
@@ -11209,6 +11209,7 @@ button,input,select{font-family:inherit}
 
 
 
+      <div class="fg"><label>E-posta <span style="color:#6b7280;font-weight:400">(kayıt sırasında girdiysen)</span></label><input type="email" id="inpLoginEmail" autocomplete="email" placeholder="ornek@email.com"></div>
       <div class="fg"><label>Şifre</label><input type="password" id="inpLoginPass" autocomplete="current-password" placeholder="••••••"></div>
 
 
@@ -87541,7 +87542,8 @@ function doLogin() {
 // Supabase ile giriş yap
   var btnLogin = document.getElementById('btnLogin');
   if(btnLogin) { btnLogin.disabled = true; btnLogin.textContent = 'Giriş yapılıyor...'; }
-  supaGirisYap(u, p).then(function(sonuc) {
+  var loginEmail = (document.getElementById('inpLoginEmail') ? document.getElementById('inpLoginEmail').value.trim() : '');
+  supaGirisYap(u, p, loginEmail).then(function(sonuc) {
     if(btnLogin) { btnLogin.disabled = false; btnLogin.textContent = 'Giriş Yap'; }
     if(sonuc.hata) {
       errEl.textContent = sonuc.hata;
