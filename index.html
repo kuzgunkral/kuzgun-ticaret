@@ -240,7 +240,7 @@ window._supaUser = null;
 async function supaKayitOl(kullaniciAdi, sifre, gercekEmail) {
   // Email varsa gerçek email kullan, yoksa sahte email oluştur
   var email = gercekEmail && gercekEmail.length > 0 ? gercekEmail : kullaniciAdi.toLowerCase().replace(/[^a-z0-9]/g,'') + '@kuzgun.game';
-  var {data, error} = await supa.auth.signUp({email: email, password: sifre, options:{data:{kullanici_adi: kullaniciAdi}}});
+  var {data, error} = await supa.auth.signUp({email: email, password: sifre, options:{emailRedirectTo: 'https://kuzgunkral.github.io/kuzgun-ticaret/', data:{kullanici_adi: kullaniciAdi}}});
   if(error) return {hata: error.message};
   window._supaUser = data.user;
   // Oyun kaydı oluştur
