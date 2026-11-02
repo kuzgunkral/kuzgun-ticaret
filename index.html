@@ -117117,9 +117117,9 @@ function renderInv() {
   var _marketLvLimit = 999;
   if (activeSk === 'market' && G.stores['market']) {
     var _mLv = G.stores['market'].level || 1;
-    if (_mLv < 10) _marketLvLimit = 9;        // Market: ilk 9 ürün görünür
-    else if (_mLv < 20) _marketLvLimit = 19;  // Süpermarket: 10-19 ürünler görünür
-    else _marketLvLimit = 999;                 // Hipermarket: tümü görünür
+    if (_mLv < 10) _marketLvLimit = 9;
+    else if (_mLv < 20) _marketLvLimit = 19;
+    else _marketLvLimit = 999;
   }
 
 
@@ -118197,48 +118197,6 @@ function renderInv() {
 
 
       var mx = cap(sk);
-      if (!active) {
-        // Kilitli ürün — tam kart olarak göster (soluk)
-        var _unlockLv = PRODUCTS[k].unlockedAt || 1;
-        var _pd = G.market[k] || {price: PRODUCTS[k].basePrice || 0, stock: 0};
-        var _mx = cap(sk);
-        var _ratio = _mx > 0 ? _pd.stock / _mx : 0;
-        var _bc = _ratio > 0.4 ? "" : _ratio > 0.15 ? "w" : "d";
-        var _ilk = PRODUCTS[k].basePrice || 0;
-        var _fiyat = _pd.price || _ilk;
-        var _pct = PRODUCTS[k].margin || 20;
-        var _satis = _fiyat * (1 + _pct/100);
-        var _costTotal = G.market[k] ? (G.market[k].costTotal || 0) : 0;
-        var _stok = G.market[k] ? (G.market[k].stock || 0) : 0;
-        var _ortMal = (_stok > 0 && _costTotal > 0) ? (_costTotal / _stok) : 0;
-        var _kz = _ortMal > 0 ? (_fiyat - _ortMal) : 0;
-        var _kzPct = _ortMal > 0 ? ((_fiyat - _ortMal) / _ortMal * 100) : 0;
-        h += '<div class="pcard" style="pointer-events:none">';
-        h += '<div class="pcard-header" style="align-items:flex-start;gap:8px">';
-        h += '<div class="picon" style="width:52px;height:52px;font-size:30px;flex-shrink:0">' + PRODUCTS[k].icon + '</div>';
-        h += '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">';
-        h += '<div style="display:flex;align-items:center;justify-content:space-between;width:100%"><span class="pname">' + k + '</span><span style="font-size:11px;background:#1a2a3a;color:#f59e0b;border:1px solid #f59e0b44;border-radius:6px;padding:1px 6px">🔒 Lv' + _unlockLv + '</span></div>';
-        h += '<div class="pstore">' + st.name + '</div>';
-        h += '<div class="pstock-bar"><div class="psb-fill ' + _bc + '" style="width:' + Math.round(_ratio*100) + '%"></div></div>';
-        h += '<div style="font-size:11px;color:#94a3b8">' + _stok + ' / ' + _mx + '</div>';
-        h += '</div></div>';
-        h += '<div class="pprice-row">';
-        h += '<span style="color:#ef4444;font-weight:700;font-size:13px">🛒 ' + fmt(_ilk) + ' TL</span>';
-        h += '<span style="color:#64748b;font-size:11px">ilk:' + fmt(_ilk) + '</span>';
-        h += '<span style="color:#64748b;font-size:11px">% ' + _pct + '</span>';
-        h += '<span style="color:#64748b;font-size:11px">→</span>';
-        h += '<span style="color:#10b981;font-weight:700;font-size:14px">' + fmt(_satis) + ' TL</span>';
-        h += '</div>';
-        h += '<div style="background:#0f1e2e;border-radius:8px;padding:8px 10px;margin-top:6px;font-size:12px">';
-        h += '<div style="color:#f59e0b;font-weight:700">💰 K/Z Ort.Mal: ' + (_ortMal > 0 ? fmt(_ortMal) : '-') + '</div>';
-        h += '</div>';
-        h += '<div style="display:flex;gap:6px;margin-top:8px">';
-        h += '<button style="flex:1;padding:6px;background:#1e3a5f;color:#94a3b8;border:1px solid #2a4a6f;border-radius:8px;font-size:12px;cursor:not-allowed">Satın Al</button>';
-        h += '<button style="flex:1;padding:6px;background:#1e3a5f;color:#94a3b8;border:1px solid #2a4a6f;border-radius:8px;font-size:12px;cursor:not-allowed">MAX</button>';
-        h += '</div>';
-        h += '</div>';
-        continue;
-      }
       if (active) {
 
 
