@@ -118213,7 +118213,7 @@ function renderInv() {
         var _ortMal = (_stok > 0 && _costTotal > 0) ? (_costTotal / _stok) : 0;
         var _kz = _ortMal > 0 ? (_fiyat - _ortMal) : 0;
         var _kzPct = _ortMal > 0 ? ((_fiyat - _ortMal) / _ortMal * 100) : 0;
-        h += '<div class="pcard" style="opacity:0.45;filter:grayscale(0.5);pointer-events:none">';
+        h += '<div class="pcard" style="pointer-events:none">';
         h += '<div class="pcard-header" style="align-items:flex-start;gap:8px">';
         h += '<div class="picon" style="width:52px;height:52px;font-size:30px;flex-shrink:0">' + PRODUCTS[k].icon + '</div>';
         h += '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">';
