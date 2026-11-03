@@ -119970,8 +119970,9 @@ var _capMax = cap(PRODUCTS[k].store);
           h += '<span style="font-size:9px;font-weight:700;color:#a78bfa;white-space:nowrap">🏭 En Ucuz:</span>';
           for (var _uiKZ=0; _uiKZ<_uListKZ.length; _uiKZ++) {
             var _uKZ = _uListKZ[_uiKZ];
-            var _uKZRenk = _uKZ.indirim ? '#10b981' : (_uKZ.fiyat < pd.base ? '#a78bfa' : '#ef4444');
-            var _uKZIkon = _uKZ.indirim ? '🟢' : (_uKZ.fiyat < pd.base ? '⚪' : '🔴');
+            var _uKZOrtMal = (pd.stock > 0 && (pd.costTotal||0) > 0) ? (pd.costTotal / pd.stock) : pd.base;
+            var _uKZRenk = _uKZ.indirim ? '#10b981' : (_uKZ.fiyat < _uKZOrtMal ? '#10b981' : (_uKZ.fiyat === _uKZOrtMal ? '#dde8f8' : '#ef4444'));
+            var _uKZIkon = _uKZ.indirim ? '🟢' : (_uKZ.fiyat < _uKZOrtMal ? '🟢' : (_uKZ.fiyat === _uKZOrtMal ? '⚪' : '🔴'));
             h += '<span style="font-size:9px;font-weight:700;color:' + _uKZRenk + ';white-space:nowrap">' + _uKZIkon + ' ' + fmt(_uKZ.fiyat) + ' TL (' + _uKZ.stok + 'adet)</span>';
             if (_uiKZ < _uListKZ.length-1) h += '<span style="color:#2d1f58;font-size:9px">|</span>';
           }
@@ -120455,7 +120456,7 @@ var _capMax = cap(PRODUCTS[k].store);
           h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:nowrap;overflow:hidden;padding:2px 4px;background:#050d1a;border:1px solid #2d1f58;border-radius:5px;margin-bottom:4px">';
           h += '<span style="font-size:9px;font-weight:700;color:#a78bfa;white-space:nowrap">🏭 En Ucuz:</span>';
           for (var _i3=0;_i3<_ul3.length;_i3++) {
-            var _u3=_ul3[_i3];var _r3=_u3.indirim?'#10b981':(_u3.fiyat<pd.base?'#a78bfa':'#ef4444');var _ic3=_u3.indirim?'🟢':(_u3.fiyat<pd.base?'⚪':'🔴');
+            var _u3=_ul3[_i3];var _u3OrtMal=(pd.stock>0&&(pd.costTotal||0)>0)?(pd.costTotal/pd.stock):pd.base;var _r3=_u3.indirim?'#10b981':(_u3.fiyat<_u3OrtMal?'#10b981':(_u3.fiyat===_u3OrtMal?'#dde8f8':'#ef4444'));var _ic3=_u3.indirim?'🟢':(_u3.fiyat<_u3OrtMal?'🟢':(_u3.fiyat===_u3OrtMal?'⚪':'🔴'));
             h += '<span style="font-size:9px;font-weight:700;color:' + _r3 + ';white-space:nowrap">' + _ic3 + ' ' + fmt(_u3.fiyat) + ' TL (' + _u3.stok + 'adet)</span>';
             if (_i3<_ul3.length-1) h+='<span style="color:#2d1f58;font-size:9px">|</span>';
           }
