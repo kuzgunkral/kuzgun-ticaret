@@ -113157,8 +113157,8 @@ function renderHeader() {
 
 
 
-  document.getElementById("hInflPill").className = "pill " + (inf < 0 ? "g" : inf < 10 ? "g" : inf < 30 ? "y" : "r");
-  document.getElementById("hInfl").style.color = inf < 0 ? "#dde8f8" : inf < 10 ? "#10b981" : inf < 30 ? "#f59e0b" : "#ef4444";
+  document.getElementById("hInflPill").className = "pill " + (inf < 0 ? "g" : inf < 2 ? "g" : inf < 5 ? "y" : "r");
+  document.getElementById("hInfl").style.color = inf < 0 ? "#dde8f8" : inf < 2 ? "#10b981" : inf < 5 ? "#f59e0b" : "#ef4444";
   var _gkb = document.getElementById('globalKarBtn');
   if (_gkb) {
     if (G.globalKarKilidi) {
