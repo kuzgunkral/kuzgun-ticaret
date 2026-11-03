@@ -80983,7 +80983,37 @@ function calcInflation() {
 
 
 
-  return tc > 0 ? Math.round(ti / tc * 100) / 100 : 0;
+  var urunEnfl = tc > 0 ? ti / tc : 0;
+
+  // Borsa katkisi: hisselerin ortalama degisimi enflasyona %20 agirlikla katki yapar
+  var borsaEnfl = 0, borsaC = 0;
+  if (G.borsaHisse && typeof BORSA_HISSELER !== 'undefined') {
+    BORSA_HISSELER.forEach(function(h) {
+      var bf = G.borsaHisse[h.kod];
+      if (bf && bf.bazFiyat && bf.bazFiyat > 0) {
+        borsaEnfl += ((bf.fiyat - bf.bazFiyat) / bf.bazFiyat) * 100;
+        borsaC++;
+      }
+    });
+  }
+  borsaEnfl = borsaC > 0 ? borsaEnfl / borsaC : 0;
+
+  // Kripto katkisi: ortalama kripto degisimi enflasyona %10 agirlikla katki yapar
+  var kriptoEnfl = 0, kriptoC = 0;
+  if (G.kripto && typeof KRIPTO_LISTESI !== 'undefined') {
+    KRIPTO_LISTESI.forEach(function(k) {
+      var kd = G.kripto[k.id];
+      if (kd && k.basFiyat && k.basFiyat > 0) {
+        kriptoEnfl += ((kd.fiyat - k.basFiyat) / k.basFiyat) * 100;
+        kriptoC++;
+      }
+    });
+  }
+  kriptoEnfl = kriptoC > 0 ? kriptoEnfl / kriptoC : 0;
+
+  // Agirlikli ortalama: urun %70, borsa %20, kripto %10
+  var toplam = urunEnfl * 0.70 + borsaEnfl * 0.20 + kriptoEnfl * 0.10;
+  return Math.round(toplam * 100) / 100;
 
 
 
