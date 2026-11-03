@@ -88797,6 +88797,7 @@ function doRegister() {
     }
     // Email yoksa veya onay gerekmiyorsa direkt giriş
     var users2 = getUsers();
+    if (!users2[u]) { users2[u] = {sifre: p, kayitTarih: Date.now()}; saveUsers(users2); }
     window._currentUser = u;
     localStorage.setItem(CURRENT_USER_KEY, u);
     loadUserGame(u);
