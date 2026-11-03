@@ -108926,9 +108926,9 @@ function runCustBot() {
     }
     // Piyasa fiyati min kar beklentisinin altindaysa satma
     var _ortMaliyet = (pd.stock > 0 && (pd.costTotal || 0) > 0) ? (pd.costTotal / pd.stock) : pd.base;
-    var _minKarPct = pd.minKarPct || 0;
-    if (_minKarPct > 0 && sellPrice(k) < _ortMaliyet * (1 + _minKarPct / 100)) {
-      continue; // Piyasa dusuk, karlı satış yapılamaz - bekle
+    var _minKarPct = pd.minKarPct || 1; // varsayilan min %1 kar - zarar/sifir karla satis yapma
+    if (sellPrice(k) < _ortMaliyet * (1 + _minKarPct / 100)) {
+      continue; // Minimum kar saglanamıyor - satis yapma, bekle
     }
     if (sellPrice(k) <= pd.base) {
 
