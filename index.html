@@ -119909,16 +119909,19 @@ var _stLv = G.stores[PRODUCTS[k].store] ? (G.stores[PRODUCTS[k].store].level || 
         var _kmOrtMal = (pd.stock > 0 && (pd.costTotal||0) > 0) ? Math.round((pd.costTotal||0) / pd.stock * 100) / 100 : 0;
         var _kmSatisFiyat = (typeof sellPrice==='function') ? sellPrice(k) : pd.base;
         var _kmKzVal = (_kmOrtMal > 0 && _kmSatisFiyat > 0) ? Math.round((_kmSatisFiyat - _kmOrtMal) * 100) / 100 : 0;
-        var _kmKzPct = (_kmOrtMal > 0) ? ((_kmKzVal / _kmOrtMal) * 100).toFixed(1) : '0.0';
         var _kmKzRenk = _kmKzVal >= 0 ? '#10b981' : '#ef4444';
         var _kmKzIkon = _kmKzVal >= 0 ? '▲' : '▼';
+        var _kmPiyasaFark = pd.base > 0 ? ((_kmSatisFiyat - pd.base) / pd.base * 100) : 0;
+        var _kmPiyasaStr = (_kmPiyasaFark > 0.05 ? '+' : '') + _kmPiyasaFark.toFixed(1) + '%';
+        var _kmPiyasaRenk = _kmPiyasaFark < -0.05 ? '#10b981' : _kmPiyasaFark > 0.05 ? '#ef4444' : '#5a7a9e';
         h += '<div style="background:#0d1628;border:1px solid #1f3a58;border-radius:6px;padding:3px 6px;margin-bottom:4px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">';
         h += '<span style="font-size:10px;font-weight:700;color:#f59e0b;white-space:nowrap">💰 K/Z</span>';
         if (_kmOrtMal > 0) {
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal:</span>';
           h += '<span style="font-size:10px;font-weight:700;color:#dde8f8;white-space:nowrap">' + fmt(_kmOrtMal) + ' TL</span>';
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">|</span>';
-          h += '<span style="font-size:10px;font-weight:700;color:' + _kmKzRenk + ';white-space:nowrap">' + _kmKzIkon + ' ' + fmt(Math.abs(_kmKzVal)) + ' TL (' + _kmKzPct + '%)</span>';
+          h += '<span style="font-size:10px;font-weight:700;color:' + _kmKzRenk + ';white-space:nowrap">' + _kmKzIkon + ' ' + fmt(Math.abs(_kmKzVal)) + ' TL</span>';
+          h += '<span style="font-size:9px;font-weight:700;color:' + _kmPiyasaRenk + ';white-space:nowrap">(piyasa: ' + _kmPiyasaStr + ')</span>';
         } else {
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal: -</span>';
         }
@@ -119953,9 +119956,11 @@ var _capMax = cap(PRODUCTS[k].store);
         var _ortMal = (pd.stock > 0 && (pd.costTotal||0) > 0) ? Math.round((pd.costTotal||0) / pd.stock * 100) / 100 : 0;
         var _kzSatisFiyat = (typeof sellPrice==='function') ? sellPrice(k) : pd.base;
         var _kzVal = (_ortMal > 0 && _kzSatisFiyat > 0) ? Math.round((_kzSatisFiyat - _ortMal) * 100) / 100 : 0;
-        var _kzPct = (_ortMal > 0) ? ((_kzVal / _ortMal) * 100).toFixed(1) : '0.0';
         var _kzRenk = _kzVal >= 0 ? '#10b981' : '#ef4444';
         var _kzIkon = _kzVal >= 0 ? '\u25b2' : '\u25bc';
+        var _kzPiyasaFark = pd.base > 0 ? ((_kzSatisFiyat - pd.base) / pd.base * 100) : 0;
+        var _kzPiyasaStr = (_kzPiyasaFark > 0.05 ? '+' : '') + _kzPiyasaFark.toFixed(1) + '%';
+        var _kzPiyasaRenk = _kzPiyasaFark < -0.05 ? '#10b981' : _kzPiyasaFark > 0.05 ? '#ef4444' : '#5a7a9e';
 
         h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:3px 4px;background:#07111f;border:1px solid #1a3050;border-radius:6px;margin-bottom:4px">';
         h += '<span style="font-size:10px;font-weight:700;color:#f59e0b;white-space:nowrap">💰 K/Z</span>';
@@ -119963,7 +119968,8 @@ var _capMax = cap(PRODUCTS[k].store);
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal:</span>';
           h += '<span style="font-size:10px;font-weight:700;color:#dde8f8;white-space:nowrap">' + fmt(_ortMal) + ' TL</span>';
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">|</span>';
-          h += '<span style="font-size:10px;font-weight:700;color:' + _kzRenk + ';white-space:nowrap">' + _kzIkon + ' ' + fmt(Math.abs(_kzVal)) + ' TL (' + _kzPct + '%)</span>';
+          h += '<span style="font-size:10px;font-weight:700;color:' + _kzRenk + ';white-space:nowrap">' + _kzIkon + ' ' + fmt(Math.abs(_kzVal)) + ' TL</span>';
+          h += '<span style="font-size:9px;font-weight:700;color:' + _kzPiyasaRenk + ';white-space:nowrap">(piyasa: ' + _kzPiyasaStr + ')</span>';
         } else {
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal: -</span>';
         }
@@ -120422,16 +120428,19 @@ var _capMax = cap(PRODUCTS[k].store);
         var _km2OrtMal = (pd.stock > 0 && (pd.costTotal||0) > 0) ? Math.round((pd.costTotal||0) / pd.stock * 100) / 100 : 0;
         var _km2SatisFiyat = (typeof sellPrice==='function') ? sellPrice(k) : pd.base;
         var _km2KzVal = (_km2OrtMal > 0 && _km2SatisFiyat > 0) ? Math.round((_km2SatisFiyat - _km2OrtMal) * 100) / 100 : 0;
-        var _km2KzPct = (_km2OrtMal > 0) ? ((_km2KzVal / _km2OrtMal) * 100).toFixed(1) : '0.0';
         var _km2KzRenk = _km2KzVal >= 0 ? '#10b981' : '#ef4444';
         var _km2KzIkon = _km2KzVal >= 0 ? '▲' : '▼';
+        var _km2PiyasaFark = pd.base > 0 ? ((_km2SatisFiyat - pd.base) / pd.base * 100) : 0;
+        var _km2PiyasaStr = (_km2PiyasaFark > 0.05 ? '+' : '') + _km2PiyasaFark.toFixed(1) + '%';
+        var _km2PiyasaRenk = _km2PiyasaFark < -0.05 ? '#10b981' : _km2PiyasaFark > 0.05 ? '#ef4444' : '#5a7a9e';
         h += '<div style="background:#0d1628;border:1px solid #1f3a58;border-radius:6px;padding:3px 6px;margin-bottom:4px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">';
         h += '<span style="font-size:10px;font-weight:700;color:#f59e0b;white-space:nowrap">💰 K/Z</span>';
         if (_km2OrtMal > 0) {
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal:</span>';
           h += '<span style="font-size:10px;font-weight:700;color:#dde8f8;white-space:nowrap">' + fmt(_km2OrtMal) + ' TL</span>';
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">|</span>';
-          h += '<span style="font-size:10px;font-weight:700;color:' + _km2KzRenk + ';white-space:nowrap">' + _km2KzIkon + ' ' + fmt(Math.abs(_km2KzVal)) + ' TL (' + _km2KzPct + '%)</span>';
+          h += '<span style="font-size:10px;font-weight:700;color:' + _km2KzRenk + ';white-space:nowrap">' + _km2KzIkon + ' ' + fmt(Math.abs(_km2KzVal)) + ' TL</span>';
+          h += '<span style="font-size:9px;font-weight:700;color:' + _km2PiyasaRenk + ';white-space:nowrap">(piyasa: ' + _km2PiyasaStr + ')</span>';
         } else {
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal: -</span>';
         }
@@ -120447,15 +120456,16 @@ var _capMax = cap(PRODUCTS[k].store);
         h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:3px;background:#0d1628;border:1px solid #1f3a58;border-radius:6px;margin-bottom:4px">';
         var _om3=(pd.stock>0&&(pd.costTotal||0)>0)?Math.round((pd.costTotal||0)/pd.stock*100)/100:0;
         var _sp3=(typeof sellPrice==='function')?sellPrice(k):pd.base;var _kv3=(_om3>0&&_sp3>0)?Math.round((_sp3-_om3)*100)/100:0;
-        var _kp3=(_om3>0)?((_kv3/_om3)*100).toFixed(1):'0.0';
         var _kr3=_kv3>=0?'#10b981':'#ef4444';var _ki3=_kv3>=0?'\u25b2':'\u25bc';
+        var _pf3=pd.base>0?((_sp3-pd.base)/pd.base*100):0;var _pfs3=(_pf3>0.05?'+':'')+_pf3.toFixed(1)+'%';var _pfr3=_pf3<-0.05?'#10b981':_pf3>0.05?'#ef4444':'#5a7a9e';
         h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:3px 4px;background:#07111f;border:1px solid #1a3050;border-radius:6px;margin-bottom:4px">';
         h += '<span style="font-size:10px;font-weight:700;color:#f59e0b;white-space:nowrap">💰 K/Z</span>';
         if (_om3>0) {
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal:</span>';
           h += '<span style="font-size:10px;font-weight:700;color:#dde8f8;white-space:nowrap">' + fmt(_om3) + ' TL</span>';
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">|</span>';
-          h += '<span style="font-size:10px;font-weight:700;color:' + _kr3 + ';white-space:nowrap">' + _ki3 + ' ' + fmt(Math.abs(_kv3)) + ' TL (' + _kp3 + '%)</span>';
+          h += '<span style="font-size:10px;font-weight:700;color:' + _kr3 + ';white-space:nowrap">' + _ki3 + ' ' + fmt(Math.abs(_kv3)) + ' TL</span>';
+          h += '<span style="font-size:9px;font-weight:700;color:' + _pfr3 + ';white-space:nowrap">(piyasa: ' + _pfs3 + ')</span>';
         } else {
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal: -</span>';
         }
