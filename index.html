@@ -33910,7 +33910,8 @@ function borsaFiyatGuncelle() {
       if (bf.haberTick <= 0) { bf.haberEtki = 0; bf.haberTick = 0; }
     }
     var _rand = (Math.random() - 0.5) * h.volatil * 3;
-    var degisim = Math.max(-0.03, Math.min(0.03, _rand + _arzTalep + (_meanRev*0.3) + _haberEtki));
+    var _bInf=(typeof calcInflation==='function')?calcInflation():0; var _bEnfl=(_bInf>0?Math.min(_bInf*0.0002,0.004):Math.max(_bInf*0.0002,-0.002));
+    var degisim = Math.max(-0.03, Math.min(0.03, _rand + _arzTalep + (_meanRev*0.3) + _haberEtki + _bEnfl));
     var _yeniFiyat=bf.fiyat*(1+degisim);bf.fiyat=Math.max(Math.round(_baz*0.1*100)/100, Math.round(_yeniFiyat*100)/100);
     bf.gecmis.push(bf.fiyat); if (bf.gecmis.length > 20) bf.gecmis = bf.gecmis.slice(-20);
 
@@ -96633,7 +96634,7 @@ function fluctuate() {
 
 
 
-    var _rnd=(Math.random()*8-4)/100; var _capF=(typeof cap==='function')?cap(p.store):50; var _stokR=(_capF>0)?((pd.stock||0)/_capF):0.5; var _arzEtki=(_stokR<0.2)?0.02:(_stokR<0.4)?0.01:(_stokR>0.8)?-0.02:(_stokR>0.6)?-0.01:0; var _initB=PRODUCTS[k].base; var _sapma=(_initB>0)?((old-_initB)/_initB):0; var _geri=-_sapma*0.1; var pct=_rnd+_arzEtki+_geri;
+    var _rnd=(Math.random()*8-4)/100; var _capF=(typeof cap==='function')?cap(p.store):50; var _stokR=(_capF>0)?((pd.stock||0)/_capF):0.5; var _arzEtki=(_stokR<0.2)?0.02:(_stokR<0.4)?0.01:(_stokR>0.8)?-0.02:(_stokR>0.6)?-0.01:0; var _initB=PRODUCTS[k].base; var _sapma=(_initB>0)?((old-_initB)/_initB):0; var _inf=(typeof calcInflation==='function')?calcInflation():0; var _enflEtki=(_inf>0?Math.min(_inf*0.0003,0.005):Math.max(_inf*0.0003,-0.003)); var _geri=-_sapma*0.05+_enflEtki; var pct=_rnd+_arzEtki+_geri;
 
 
 
@@ -121788,7 +121789,8 @@ function kriptoFiyatGuncelle() {
       var pumpDump = Math.random()<0.01?(Math.random()<0.5?1:-1)*(0.05+Math.random()*0.10):0;
       var rnd = (Math.random()-0.5)*2*k.volatilite;
       var sapma = (kd.fiyat-k.basFiyat)/k.basFiyat;
-      var geri = -sapma*0.05;
+      var _kInf=(typeof calcInflation==='function')?calcInflation():0; var _kEnfl=(_kInf>0?Math.min(_kInf*0.0004,0.008):Math.max(_kInf*0.0004,-0.004)); // kripto enflasyona daha duyarli
+      var geri = -sapma*0.03+_kEnfl; // enflasyon yuksekse kripto yukselir
       var talepEtki = (kd.talepEtki||0);
       kd.talepEtki = talepEtki*0.97;
       var trendEtki = (kd.trendYon||0)*k.volatilite*0.3;
