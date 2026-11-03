@@ -120350,14 +120350,12 @@ var _capMax = cap(PRODUCTS[k].store);
         var _kv3=(_om3>0&&pd.base>0)?Math.round(pd.base-_om3):0;
         var _kp3=(_om3>0)?(((pd.base-_om3)/_om3)*100).toFixed(1):'0.0';
         var _kr3=_kv3>=0?'#10b981':'#ef4444';var _ki3=_kv3>=0?'▲':'▼';
-        h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:3px 4px;background:#07111f;border:1px solid #1a3050;border-radius:6px;margin-bottom:4px">';
         h += '<span style="font-size:10px;font-weight:700;color:#f59e0b;white-space:nowrap">💰 K/Z</span>';
         if (_om3>0) {
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal:</span><span style="font-size:10px;font-weight:700;color:#dde8f8;white-space:nowrap">' + fmt(_om3) + ' TL</span><span style="font-size:9px;color:#5a7a9e;white-space:nowrap">|</span><span style="font-size:10px;font-weight:700;color:' + _kr3 + ';white-space:nowrap">' + _ki3 + ' ' + fmt(Math.abs(_kv3)) + ' TL (' + _kp3 + '%)</span>';
         } else {
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal: -</span>';
         }
-        h += '</div>';
         if (G.ureticiler&&G.ureticiler[k]&&G.ureticiler[k].length>0) {
           var _ul3=G.ureticiler[k].slice().sort(function(a,b){return a.fiyat-b.fiyat;}).slice(0,2);
           h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:nowrap;overflow:hidden;padding:2px 4px;background:#050d1a;border:1px solid #2d1f58;border-radius:5px;margin-bottom:4px">';
