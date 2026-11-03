@@ -71193,8 +71193,8 @@ function ureticilerTick() {
       var dalgaPct = (Math.random() * 4 - 2) / 100 + _uEnflEtki + _stokEtki;
       var _pd = G.pdata[k];
       var _piyasa = (_pd && _pd.base) ? _pd.base : p.base;
-      var minF = Math.round(_piyasa * 0.70 * 100) / 100; // en ucuz: piyasanin %30 altı
-      var maxF = Math.round(_piyasa * (1.00 + Math.min(_uInf * 0.003, 0.10)) * 100) / 100; // enflasyon yuksekse max artar
+      var minF = Math.round(_piyasa * 0.40 * 100) / 100; // en ucuz: piyasanin %60 altı
+      var maxF = Math.round(_piyasa * (0.70 + Math.min(_uInf * 0.003, 0.10)) * 100) / 100; // max: piyasanin %30 altı, enflasyonda biraz artar
       u.fiyat = Math.max(minF, Math.min(maxF, Math.round(u.fiyat * (1 + dalgaPct) * 100) / 100));
       // Stok yenileme
       if (u.stok < u.maxStok && (!u._sonUretim || _uretNow - u._sonUretim >= 300000)) {
