@@ -117114,12 +117114,17 @@ function renderInv() {
   var activeSk = window._invTab || 'market';
 
   // Market gorunurluk siniri - activeSk tanimlandiktan SONRA hesaplanmali
-  var _marketLvLimit = 999;
+  // Her grup sadece kendi 9 kartini gosterir
+  // Lv1-9  → unlockedAt 1-9   (Market)
+  // Lv10-19 → unlockedAt 10-19 (Süpermarket)
+  // Lv20-29 → unlockedAt 20-29 (Hipermarket)
+  var _marketLvLimit = 9;
+  var _marketLvMin = 1;
   if (activeSk === 'market' && G.stores['market']) {
     var _mLv = G.stores['market'].level || 1;
-    if (_mLv < 10) _marketLvLimit = 9;
-    else if (_mLv < 20) _marketLvLimit = 19;
-    else _marketLvLimit = 999;
+    if (_mLv < 10)      { _marketLvMin = 1;  _marketLvLimit = 9;   }
+    else if (_mLv < 20) { _marketLvMin = 10; _marketLvLimit = 19;  }
+    else                { _marketLvMin = 20; _marketLvLimit = 999; }
   }
 
 
@@ -118140,12 +118145,12 @@ function renderInv() {
 
       var active = isActive(k); var _storeOpen = G.stores[PRODUCTS[k].store] && G.stores[PRODUCTS[k].store].unlocked;
       // Market gorunurluk siniri
-      // Market gorunurluk siniri: aktif urunler icin mevcut band siniri uygulanir
-      // Kilitli urunler icin bir sonraki bandi da goster (ornegin Lv1-9 iken unlockedAt 10-19 gorünsün)
+      // Market gorunurluk siniri: sadece mevcut grubun kartlari goster
       if (activeSk === 'market') {
         var _ua = (PRODUCTS[k].unlockedAt || 1);
-        if (active && _ua > _marketLvLimit) continue;
-        if (!active && _ua > _marketLvLimit + 10) continue;
+        if (_ua < _marketLvMin) continue;   // onceki gruptan kalanlar gizle
+        if (active && _ua > _marketLvLimit) continue;      // aktif ama sonraki grupta
+        if (!active && _ua > _marketLvLimit) continue;     // kilitli ama sonraki grupta
       }
 
 
