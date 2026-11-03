@@ -71185,10 +71185,12 @@ function ureticilerTick() {
     if (!G.ureticiler[k]) continue;
     for (var n = 0; n < G.ureticiler[k].length; n++) {
       var u = G.ureticiler[k][n];
-      // Fiyat hafif dalgalanma (%1-3)
-      var dalgaPct = (Math.random() * 6 - 3) / 100;
-      var minF = Math.round(p.base * 0.55 * 100) / 100;
-      var maxF = Math.round(p.base * 0.92 * 100) / 100;
+      // Fiyat dalgalanma - enflasyona bagli (+-%30 sinir)
+      var _uInf = (typeof calcInflation==='function') ? calcInflation() : 0;
+      var _uEnflEtki = _uInf * 0.0003; // enflasyon etkisi
+      var dalgaPct = (Math.random() * 6 - 3) / 100 + _uEnflEtki;
+      var minF = Math.round(p.base * 0.70 * 100) / 100; // min: base*0.70
+      var maxF = Math.round(p.base * 1.30 * 100) / 100; // max: base*1.30 (+-%30)
       u.fiyat = Math.max(minF, Math.min(maxF, Math.round(u.fiyat * (1 + dalgaPct) * 100) / 100));
       // Stok yenileme
       if (u.stok < u.maxStok && (!u._sonUretim || _uretNow - u._sonUretim >= 300000)) {
