@@ -75958,6 +75958,10 @@ function load() {
     if (sv.ihale_mKullan) G.ihale_mKullan = sv.ihale_mKullan; else G.ihale_mKullan = {bronz:0,gumus:0,altin:0};
     // buyAmt her yuklemede default'a don
     if (G.pdata) { Object.keys(G.pdata).forEach(function(k){ if(PRODUCTS[k]) G.pdata[k].buyAmt = PRODUCTS[k].buyAmt || 20; }); }
+    // margin her yuklemede globalKarSonOran'a don (kayit sirasinda bozulmus olabilir)
+    if (G.pdata && G.globalKarSonOran > 0) {
+      Object.keys(G.pdata).forEach(function(k){ if(PRODUCTS[k]) G.pdata[k].margin = G.globalKarSonOran; });
+    }
     return true;
   } catch(e) { return false; }
 }
@@ -120413,7 +120417,7 @@ var _capMax = cap(PRODUCTS[k].store);
         h += '<span style="font-size:10px;font-weight:700;color:#5a7a9e">📈 %</span>';
         h += '<input disabled type="number" value="' + pd.margin + '" style="width:46px;font-size:13px;font-weight:800;color:' + mc2 + ';padding:2px 4px;background:#07111f;border:1px solid #1f3a58;border-radius:5px;text-align:center">';
         h += '<span style="font-size:11px;color:#5a7a9e">→</span>';
-        h += '<span style="font-size:12px;font-weight:800;color:' + mc2 + '">' + fmt(sp2) + ' TL</span>';
+        h += '<span style="font-size:12px;font-weight:800;white-space:nowrap;color:' + mc2 + '">' + fmt(sp2) + ' TL</span>';
         h += '</div>';
         var _km2OrtMal = (pd.stock > 0 && (pd.costTotal||0) > 0) ? Math.round((pd.costTotal||0) / pd.stock * 100) / 100 : 0;
         var _km2SatisFiyat = (typeof sellPrice==='function') ? sellPrice(k) : pd.base;
