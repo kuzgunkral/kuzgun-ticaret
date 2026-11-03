@@ -118146,13 +118146,11 @@ function renderInv() {
 
 
       var active = isActive(k); var _storeOpen = G.stores[PRODUCTS[k].store] && G.stores[PRODUCTS[k].store].unlocked;
-      // Market gorunurluk siniri
-      // Market gorunurluk siniri: sadece mevcut grubun kartlari goster
+      // Market gorunurluk siniri: mevcut ve onceki gruplar gorunsun, sadece bir sonraki grup gizlensin
       if (activeSk === 'market') {
         var _ua = (PRODUCTS[k].unlockedAt || 1);
-        if (_ua < _marketLvMin) continue;   // onceki gruptan kalanlar gizle
-        if (active && _ua > _marketLvLimit) continue;      // aktif ama sonraki grupta
-        if (!active && _ua > _marketLvLimit) continue;     // kilitli ama sonraki grupta
+        if (active && _ua > _marketLvLimit) continue;
+        if (!active && _ua > _marketLvLimit + 10) continue;
       }
 
 
