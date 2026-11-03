@@ -107855,7 +107855,7 @@ function runCustBot() {
 
 
 
-    var infPen = Math.min(0.60, Math.max(0, inf / 100) * 0.80);
+    var infPen = Math.min(0.15, Math.max(0, inf / 100) * 0.20); // max %15 ceza, satisi sifirlamaz
 
 
 
@@ -108596,7 +108596,7 @@ function runCustBot() {
 
 
 
-    var ratio = Math.max(0, baseRatio - infPen);
+    var ratio = Math.max(baseRatio * 0.25, baseRatio - infPen); // minimum baseRatio'nun %25'i - satis hic durmuyor
 
 
 
