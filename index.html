@@ -75362,7 +75362,20 @@ function sellPrice(k) {
 
 
 
-  var bonus = lv > 20 ? Math.min(10, lv - 20) : 0; // lv21=+1%... max lv30=+10%
+  var bonus = 0; // Lv bonus artik sellPrice'a dahil degil - lvBonus(k) ile ayri hesaplanir
+// ---- lvBonus: satis gelirindeki ekstra TL bonus (sag uste gosterilir) ----
+// Bu fonksiyon sellPrice'dan bagımsız cagrilir
+function lvBonusPct(k) {
+  if (!G.stores || !PRODUCTS[k]) return 0;
+  var sk = PRODUCTS[k].store;
+  var lv = G.stores[sk] ? G.stores[sk].level : 1;
+  return lv > 20 ? Math.min(10, lv - 20) : 0; // lv21=+1%... max lv30=+10%
+}
+function lvBonusTL(k) {
+  var pct = lvBonusPct(k);
+  if (pct <= 0) return 0;
+  return Math.round(sellPrice(k) * pct / 100 * 100) / 100;
+}
 
 
 
@@ -109153,7 +109166,7 @@ function runCustBot() {
 
 
 
-    var rev = sold * sellPrice(k);
+    var rev = sold * (sellPrice(k) + lvBonusTL(k)); // satış fiyatı + lv bonus TL
 
 
 
@@ -118648,7 +118661,8 @@ var _stLv = G.stores[PRODUCTS[k].store] ? (G.stores[PRODUCTS[k].store].level || 
         h += '<div class="pcard-header" style="align-items:flex-start;gap:8px">';
         h += '<div class="picon" style="width:52px;height:52px;font-size:30px;flex-shrink:0">' + PRODUCTS[k].icon + '</div>';
         h += '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">';
-        h += '<div style="display:flex;align-items:center;justify-content:space-between;width:100%"><span class="pname">' + k + '</span>' + (_lvB > 0 ? '<span style="font-size:13px;color:#10b981;font-weight:900">+' + _lvB + '%📈</span>' : '') + '</div>';
+        var _lvBonusTL = (typeof lvBonusTL==='function') ? lvBonusTL(k) : 0;
+        h += '<div style="display:flex;align-items:center;justify-content:space-between;width:100%"><span class="pname">' + k + '</span>' + (_lvBonusTL > 0 ? '<span style="font-size:11px;color:#10b981;font-weight:900">+' + fmt(_lvBonusTL) + ' TL📈</span>' : (_lvB > 0 ? '<span style="font-size:11px;color:#10b981;font-weight:900">+' + _lvB + '%📈</span>' : '')) + '</div>';
         h += '<div class="pstore">' + st.name + '</div>';
         h += '<div style="font-size:11px;font-weight:700;color:#dde8f8;margin-top:1px">' + pd.stock + '<span style="color:#5a7a9e;font-size:9px"> / ' + mx + '</span>' + (pd._sonSatisMiktar>0 ? ' &nbsp;<span style="font-size:9px;font-weight:800;color:#10b981" class=\"satis-flash-el\"><span data-flash=\"'+k+'\">⚡</span>' + parseInt(pd._sonSatisMiktar) + ' adet <span style="color:#f59e0b">+' + fmt(Math.round(pd._sonSatisGelir||0)) + ' TL</span></span>' : '') + '</div>';
         h += '<div class="stok-bar-bg"><div class="stok-bar-f ' + bc + '" style="width:' + Math.min(100,ratio*100) + '%"></div></div>';
