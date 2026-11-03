@@ -107716,13 +107716,13 @@ function runCustBot() {
 
 
     var m = pd.margin;
-    // Kar marjina gore tick atlama - pahali urunler her tick satmaz
-    // %1-20: her tick satar (1/1)
-    // %21-40: 2 tickten 1 (1/2)
-    // %41-60: 3 tickten 1 (1/3)
-    // %61-80: 5 tickten 1 (1/5)
-    // %81-100: 10 tickten 1 (1/10)
-    var _tickSkip = m<=20?1 : m<=40?2 : m<=60?3 : m<=80?5 : 10;
+    // Gercek kar oranina gore tick atlama - ucuza satarsan cok satarsin
+    var _gercekOrtMal = (pd.stock > 0 && (pd.costTotal||0) > 0) ? (pd.costTotal / pd.stock) : 0;
+    var _gercekKar = (_gercekOrtMal > 0 && pd.base > 0) ? ((pd.base - _gercekOrtMal) / _gercekOrtMal * 100) : m;
+    // %1-5: 10 tickte 1 | %5-10: 5 tickte 1 | %10-15: 3 tickte 1
+    // %15-20: 2 tickte 1 | %20-30: her tick | %30-50: 2 tickte 1
+    // %50-100: 5 tickte 1 | %100+: 10 tickte 1
+    var _tickSkip = _gercekKar <= 5 ? 10 : _gercekKar <= 10 ? 5 : _gercekKar <= 15 ? 3 : _gercekKar <= 20 ? 2 : _gercekKar <= 30 ? 1 : _gercekKar <= 50 ? 2 : _gercekKar <= 100 ? 5 : 10;
     window._sellTickCount = window._sellTickCount || {};
     window._sellTickCount[k] = (window._sellTickCount[k]||0) + 1;
     if(window._sellTickCount[k] < _tickSkip) continue;
