@@ -75136,12 +75136,9 @@ function sellPrice(k) {
 
 
   var pd = G.pdata[k];
-  // Satis fiyati: maliyet bazli, tavan = global kar orani (pd.margin)
-  // Gercek kar potansiyeli < tavan ise dinamik duser, > tavan ise tavanda kalir
-  var _ortMal = (pd.stock > 0 && (pd.costTotal||0) > 0) ? Math.round((pd.costTotal||0) / pd.stock * 100) / 100 : pd.base;
-  var _gercekKarPct = _ortMal > 0 ? ((pd.base - _ortMal) / _ortMal * 100) : pd.margin;
-  var _efektifKar = Math.min(pd.margin, Math.max(1, _gercekKarPct)); // min %1, max tavan
-  var base = Math.round((_ortMal * (1 + _efektifKar / 100)) * 100) / 100;
+  // Satis fiyati = PIYASA fiyati (pd.base) - global kar bunu etkilemez
+  // Global kar sadece kar hesabinda kullanilir, musteri piyasa fiyatindan alir
+  var base = Math.round(pd.base * 100) / 100;
 
 
 
@@ -108926,13 +108923,12 @@ function runCustBot() {
     if(pd.stock > 0 && pd.base < _initB * 0.75) {
       continue; // Fiyat dip noktada - sat degil, bekle ve stokla
     }
-    // Piyasa fiyati min kar beklentisinin altindaysa satma
-    var _ortMaliyet = (pd.stock > 0 && (pd.costTotal || 0) > 0) ? (pd.costTotal / pd.stock) : pd.base;
-    var _minKarPct = pd.minKarPct || 1; // varsayilan min %1 kar - zarar/sifir karla satis yapma
-    if (sellPrice(k) < _ortMaliyet * (1 + _minKarPct / 100)) {
-      continue; // Minimum kar saglanamıyor - satis yapma, bekle
+    // Piyasa fiyati maaliyetin altindaysa satma (zarar korumasi)
+    var _ortMaliyet = (pd.stock > 0 && (pd.costTotal || 0) > 0) ? (pd.costTotal / pd.stock) : 0;
+    if (_ortMaliyet > 0 && sellPrice(k) < _ortMaliyet * 1.01) {
+      continue; // Piyasa fiyati maaliyetin altinda - satma, bekle
     }
-    if (sellPrice(k) <= pd.base) {
+    if (false) { // eski kontrol kaldirildi
 
 
 
@@ -119888,6 +119884,23 @@ var _stLv = G.stores[PRODUCTS[k].store] ? (G.stores[PRODUCTS[k].store].level || 
 
 
 
+        // K/Z + Ort.Mal curcevesi - her zaman gorunsun (bot olmasa da)
+        var _kmOrtMal = (pd.stock > 0 && (pd.costTotal||0) > 0) ? Math.round((pd.costTotal||0) / pd.stock) : 0;
+        var _kmKzVal = (_kmOrtMal > 0 && pd.base > 0) ? Math.round(pd.base - _kmOrtMal) : 0;
+        var _kmKzPct = (_kmOrtMal > 0) ? ((_kmKzVal / _kmOrtMal) * 100).toFixed(1) : '0.0';
+        var _kmKzRenk = _kmKzVal >= 0 ? '#10b981' : '#ef4444';
+        var _kmKzIkon = _kmKzVal >= 0 ? '▲' : '▼';
+        h += '<div style="background:#0d1628;border:1px solid #1f3a58;border-radius:6px;padding:3px 6px;margin-bottom:4px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">';
+        h += '<span style="font-size:10px;font-weight:700;color:#f59e0b;white-space:nowrap">💰 K/Z</span>';
+        if (_kmOrtMal > 0) {
+          h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal:</span>';
+          h += '<span style="font-size:10px;font-weight:700;color:#dde8f8;white-space:nowrap">' + fmt(_kmOrtMal) + ' TL</span>';
+          h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">|</span>';
+          h += '<span style="font-size:10px;font-weight:700;color:' + _kmKzRenk + ';white-space:nowrap">' + _kmKzIkon + ' ' + fmt(Math.abs(_kmKzVal)) + ' TL (' + _kmKzPct + '%)</span>';
+        } else {
+          h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal: -</span>';
+        }
+        h += '</div>';
         h += '<div style="background:#0d1927;border:2px solid #3b82f6;border-radius:7px;padding:4px 6px;margin-bottom:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap" onclick="event.stopPropagation()">';
         h += '<span style="font-size:10px;font-weight:700;color:#3b82f6">Satın Al</span>';
         h += '<button onclick="setMaxManualQty(\'' + k + '\')" style="padding:2px 6px;font-size:10px;font-weight:700;background:#1e3a5f;color:#93c5fd;border:1px solid #3b82f6;border-radius:4px;cursor:pointer" title="Maksimum stok kadar al">MAX</button>';
