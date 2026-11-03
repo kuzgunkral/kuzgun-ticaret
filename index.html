@@ -120410,6 +120410,22 @@ var _capMax = cap(PRODUCTS[k].store);
         h += '<span style="font-size:11px;color:#5a7a9e">→</span>';
         h += '<span style="font-size:12px;font-weight:800;color:' + mc2 + '">' + fmt(sp2) + ' TL</span>';
         h += '</div>';
+        var _km2OrtMal = (pd.stock > 0 && (pd.costTotal||0) > 0) ? Math.round((pd.costTotal||0) / pd.stock) : 0;
+        var _km2KzVal = (_km2OrtMal > 0 && pd.base > 0) ? Math.round(pd.base - _km2OrtMal) : 0;
+        var _km2KzPct = (_km2OrtMal > 0) ? ((_km2KzVal / _km2OrtMal) * 100).toFixed(1) : '0.0';
+        var _km2KzRenk = _km2KzVal >= 0 ? '#10b981' : '#ef4444';
+        var _km2KzIkon = _km2KzVal >= 0 ? '▲' : '▼';
+        h += '<div style="background:#0d1628;border:1px solid #1f3a58;border-radius:6px;padding:3px 6px;margin-bottom:4px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">';
+        h += '<span style="font-size:10px;font-weight:700;color:#f59e0b;white-space:nowrap">💰 K/Z</span>';
+        if (_km2OrtMal > 0) {
+          h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal:</span>';
+          h += '<span style="font-size:10px;font-weight:700;color:#dde8f8;white-space:nowrap">' + fmt(_km2OrtMal) + ' TL</span>';
+          h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">|</span>';
+          h += '<span style="font-size:10px;font-weight:700;color:' + _km2KzRenk + ';white-space:nowrap">' + _km2KzIkon + ' ' + fmt(Math.abs(_km2KzVal)) + ' TL (' + _km2KzPct + '%)</span>';
+        } else {
+          h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal: -</span>';
+        }
+        h += '</div>';
         h += '<div style="background:#0d1927;border:2px solid #3b82f6;border-radius:7px;padding:4px 6px;margin-bottom:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">';
         h += '<span style="font-size:10px;font-weight:700;color:#3b82f6">Satın Al</span>';
         h += '<button disabled style="padding:2px 6px;font-size:10px;font-weight:700;background:#1e3a5f;color:#93c5fd;border:1px solid #3b82f6;border-radius:4px">MAX</button>';
