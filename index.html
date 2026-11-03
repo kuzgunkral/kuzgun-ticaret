@@ -119175,7 +119175,7 @@ var _stLv = G.stores[PRODUCTS[k].store] ? (G.stores[PRODUCTS[k].store].level || 
 
 
 
-        h += '<span style="font-size:13px;font-weight:800;color:#ef4444">🏢 ' + fmt(pd.base) + ' TL</span>';
+        h += '<span style="font-size:11px;font-weight:800;color:#ef4444;white-space:nowrap">🏢 ' + fmt(pd.base) + ' TL</span>';
 
 
 
@@ -119913,7 +119913,7 @@ var _stLv = G.stores[PRODUCTS[k].store] ? (G.stores[PRODUCTS[k].store].level || 
         var _kmPiyasaFark = pd.base > 0 ? ((_kmSatisFiyat - pd.base) / pd.base * 100) : 0;
         var _kmPiyasaStr = (_kmPiyasaFark > 0.05 ? '+' : '') + _kmPiyasaFark.toFixed(1) + '%';
         var _kmPiyasaRenk = _kmPiyasaFark < -0.05 ? '#10b981' : _kmPiyasaFark > 0.05 ? '#ef4444' : '#5a7a9e';
-        h += '<div style="background:#0d1628;border:1px solid #1f3a58;border-radius:6px;padding:3px 6px;margin-bottom:4px;display:flex;align-items:center;gap:4px;flex-wrap:nowrap;justify-content:flex-end">';
+        h += '<div style="background:#0d1628;border:1px solid #1f3a58;border-radius:6px;padding:3px 6px;margin-bottom:4px;display:flex;align-items:center;gap:4px;flex-wrap:nowrap">';
         h += '<span style="font-size:10px;font-weight:700;color:#f59e0b;white-space:nowrap">💰 K/Z</span>';
         if (_kmOrtMal > 0) {
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal:</span>';
@@ -120351,7 +120351,7 @@ var _capMax = cap(PRODUCTS[k].store);
         h += '<div style="display:flex;align-items:center;gap:5px;flex-wrap:nowrap;padding:3px">';
         h += '<button onclick="event.stopPropagation();toggleSerbest(\'' + k + '\')" style="padding:4px 8px;font-size:12px;font-weight:800;border-radius:50px;cursor:pointer;border:2px solid ' + _uRetRenk + ';background:' + (_uRetRenk==='#10b981'?'#0a2a1a':_uRetRenk==='#dde8f8'?'#0d1628':'#1a0505') + ';color:' + _uRetRenk + ';white-space:nowrap" title="Üreticiden Al">🏭</button>';
         h += '<button disabled style="padding:4px 8px;font-size:12px;font-weight:800;border-radius:50px;cursor:default;border:2px solid ' + _piyRenk + ';background:' + (_piyRenk==='#10b981'?'#0a2a1a':_piyRenk==='#dde8f8'?'#0d1628':'#1a0505') + ';color:' + _piyRenk + ';white-space:nowrap" title="Piyasadan Al">🏪</button>';
-        h += '<button onclick="event.stopPropagation();toggleDepodan(\'' + k + '\')" style="padding:4px 10px;font-size:11px;font-weight:700;border-radius:50px;cursor:pointer;border:2px solid #1f3a58;' + (pd.depodanAl ? 'background:#1e1b4b;color:#a78bfa' : 'background:#07111f;color:#5a7a9e') + ';white-space:nowrap;min-width:110px;text-align:center">🏬 Depo: ' + fmt(_dStok) + '</button>';
+        h += '<button onclick="event.stopPropagation();toggleDepodan(\'' + k + '\')" style="padding:4px 10px;font-size:11px;font-weight:700;border-radius:50px;cursor:pointer;border:2px solid #1f3a58;' + (pd.depodanAl ? 'background:#1e1b4b;color:#a78bfa' : 'background:#07111f;color:#5a7a9e') + ';white-space:nowrap;min-width:110px;text-align:center">🏬 Depo: ' + (_dStok>0?fmt(_dStok):'0') + '</button>';
         h += '</div>';
         h += '</div>'; /* botPanel (turuncu cerceve) kapat */
 
@@ -120427,7 +120427,7 @@ var _capMax = cap(PRODUCTS[k].store);
         h += '<div class="stok-bar-bg"><div class="stok-bar-f ' + bc2 + '" style="width:' + Math.min(100,ratio2*100) + '%"></div></div>';
         h += '</div></div>';
         h += '<div style="background:#101e30;border:1px solid #1f3a58;border-radius:7px;padding:6px 9px;margin-bottom:6px;display:flex;align-items:center;gap:4px;flex-wrap:nowrap;overflow:hidden">';
-        h += '<span style="font-size:13px;font-weight:800;color:#ef4444">🏢 ' + fmt(pd.base) + ' TL</span>';
+        h += '<span style="font-size:11px;font-weight:800;color:#ef4444;white-space:nowrap">🏢 ' + fmt(pd.base) + ' TL</span>';
         h += '<span style="font-size:9px;color:#5a7a9e">ilk:' + fmt(PRODUCTS[k].base) + '</span>';
         h += '<span style="color:#1f3a58;margin:0 4px">|</span>';
         h += '<span style="font-size:10px;font-weight:700;color:#5a7a9e">📈 %</span>';
@@ -120443,7 +120443,7 @@ var _capMax = cap(PRODUCTS[k].store);
         var _km2PiyasaFark = pd.base > 0 ? ((_km2SatisFiyat - pd.base) / pd.base * 100) : 0;
         var _km2PiyasaStr = (_km2PiyasaFark > 0.05 ? '+' : '') + _km2PiyasaFark.toFixed(1) + '%';
         var _km2PiyasaRenk = _km2PiyasaFark < -0.05 ? '#10b981' : _km2PiyasaFark > 0.05 ? '#ef4444' : '#5a7a9e';
-        h += '<div style="background:#0d1628;border:1px solid #1f3a58;border-radius:6px;padding:3px 6px;margin-bottom:4px;display:flex;align-items:center;gap:4px;flex-wrap:nowrap;justify-content:flex-end">';
+        h += '<div style="background:#0d1628;border:1px solid #1f3a58;border-radius:6px;padding:3px 6px;margin-bottom:4px;display:flex;align-items:center;gap:4px;flex-wrap:nowrap">';
         h += '<span style="font-size:10px;font-weight:700;color:#f59e0b;white-space:nowrap">💰 K/Z</span>';
         if (_km2OrtMal > 0) {
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal:</span>';
@@ -120502,7 +120502,7 @@ var _capMax = cap(PRODUCTS[k].store);
         h += '<div style="display:flex;align-items:center;gap:5px;flex-wrap:nowrap;padding:3px">';
         h += '<button disabled style="padding:4px 8px;font-size:12px;font-weight:800;border-radius:50px;cursor:default;border:2px solid ' + _uR3 + ';background:' + (_uR3==='#10b981'?'#0a2a1a':_uR3==='#dde8f8'?'#0d1628':'#1a0505') + ';color:' + _uR3 + ';white-space:nowrap" title="Üreticiden Al">🏭</button>';
         h += '<button disabled style="padding:4px 8px;font-size:12px;font-weight:800;border-radius:50px;cursor:default;border:2px solid ' + _pR3 + ';background:' + (_pR3==='#10b981'?'#0a2a1a':_pR3==='#dde8f8'?'#0d1628':'#1a0505') + ';color:' + _pR3 + ';white-space:nowrap" title="Piyasadan Al">🏪</button>';
-        h += '<button disabled style="padding:4px 10px;font-size:11px;font-weight:700;border-radius:50px;border:2px solid #1f3a58;' + (pd.depodanAl?'background:#1e1b4b;color:#a78bfa':'background:#07111f;color:#5a7a9e') + ';white-space:nowrap;min-width:110px;text-align:center">🏬 Depo: ' + fmt(_ds3) + '</button>';
+        h += '<button disabled style="padding:4px 10px;font-size:11px;font-weight:700;border-radius:50px;border:2px solid #1f3a58;' + (pd.depodanAl?'background:#1e1b4b;color:#a78bfa':'background:#07111f;color:#5a7a9e') + ';white-space:nowrap;min-width:110px;text-align:center">🏬 Depo: ' + (_ds3>0?fmt(_ds3):'0') + '</button>';
         h += '</div>';
         h += '</div>'; // bot bitti
         h += '</div>'; // pcard kapat
