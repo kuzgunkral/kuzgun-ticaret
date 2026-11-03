@@ -119119,7 +119119,7 @@ var _stLv = G.stores[PRODUCTS[k].store] ? (G.stores[PRODUCTS[k].store].level || 
 
 
 
-        h += '<div style="background:#101e30;border:1px solid #1f3a58;border-radius:7px;padding:6px 9px;margin-bottom:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">';
+        h += '<div style="background:#101e30;border:1px solid #1f3a58;border-radius:7px;padding:6px 9px;margin-bottom:6px;display:flex;align-items:center;gap:4px;flex-wrap:nowrap;overflow:hidden">';
 
 
 
@@ -119920,7 +119920,7 @@ var _stLv = G.stores[PRODUCTS[k].store] ? (G.stores[PRODUCTS[k].store].level || 
           h += '<span style="font-size:10px;font-weight:700;color:#dde8f8;white-space:nowrap">' + fmt(_kmOrtMal) + ' TL</span>';
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">|</span>';
           h += '<span style="font-size:10px;font-weight:700;color:' + _kmKzRenk + ';white-space:nowrap">' + _kmKzIkon + ' ' + fmt(Math.abs(_kmKzVal)) + ' TL</span>';
-          h += '<span style="font-size:9px;font-weight:700;color:' + _kmPiyasaRenk + ';white-space:nowrap">(piyasa: ' + _kmPiyasaStr + ')</span>';
+          h += '<span style="font-size:11px;font-weight:900;color:' + _kmPiyasaRenk + ';white-space:nowrap">' + (_kmPiyasaFark < -0.05 ? '▲' : _kmPiyasaFark > 0.05 ? '▼' : '=') + ' ' + Math.abs(_kmPiyasaFark).toFixed(1) + '%</span>';
         } else {
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal: -</span>';
         }
@@ -119968,7 +119968,7 @@ var _capMax = cap(PRODUCTS[k].store);
           h += '<span style="font-size:10px;font-weight:700;color:#dde8f8;white-space:nowrap">' + fmt(_ortMal) + ' TL</span>';
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">|</span>';
           h += '<span style="font-size:10px;font-weight:700;color:' + _kzRenk + ';white-space:nowrap">' + _kzIkon + ' ' + fmt(Math.abs(_kzVal)) + ' TL</span>';
-          h += '<span style="font-size:9px;font-weight:700;color:' + _kzPiyasaRenk + ';white-space:nowrap">(piyasa: ' + _kzPiyasaStr + ')</span>';
+          h += '<span style="font-size:11px;font-weight:900;color:' + _kzPiyasaRenk + ';white-space:nowrap">' + (_kzPiyasaFark < -0.05 ? '▲' : _kzPiyasaFark > 0.05 ? '▼' : '=') + ' ' + Math.abs(_kzPiyasaFark).toFixed(1) + '%</span>';
         } else {
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal: -</span>';
         }
@@ -120415,7 +120415,7 @@ var _capMax = cap(PRODUCTS[k].store);
         h += '<div style="font-size:11px;font-weight:700;color:#dde8f8;margin-top:1px">' + pd.stock + '<span style="color:#5a7a9e;font-size:9px"> / ' + mx + '</span></div>';
         h += '<div class="stok-bar-bg"><div class="stok-bar-f ' + bc2 + '" style="width:' + Math.min(100,ratio2*100) + '%"></div></div>';
         h += '</div></div>';
-        h += '<div style="background:#101e30;border:1px solid #1f3a58;border-radius:7px;padding:6px 9px;margin-bottom:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">';
+        h += '<div style="background:#101e30;border:1px solid #1f3a58;border-radius:7px;padding:6px 9px;margin-bottom:6px;display:flex;align-items:center;gap:4px;flex-wrap:nowrap;overflow:hidden">';
         h += '<span style="font-size:13px;font-weight:800;color:#ef4444">🏢 ' + fmt(pd.base) + ' TL</span>';
         h += '<span style="font-size:9px;color:#5a7a9e">ilk:' + fmt(PRODUCTS[k].base) + '</span>';
         h += '<span style="color:#1f3a58;margin:0 4px">|</span>';
@@ -120439,7 +120439,7 @@ var _capMax = cap(PRODUCTS[k].store);
           h += '<span style="font-size:10px;font-weight:700;color:#dde8f8;white-space:nowrap">' + fmt(_km2OrtMal) + ' TL</span>';
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">|</span>';
           h += '<span style="font-size:10px;font-weight:700;color:' + _km2KzRenk + ';white-space:nowrap">' + _km2KzIkon + ' ' + fmt(Math.abs(_km2KzVal)) + ' TL</span>';
-          h += '<span style="font-size:9px;font-weight:700;color:' + _km2PiyasaRenk + ';white-space:nowrap">(piyasa: ' + _km2PiyasaStr + ')</span>';
+          h += '<span style="font-size:11px;font-weight:900;color:' + _km2PiyasaRenk + ';white-space:nowrap">' + (_km2PiyasaFark < -0.05 ? '▲' : _km2PiyasaFark > 0.05 ? '▼' : '=') + ' ' + Math.abs(_km2PiyasaFark).toFixed(1) + '%</span>';
         } else {
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal: -</span>';
         }
@@ -120464,7 +120464,7 @@ var _capMax = cap(PRODUCTS[k].store);
           h += '<span style="font-size:10px;font-weight:700;color:#dde8f8;white-space:nowrap">' + fmt(_om3) + ' TL</span>';
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">|</span>';
           h += '<span style="font-size:10px;font-weight:700;color:' + _kr3 + ';white-space:nowrap">' + _ki3 + ' ' + fmt(Math.abs(_kv3)) + ' TL</span>';
-          h += '<span style="font-size:9px;font-weight:700;color:' + _pfr3 + ';white-space:nowrap">(piyasa: ' + _pfs3 + ')</span>';
+          h += '<span style="font-size:11px;font-weight:900;color:' + _pfr3 + ';white-space:nowrap">' + (_pf3 < -0.05 ? '▲' : _pf3 > 0.05 ? '▼' : '=') + ' ' + Math.abs(_pf3).toFixed(1) + '%</span>';
         } else {
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal: -</span>';
         }
