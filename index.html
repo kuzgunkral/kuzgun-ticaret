@@ -80983,7 +80983,7 @@ function calcInflation() {
 
 
 
-  return tc > 0 ? Math.round(ti / tc) : 0;
+  return tc > 0 ? Math.round(ti / tc * 100) / 100 : 0;
 
 
 
@@ -112989,7 +112989,7 @@ function renderHeader() {
 
 
 
-  document.getElementById("hInfl").textContent = (inf >= 0 ? "+" : "") + inf + "%";
+  document.getElementById("hInfl").textContent = (inf >= 0 ? "+" : "") + inf.toFixed(2) + "%";
 
 
 
