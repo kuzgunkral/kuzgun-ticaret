@@ -107734,13 +107734,12 @@ function runCustBot() {
 
 
     var m = pd.margin;
-    // Gercek kar oranina gore tick atlama - ucuza satarsan cok satarsin
-    var _gercekOrtMal = (pd.stock > 0 && (pd.costTotal||0) > 0) ? (pd.costTotal / pd.stock) : 0;
-    var _gercekKar = (_gercekOrtMal > 0 && pd.base > 0) ? ((pd.base - _gercekOrtMal) / _gercekOrtMal * 100) : m;
-    // %1-5: 10 tickte 1 | %5-10: 5 tickte 1 | %10-15: 3 tickte 1
-    // %15-20: 2 tickte 1 | %20-30: her tick | %30-50: 2 tickte 1
-    // %50-100: 5 tickte 1 | %100+: 10 tickte 1
-    var _tickSkip = _gercekKar <= 5 ? 10 : _gercekKar <= 10 ? 5 : _gercekKar <= 15 ? 3 : _gercekKar <= 20 ? 2 : _gercekKar <= 30 ? 1 : _gercekKar <= 50 ? 2 : _gercekKar <= 100 ? 5 : 10;
+    // Satis fiyatinin PIYASAYA gore farkina gore tick atlama
+    // Piyasadan ucuza satarsan cok satarsin, pahaliya satarsan az satarsin
+    var _spTick = (typeof sellPrice==='function') ? sellPrice(k) : pd.base;
+    var _piyasaFarkPct = pd.base > 0 ? ((_spTick - pd.base) / pd.base * 100) : 0;
+    // -%30+: her tick | -%20: 1 | -%10: 2 | 0%: 3 | +%10: 5 | +%20: 8 | +%30: 12
+    var _tickSkip = _piyasaFarkPct <= -20 ? 1 : _piyasaFarkPct <= -10 ? 1 : _piyasaFarkPct <= -5 ? 2 : _piyasaFarkPct <= 0 ? 3 : _piyasaFarkPct <= 10 ? 5 : _piyasaFarkPct <= 20 ? 8 : 12;
     window._sellTickCount = window._sellTickCount || {};
     window._sellTickCount[k] = (window._sellTickCount[k]||0) + 1;
     if(window._sellTickCount[k] < _tickSkip) continue;
