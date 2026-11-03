@@ -101852,25 +101852,27 @@ function runBuyBot() {
 
 
 
-    // Swing thr kontrolu asagida
-    // Swing Trade: Fiyat dipte ise agresif al (thr 2x)
-    var _initB2 = pd.initBase || pd.base;
-    var _swingThr = (pd.base < _initB2 * 0.80) ? Math.min(cap(PRODUCTS[k].store), (pd.thr||0)*2) : (pd.thr||0);
-    if (pd.stock >= _swingThr && _swingThr > 0) continue;
-    var qty = parseInt((document.getElementById('inv-buyAmt-'+k)||{}).value||pd.buyAmt) || 20;
+    // 1. Depodan Al: depoda stok varsa once depadan cek
     var free = mx - pd.stock;
+    if (free <= 0) continue;
+    if (pd.depodanAl && G.depo && G.depo.stok && (G.depo.stok[k]||0) > 0) {
+      var depQty = Math.min(free, G.depo.stok[k]||0);
+      if (depQty > 0) { G.depo.stok[k] = (G.depo.stok[k]||0) - depQty; pd.stock += depQty; islem = true; free -= depQty; }
+    }
+    if (free <= 0) continue;
+    // 2. Ureticiden Al: aciksa ve uretici piyasadan ucuzsa kapasiteye kadar doldur
+    if (pd.serbestAl && typeof enUcuzUretici === 'function' && G.ureticiler && G.ureticiler[k]) {
+      var _enU = enUcuzUretici(k, free);
+      if (_enU && _enU.fiyat < pd.base) {
+        ureticidentSatinAl(k, free, true);
+        islem = true;
+        continue;
+      }
+    }
+    // 3. Piyasadan al: buyAmt kadar
+    var qty = parseInt((document.getElementById('inv-buyAmt-'+k)||{}).value||pd.buyAmt) || 20;
     if (qty > free) qty = free;
     if (qty <= 0) continue;
-
-    if (pd.depodanAl && G.depo && G.depo.stok && (G.depo.stok[k]||0) > 0) {
-      var depQty = Math.min(qty, G.depo.stok[k]||0);
-      if (depQty > 0) { G.depo.stok[k] = (G.depo.stok[k]||0) - depQty; pd.stock += depQty; islem = true; qty -= depQty; }
-    }
-    if (qty <= 0) continue;
-    if (pd.serbestAl) {
-      var _enU = (typeof enUcuzUretici ==='function') ? enUcuzUretici(k, qty) : null;
-      if (_enU && _enU.fiyat < pd.base) { ureticidentSatinAl(k, qty, true); continue; }
-    }
 
 
 
