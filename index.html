@@ -75136,9 +75136,9 @@ function sellPrice(k) {
 
 
   var pd = G.pdata[k];
-  // Satis fiyati = PIYASA fiyati (pd.base) - global kar bunu etkilemez
-  // Global kar sadece kar hesabinda kullanilir, musteri piyasa fiyatindan alir
-  var base = Math.round(pd.base * 100) / 100;
+  // Satis fiyati = ORT.MALIYET x (1 + global kar%) - kartta -> fiyati gosterir
+  var _sOrtMal = (pd.stock > 0 && (pd.costTotal||0) > 0) ? Math.round((pd.costTotal||0) / pd.stock * 100) / 100 : pd.base;
+  var base = Math.round(_sOrtMal * (1 + pd.margin / 100) * 100) / 100;
 
 
 
