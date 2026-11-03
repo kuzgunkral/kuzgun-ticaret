@@ -120367,14 +120367,7 @@ var _capMax = cap(PRODUCTS[k].store);
           }
           h += '</div>';
         }
-        h += '<div style="background:#0a1628;border:2px solid #f97316;border-radius:9px;padding:5px;margin-bottom:6px;display:' + (G.buyBotUnlocked?'':'none') + '">';
-        h += '<div style="display:flex;align-items:center;gap:4px;padding:3px;background:#0d1628;border:1px solid #1f3a58;border-radius:6px;margin-bottom:4px">';
-        h += '<span style="font-size:10px;font-weight:700;color:#f97316">🤖 BOT</span><span style="font-size:9px;color:#5a7a9e">Stok</span>';
-        h += '<input disabled type="number" value="' + pd.thr + '" style="width:38px;font-size:10px;padding:1px 2px;background:#07111f;border:1px solid #1f3a58;color:#dde8f8;border-radius:5px;text-align:center">';
-        h += '<span style="font-size:9px;color:#5a7a9e">altına düşerse</span>';
-        h += '<input disabled type="number" value="' + (pd.buyAmt||20) + '" style="width:52px;font-size:10px;padding:1px 2px;background:#07111f;border:1px solid #1f3a58;color:#dde8f8;border-radius:5px;text-align:center">';
-        h += '<button disabled style="padding:2px 5px;font-size:10px;background:#7f1d1d;color:#fca5a5;border:1px solid #ef4444;border-radius:4px">MAX</button>';
-        h += '</div>';
+        h += '<div id="botPanel_' + k + '" style="background:#0a1628;border:2px solid #f97316;border-radius:9px;padding:5px;margin-bottom:6px;display:' + (G.buyBotUnlocked?'':'none') + '">';
         h += '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:3px">';
         h += '<button disabled style="padding:3px 10px;font-size:11px;font-weight:700;border-radius:5px;border:1px solid #1f3a58;' + (pd.serbestAl?'background:#1e1b4b;color:#a78bfa':'background:#07111f;color:#5a7a9e') + '">🏭 Üreticiden Al</button>';
         h += '<button disabled style="padding:3px 10px;font-size:11px;font-weight:700;border-radius:5px;border:1px solid #1f3a58;' + (pd.depodanAl?'background:#1e1b4b;color:#a78bfa':'background:#07111f;color:#5a7a9e') + '">Depodan Al</button>';
