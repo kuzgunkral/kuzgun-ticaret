@@ -75132,7 +75132,10 @@ function sellPrice(k) {
 
 
 
-  var base = Math.round((G.pdata[k].base * (1 + G.pdata[k].margin / 100)) * 100) / 100;
+  var pd = G.pdata[k];
+  var _ortMal = (pd.stock > 0 && (pd.costTotal||0) > 0) ? Math.round((pd.costTotal||0) / pd.stock * 100) / 100 : 0;
+  var _bazFiyat = (_ortMal > 0) ? _ortMal : pd.base; // ort maliyet varsa onu kullan, yoksa piyasa fiyati
+  var base = Math.round((_bazFiyat * (1 + pd.margin / 100)) * 100) / 100;
 
 
 
