@@ -120361,11 +120361,11 @@ var _capMax = cap(PRODUCTS[k].store);
         if (G.ureticiler&&G.ureticiler[k]&&G.ureticiler[k].length>0) {
           var _ul3=G.ureticiler[k].slice().sort(function(a,b){return a.fiyat-b.fiyat;}).slice(0,2);
           h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:nowrap;overflow:hidden;padding:2px 4px;background:#050d1a;border:1px solid #2d1f58;border-radius:5px;margin-bottom:4px">';
-          h += '<span style="font-size:9px;font-weight:700;color:#a78bfa">🏭 En Ucuz:</span>';
+          h += '<span style="font-size:9px;font-weight:700;color:#a78bfa;white-space:nowrap">🏭 En Ucuz:</span>';
           for (var _i3=0;_i3<_ul3.length;_i3++) {
             var _u3=_ul3[_i3];var _r3=_u3.indirim?'#10b981':(_u3.fiyat<pd.base?'#a78bfa':'#ef4444');var _ic3=_u3.indirim?'🟢':(_u3.fiyat<pd.base?'⚪':'🔴');
-            h += '<span style="font-size:9px;font-weight:700;color:' + _r3 + '">' + _ic3 + ' ' + fmt(_u3.fiyat) + ' TL (' + _u3.stok + 'adet)</span>';
-            if (_i3<_ul3.length-1) h+='<span style="color:#2d1f58">|</span>';
+            h += '<span style="font-size:9px;font-weight:700;color:' + _r3 + ';white-space:nowrap">' + _ic3 + ' ' + fmt(_u3.fiyat) + ' TL (' + _u3.stok + 'adet)</span>';
+            if (_i3<_ul3.length-1) h+='<span style="color:#2d1f58;white-space:nowrap">|</span>';
           }
           h += '</div>';
         }
