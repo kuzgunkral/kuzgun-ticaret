@@ -120345,27 +120345,30 @@ var _capMax = cap(PRODUCTS[k].store);
         h += '<button disabled style="padding:2px 6px;font-size:10px;background:#07111f;color:#5a7a9e;border:1px solid #5a7a9e;border-radius:4px">Akıllı</button>';
         h += '</div>';
         h += '<div id="botPanel_' + k + '" style="background:#0a1628;border:2px solid #f97316;border-radius:9px;padding:5px;margin-bottom:6px;display:' + (G.buyBotUnlocked?'':'none') + '">';
-        h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:3px;background:#0d1628;border:1px solid #0d1f30;border-radius:6px;margin-bottom:4px">';
-        var _om3=(pd.stock>0&&pd.costTotal>0)?Math.round(pd.costTotal/pd.stock):0;
+        h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:3px;background:#0d1628;border:1px solid #1f3a58;border-radius:6px;margin-bottom:4px">';
+        var _om3=(pd.stock>0&&(pd.costTotal||0)>0)?Math.round((pd.costTotal||0)/pd.stock):0;
         var _kv3=(_om3>0&&pd.base>0)?Math.round(pd.base-_om3):0;
-        var _kp3=(_om3>0)?(((pd.base-_om3)/_om3)*100).toFixed(1):'0.0';
-        var _kr3=_kv3>=0?'#10b981':'#ef4444';var _ki3=_kv3>=0?'▲':'▼';
-        h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:3px 4px;background:#07111f;border:1px solid #0d1828;border-radius:6px;margin-bottom:4px">';
+        var _kp3=(_om3>0)?((pd.base-_om3)/_om3*100).toFixed(1):'0.0';
+        var _kr3=_kv3>=0?'#10b981':'#ef4444';var _ki3=_kv3>=0?'\u25b2':'\u25bc';
+        h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:3px 4px;background:#07111f;border:1px solid #1a3050;border-radius:6px;margin-bottom:4px">';
         h += '<span style="font-size:10px;font-weight:700;color:#f59e0b;white-space:nowrap">💰 K/Z</span>';
         if (_om3>0) {
-          h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal:</span><span style="font-size:10px;font-weight:700;color:#dde8f8;white-space:nowrap">' + fmt(_om3) + ' TL</span><span style="font-size:9px;color:#5a7a9e;white-space:nowrap">|</span><span style="font-size:10px;font-weight:700;color:' + _kr3 + ';white-space:nowrap">' + _ki3 + ' ' + fmt(Math.abs(_kv3)) + ' TL (' + _kp3 + '%)</span>';
+          h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal:</span>';
+          h += '<span style="font-size:10px;font-weight:700;color:#dde8f8;white-space:nowrap">' + fmt(_om3) + ' TL</span>';
+          h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">|</span>';
+          h += '<span style="font-size:10px;font-weight:700;color:' + _kr3 + ';white-space:nowrap">' + _ki3 + ' ' + fmt(Math.abs(_kv3)) + ' TL (' + _kp3 + '%)</span>';
         } else {
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal: -</span>';
         }
         h += '</div>';
         if (G.ureticiler&&G.ureticiler[k]&&G.ureticiler[k].length>0) {
           var _ul3=G.ureticiler[k].slice().sort(function(a,b){return a.fiyat-b.fiyat;}).slice(0,2);
-          h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:nowrap;overflow:hidden;padding:2px 4px;background:#050d1a;border:1px solid #1a1030;border-radius:5px;margin-bottom:4px">';
+          h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:nowrap;overflow:hidden;padding:2px 4px;background:#050d1a;border:1px solid #2d1f58;border-radius:5px;margin-bottom:4px">';
           h += '<span style="font-size:9px;font-weight:700;color:#a78bfa;white-space:nowrap">🏭 En Ucuz:</span>';
           for (var _i3=0;_i3<_ul3.length;_i3++) {
             var _u3=_ul3[_i3];var _r3=_u3.indirim?'#10b981':(_u3.fiyat<pd.base?'#a78bfa':'#ef4444');var _ic3=_u3.indirim?'🟢':(_u3.fiyat<pd.base?'⚪':'🔴');
             h += '<span style="font-size:9px;font-weight:700;color:' + _r3 + ';white-space:nowrap">' + _ic3 + ' ' + fmt(_u3.fiyat) + ' TL (' + _u3.stok + 'adet)</span>';
-            if (_i3<_ul3.length-1) h+='<span style="color:#2d1f58;white-space:nowrap">|</span>';
+            if (_i3<_ul3.length-1) h+='<span style="color:#2d1f58;font-size:9px">|</span>';
           }
           h += '</div>';
         }
