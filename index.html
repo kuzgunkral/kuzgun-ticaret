@@ -75137,8 +75137,12 @@ function sellPrice(k) {
 
 
   var pd = G.pdata[k];
-  // Satis fiyati = PIYASA fiyati uzerine kar marji (global kar orani)
-  var base = Math.round((pd.base * (1 + pd.margin / 100)) * 100) / 100;
+  // Satis fiyati: maliyet bazli, tavan = global kar orani (pd.margin)
+  // Gercek kar potansiyeli < tavan ise dinamik duser, > tavan ise tavanda kalir
+  var _ortMal = (pd.stock > 0 && (pd.costTotal||0) > 0) ? Math.round((pd.costTotal||0) / pd.stock * 100) / 100 : pd.base;
+  var _gercekKarPct = _ortMal > 0 ? ((pd.base - _ortMal) / _ortMal * 100) : pd.margin;
+  var _efektifKar = Math.min(pd.margin, Math.max(1, _gercekKarPct)); // min %1, max tavan
+  var base = Math.round((_ortMal * (1 + _efektifKar / 100)) * 100) / 100;
 
 
 
