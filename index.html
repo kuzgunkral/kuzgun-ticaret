@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 
 
@@ -120309,165 +120309,30 @@ var _capMax = cap(PRODUCTS[k].store);
 
 
       } else if (_storeOpen) {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        var sp = (typeof sellPrice === 'function') ? sellPrice(k) : (pd ? pd.base * (1 + (pd.margin||20)/100) : 0);
-        // Kilitli urun
-        var p = PRODUCTS[k];
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        // Kilitli urun - minimal kart (tam pcard boyutunda, soluk, kilit overlay)
         var needLv = PRODUCTS[k].unlockedAt;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        h += '<div class="pcard" style="opacity:0.6">';
+        var _stLv2 = G.stores[PRODUCTS[k].store] ? (G.stores[PRODUCTS[k].store].level || 1) : 1;
+        h += '<div class="pcard" style="opacity:0.45;pointer-events:none;position:relative;min-height:120px">';
         h += '<div class="pcard-header" style="align-items:flex-start;gap:8px">';
         h += '<div class="picon" style="width:52px;height:52px;font-size:30px;flex-shrink:0">' + PRODUCTS[k].icon + '</div>';
-        h += '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">';
-        h += '<div class="pname" style="display:flex;align-items:center;gap:5px">' + k + '<span style="font-size:9px;font-weight:800;color:#ef4444;background:#1a0505;border:1px solid #ef4444;border-radius:4px;padding:1px 4px;white-space:nowrap">🔒 Lv' + needLv + '</span></div>';
+        h += '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">';
+        h += '<div class="pname">' + k + '</div>';
         h += '<div class="pstore">' + st.name + '</div>';
-        h += '<div style="font-size:11px;font-weight:700;color:#dde8f8;margin-top:1px">' + pd.stock + '<span style="color:#5a7a9e;font-size:9px"> / ' + mx + '</span></div>';
+        h += '<div style="font-size:11px;font-weight:700;color:#dde8f8;margin-top:1px">0<span style="color:#5a7a9e;font-size:9px"> / ' + mx + '</span></div>';
         h += '<div class="stok-bar-bg"><div class="stok-bar-f" style="width:0%"></div></div>';
         h += '</div>';
         h += '</div>';
-        var mc = pd.margin <= 40 ? '#10b981' : pd.margin <= 60 ? '#eab308' : pd.margin <= 80 ? '#f97316' : '#ef4444';
         h += '<div style="background:#101e30;border:1px solid #1f3a58;border-radius:7px;padding:6px 9px;margin-bottom:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">';
-        h += '<span style="font-size:13px;font-weight:800;color:#ef4444">🏢 ' + fmt(pd.base) + ' TL</span>';
-        h += '<span style="font-size:9px;color:#5a7a9e">ilk:' + fmt(PRODUCTS[k].base) + '</span>';
+        h += '<span style="font-size:13px;font-weight:800;color:#5a7a9e">🏢 ' + fmt(PRODUCTS[k].base) + ' TL</span>';
         h += '<span style="color:#1f3a58;margin:0 4px">|</span>';
         h += '<span style="font-size:10px;font-weight:700;color:#5a7a9e">📈 %</span>';
-        h += '<input disabled type="number" data-margin="1" value="' + pd.margin + '" min="1" max="100" style="width:46px;font-size:13px;font-weight:800;color:' + mc + ';padding:2px 4px;background:#07111f;border:1px solid #1f3a58;border-radius:5px;text-align:center" id="mi_' + k + '" data-margin="1">';
-        h += '<span style="font-size:11px;color:#5a7a9e">→</span>';
-        h += '<span style="font-size:14px;font-weight:800;color:' + mc + '" id="sp_' + k + '">' + fmt(sp) + ' TL</span>';
-        h += '<span style="font-size:10px;color:#f59e0b" id="mc_' + k + '"></span>';
-
-
-
+        h += '<span style="font-size:13px;font-weight:800;color:#5a7a9e">' + PRODUCTS[k].margin + '</span>';
         h += '</div>';
-        h += '<div style="background:#0d1927;border:2px solid #3b82f6;border-radius:7px;padding:4px 6px;margin-bottom:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">';
-        h += '<span style="font-size:10px;font-weight:700;color:#3b82f6">Satın Al</span>';
-        h += '<button disabled style="padding:2px 6px;font-size:10px;font-weight:700;background:#1e3a5f;color:#93c5fd;border:1px solid #3b82f6;border-radius:4px;cursor:pointer" title="Maksimum stok kadar al">MAX</button>';
-        var _capMax2=cap(PRODUCTS[k].store);
-        var _wqtyMax2=Math.max(1,_capMax2-pd.stock);
-        var _wqtyRaw2=_savedInv['wqty_'+k]!==undefined?_savedInv['wqty_'+k]:20;
-        var _wqtyVal2=Math.min(Math.max(1,parseInt(_wqtyRaw2)||1),_wqtyMax2);
-        h += '<input disabled type="number" id="wqty_' + k + '" value="' + _wqtyVal2 + '" min="1" max="' + _wqtyMax2 + '" style="width:60px;font-size:12px;font-weight:700;padding:2px 4px;background:#07111f;border:1px solid #3b82f6;color:#dde8f8;border-radius:5px;text-align:center">';
-        h += '<button class="btn" style="padding:3px 9px;font-size:11px;background:#3b82f6;color:#fff;border:none;border-radius:5px;cursor:pointer" disabled>Al</button>';
-        h += '<span style="font-size:11px;color:#10b981;display:none" id="wtotal_' + k + '">' + fmt((_savedInv['wqty_'+k]||pd.buyAmt||20) * pd.base) + ' TL</span>';
+        h += '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(7,17,31,0.55);border-radius:10px;z-index:3">';
+        h += '<div style="font-size:32px">🔒</div>';
+        h += '<div style="font-size:12px;font-weight:900;color:#ef4444;background:#1a0505;border:1px solid #ef4444;border-radius:5px;padding:3px 10px;margin-top:4px">Lv' + needLv + ' gerekli</div>';
+        h += '<div style="font-size:10px;color:#5a7a9e;margin-top:3px">Market Lv' + needLv + ' yap</div>';
         h += '</div>';
-        h += '<div id="botPanel_' + k + '" style="background:#0a1628;border:2px solid #f97316;border-radius:9px;padding:5px;margin-bottom:6px;display:' + (G.buyBotUnlocked ? '' : 'none') + '">';
-        h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:3px;background:#0d1628;border:1px solid #1f3a58;border-radius:6px;margin-bottom:4px">';
-        // K/Z & Piyasa Ayari satiri (disabled - pasif/kilitli urun)
-        var _ortMal2 = (pd.stock > 0 && (pd.costTotal||0) > 0) ? Math.round((pd.costTotal||0) / pd.stock) : 0;
-        var _kzVal2 = (_ortMal2 > 0 && pd.base > 0) ? Math.round(pd.base - _ortMal2) : 0;
-        var _kzPct2 = (_ortMal2 > 0) ? (((pd.base - _ortMal2) / _ortMal2) * 100).toFixed(1) : '0.0';
-        var _kzRenk2 = _kzVal2 >= 0 ? '#10b981' : '#ef4444';
-        var _kzIkon2 = _kzVal2 >= 0 ? '▲' : '▼';
-
-        h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:3px 4px;background:#07111f;border:1px solid #1a3050;border-radius:6px;margin-bottom:4px;opacity:0.6">';
-        h += '<span style="font-size:10px;font-weight:700;color:#f59e0b;white-space:nowrap">💰 K/Z</span>';
-        if (_ortMal2 > 0) {
-          h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal:</span>';
-          h += '<span style="font-size:10px;font-weight:700;color:#dde8f8;white-space:nowrap">' + fmt(_ortMal2) + ' TL</span>';
-          h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">|</span>';
-          h += '<span style="font-size:10px;font-weight:700;color:' + _kzRenk2 + ';white-space:nowrap">' + _kzIkon2 + ' ' + fmt(Math.abs(_kzVal2)) + ' TL (' + _kzPct2 + '%)</span>';
-        } else {
-          h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal: -</span>';
-        }
-
-
-        h += '</div>';
-        // 2. satir: BOT stok/adet/MAX (disabled, eski botPanel icinde)
-        h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:3px;background:#0d1a0a;border:1px solid #f97316;border-radius:6px;margin-bottom:4px;min-width:0">';
-        h += '<span style="font-size:10px;font-weight:700;color:#f97316;white-space:nowrap">🤖 BOT</span>';
-        h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Stok</span>';
-        h += '<input disabled type="number" id="inv-thr-' + k + '" value="' + pd.thr + '" style="width:38px;font-size:10px;font-weight:700;padding:1px 2px;background:#07111f;border:1px solid #1f3a58;color:#dde8f8;border-radius:5px;text-align:center">';
-        h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">altına düşerse</span>';
-        h += '<input disabled type="number" id="inv-buyAmt-' + k + '" value="' + (pd.buyAmt || 20) + '" min="1" max="99999" style="width:52px;font-size:10px;font-weight:700;padding:1px 2px;background:#07111f;border:1px solid #1f3a58;color:#dde8f8;border-radius:5px;text-align:center">';
-        h += '<button disabled style="padding:2px 5px;font-size:10px;font-weight:700;background:#7f1d1d;color:#fca5a5;border:1px solid #ef4444;border-radius:4px;cursor:not-allowed;white-space:nowrap">MAX</button>';
-        h += '</div>';
-        // 3. satir: Serbest Al / Depodan Al / Stok (disabled)
-        h += '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:3px">';
-        h += '<button disabled style="padding:3px 10px;font-size:11px;font-weight:700;border-radius:5px;cursor:not-allowed;border:1px solid #1f3a58;' + (pd.serbestAl ? 'background:#1e1b4b;color:#a78bfa' : 'background:#07111f;color:#5a7a9e') + '">🏭 Üreticiden Al</button>';
-        h += '<button disabled style="padding:3px 10px;font-size:11px;font-weight:700;border-radius:5px;cursor:not-allowed;border:1px solid #1f3a58;' + (pd.depodanAl ? 'background:#1e1b4b;color:#a78bfa' : 'background:#07111f;color:#5a7a9e') + '">Depodan Al</button>';
-        var _dStok = (G.depo && G.depo.stok && G.depo.stok[k]) ? G.depo.stok[k] : 0;
-        h += '<span style="font-size:10px;color:#a78bfa;font-weight:600">Stok:' + _dStok + '</span>';
-        h += '</div>';
-        h += '</div>'; /* eski botPanel kapat */
         h += '</div>'; // pcard kapat
 
 
