@@ -71185,12 +71185,16 @@ function ureticilerTick() {
     if (!G.ureticiler[k]) continue;
     for (var n = 0; n < G.ureticiler[k].length; n++) {
       var u = G.ureticiler[k][n];
-      // Fiyat dalgalanma - enflasyona bagli (+-%30 sinir)
+      // Fiyat dalgalanma - enflasyon + stok etkisi
       var _uInf = (typeof calcInflation==='function') ? calcInflation() : 0;
-      var _uEnflEtki = _uInf * 0.0003; // enflasyon etkisi
-      var dalgaPct = (Math.random() * 6 - 3) / 100 + _uEnflEtki;
-      var minF = Math.round(p.base * 0.70 * 100) / 100; // min: base*0.70
-      var maxF = Math.round(p.base * 1.30 * 100) / 100; // max: base*1.30 (+-%30)
+      var _uEnflEtki = _uInf * 0.0003;
+      var _stokOran = u.maxStok > 0 ? u.stok / u.maxStok : 0.5;
+      var _stokEtki = _stokOran < 0.2 ? 0.03 : _stokOran < 0.4 ? 0.01 : 0; // az stokta fiyat yukselir
+      var dalgaPct = (Math.random() * 4 - 2) / 100 + _uEnflEtki + _stokEtki;
+      var _pd = G.pdata[k];
+      var _piyasa = (_pd && _pd.base) ? _pd.base : p.base;
+      var minF = Math.round(_piyasa * 0.70 * 100) / 100; // en ucuz: piyasanin %30 altı
+      var maxF = Math.round(_piyasa * (1.00 + Math.min(_uInf * 0.003, 0.10)) * 100) / 100; // enflasyon yuksekse max artar
       u.fiyat = Math.max(minF, Math.min(maxF, Math.round(u.fiyat * (1 + dalgaPct) * 100) / 100));
       // Stok yenileme
       if (u.stok < u.maxStok && (!u._sonUretim || _uretNow - u._sonUretim >= 300000)) {
