@@ -120335,9 +120335,20 @@ var _capMax = cap(PRODUCTS[k].store);
 
 
 
-        // 3. satir: Serbest Al / Depodan Al / Stok
+        // 3. satir: Serbest Al / Piyasadan Al / Depodan Al / Stok
+        // Renk mantigi: en ucuz kaynagi tespit et
+        var _enUBot = (typeof enUcuzUretici==='function' && G.ureticiler && G.ureticiler[k]) ? enUcuzUretici(k,1) : null;
+        var _enUFiyat = _enUBot ? _enUBot.fiyat : 999999;
+        var _piyasaFiyat = pd.base;
+        var _ortMalBot = (pd.stock>0&&(pd.costTotal||0)>0) ? (pd.costTotal/pd.stock) : pd.base;
+        var _uRetUcuz = _enUFiyat <= _piyasaFiyat && _enUFiyat < _ortMalBot;
+        var _piyasaUcuz = _piyasaFiyat <= _enUFiyat && _piyasaFiyat < _ortMalBot;
+        var _ikisiPahali = _enUFiyat >= _ortMalBot && _piyasaFiyat >= _ortMalBot;
+        var _uRetRenk = _ikisiPahali ? '#ef4444' : (_uRetUcuz || _enUFiyat <= _piyasaFiyat) ? '#10b981' : '#ef4444';
+        var _piyRenk = _ikisiPahali ? '#ef4444' : (_piyasaUcuz || _piyasaFiyat <= _enUFiyat) ? '#10b981' : '#ef4444';
         h += '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:3px">';
-        h += '<button onclick="event.stopPropagation();toggleSerbest(\'' + k + '\')" style="padding:3px 10px;font-size:11px;font-weight:700;border-radius:5px;cursor:pointer;border:1px solid #1f3a58;' + (pd.serbestAl ? 'background:#1e1b4b;color:#a78bfa' : 'background:#07111f;color:#5a7a9e') + '">🏭 Üreticiden Al</button>';
+        h += '<button onclick="event.stopPropagation();toggleSerbest(\'' + k + '\')" style="padding:3px 10px;font-size:11px;font-weight:700;border-radius:5px;cursor:pointer;border:1px solid ' + _uRetRenk + ';background:' + (_uRetRenk==='#10b981'?'#0a2a1a':'#1a0505') + ';color:' + _uRetRenk + '">🏭 Üreticiden Al</button>';
+        h += '<button disabled style="padding:3px 10px;font-size:11px;font-weight:700;border-radius:5px;cursor:default;border:1px solid ' + _piyRenk + ';background:' + (_piyRenk==='#10b981'?'#0a2a1a':'#1a0505') + ';color:' + _piyRenk + '">🏪 Piyasadan Al</button>';
         h += '<button onclick="event.stopPropagation();toggleDepodan(\'' + k + '\')" style="padding:3px 10px;font-size:11px;font-weight:700;border-radius:5px;cursor:pointer;border:1px solid #1f3a58;' + (pd.depodanAl ? 'background:#1e1b4b;color:#a78bfa' : 'background:#07111f;color:#5a7a9e') + '">Depodan Al</button>';
         var _dStok = (G.depo && G.depo.stok && G.depo.stok[k]) ? G.depo.stok[k] : 0;
         h += '<span style="font-size:10px;color:#a78bfa;font-weight:600">Stok:' + _dStok + '</span>';
@@ -120481,8 +120492,14 @@ var _capMax = cap(PRODUCTS[k].store);
           h += '</div>';
         }
         h += '</div>';
+        var _enUBot3=(typeof enUcuzUretici==='function'&&G.ureticiler&&G.ureticiler[k])?enUcuzUretici(k,1):null;
+        var _enUF3=_enUBot3?_enUBot3.fiyat:999999;var _pF3=pd.base;var _oM3=(pd.stock>0&&(pd.costTotal||0)>0)?(pd.costTotal/pd.stock):pd.base;
+        var _iP3=_enUF3>=_oM3&&_pF3>=_oM3;
+        var _uR3=_iP3?'#ef4444':(_enUF3<=_pF3?'#10b981':'#ef4444');
+        var _pR3=_iP3?'#ef4444':(_pF3<=_enUF3?'#10b981':'#ef4444');
         h += '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:3px">';
-        h += '<button disabled style="padding:3px 10px;font-size:11px;font-weight:700;border-radius:5px;border:1px solid #1f3a58;' + (pd.serbestAl?'background:#1e1b4b;color:#a78bfa':'background:#07111f;color:#5a7a9e') + '">🏭 Üreticiden Al</button>';
+        h += '<button disabled style="padding:3px 10px;font-size:11px;font-weight:700;border-radius:5px;cursor:default;border:1px solid ' + _uR3 + ';background:' + (_uR3==='#10b981'?'#0a2a1a':'#1a0505') + ';color:' + _uR3 + '">🏭 Üreticiden Al</button>';
+        h += '<button disabled style="padding:3px 10px;font-size:11px;font-weight:700;border-radius:5px;cursor:default;border:1px solid ' + _pR3 + ';background:' + (_pR3==='#10b981'?'#0a2a1a':'#1a0505') + ';color:' + _pR3 + '">🏪 Piyasadan Al</button>';
         h += '<button disabled style="padding:3px 10px;font-size:11px;font-weight:700;border-radius:5px;border:1px solid #1f3a58;' + (pd.depodanAl?'background:#1e1b4b;color:#a78bfa':'background:#07111f;color:#5a7a9e') + '">Depodan Al</button>';
         var _ds3=(G.depo&&G.depo.stok&&G.depo.stok[k])?G.depo.stok[k]:0;
         h += '<span style="font-size:10px;color:#a78bfa;font-weight:600">Stok:' + _ds3 + '</span>';
