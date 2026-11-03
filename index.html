@@ -107964,9 +107964,10 @@ function runCustBot() {
 
 
 
-    // Ana etki: kirmizi fiyat / ilk fiyat orani
+    // Ana etki: satis fiyati / ilk fiyat orani - musteri sellPrice'a gore karar verir
     var _initB2 = PRODUCTS[k].base;
-    var _fiyatOran = _initB2 > 0 ? pd.base / _initB2 : 1.0; // <1 ucuzlamis, >1 pahalilashmis
+    var _satisFiyati = (typeof sellPrice==='function') ? sellPrice(k) : pd.base;
+    var _fiyatOran = _initB2 > 0 ? _satisFiyati / _initB2 : 1.0; // <1 ucuzlamis, >1 pahalilashmis
     // Kirmizi fiyat ilk fiyatin altindaysa hizli, ustundeyse yavas
     var _anaRatio = 1.2 / (1 + _fiyatOran * 1.8); // oran=0.7->0.48, oran=1->0.43, oran=1.5->0.25
     _anaRatio = Math.max(0.02, Math.min(0.80, _anaRatio));
