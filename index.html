@@ -119901,7 +119901,8 @@ var _stLv = G.stores[PRODUCTS[k].store] ? (G.stores[PRODUCTS[k].store].level || 
 
         // K/Z + Ort.Mal curcevesi - her zaman gorunsun (bot olmasa da)
         var _kmOrtMal = (pd.stock > 0 && (pd.costTotal||0) > 0) ? Math.round((pd.costTotal||0) / pd.stock) : 0;
-        var _kmKzVal = (_kmOrtMal > 0 && pd.base > 0) ? Math.round(pd.base - _kmOrtMal) : 0;
+        var _kmSatisFiyat = (typeof sellPrice==='function') ? sellPrice(k) : pd.base;
+        var _kmKzVal = (_kmOrtMal > 0 && _kmSatisFiyat > 0) ? Math.round(_kmSatisFiyat - _kmOrtMal) : 0;
         var _kmKzPct = (_kmOrtMal > 0) ? ((_kmKzVal / _kmOrtMal) * 100).toFixed(1) : '0.0';
         var _kmKzRenk = _kmKzVal >= 0 ? '#10b981' : '#ef4444';
         var _kmKzIkon = _kmKzVal >= 0 ? '▲' : '▼';
@@ -119944,8 +119945,9 @@ var _capMax = cap(PRODUCTS[k].store);
         h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:3px;background:#0d1628;border:1px solid #1f3a58;border-radius:6px;margin-bottom:4px">';
         // K/Z & Piyasa Ayari satiri - ort maliyet ve minKarPct
         var _ortMal = (pd.stock > 0 && (pd.costTotal||0) > 0) ? Math.round((pd.costTotal||0) / pd.stock) : 0;
-        var _kzVal = (_ortMal > 0 && pd.base > 0) ? Math.round(pd.base - _ortMal) : 0;
-        var _kzPct = (_ortMal > 0) ? ((pd.base - _ortMal) / _ortMal * 100).toFixed(1) : '0.0';
+        var _kzSatisFiyat = (typeof sellPrice==='function') ? sellPrice(k) : pd.base;
+        var _kzVal = (_ortMal > 0 && _kzSatisFiyat > 0) ? Math.round(_kzSatisFiyat - _ortMal) : 0;
+        var _kzPct = (_ortMal > 0) ? ((_kzVal / _ortMal) * 100).toFixed(1) : '0.0';
         var _kzRenk = _kzVal >= 0 ? '#10b981' : '#ef4444';
         var _kzIkon = _kzVal >= 0 ? '\u25b2' : '\u25bc';
 
@@ -120412,7 +120414,8 @@ var _capMax = cap(PRODUCTS[k].store);
         h += '<span style="font-size:12px;font-weight:800;color:' + mc2 + '">' + fmt(sp2) + ' TL</span>';
         h += '</div>';
         var _km2OrtMal = (pd.stock > 0 && (pd.costTotal||0) > 0) ? Math.round((pd.costTotal||0) / pd.stock) : 0;
-        var _km2KzVal = (_km2OrtMal > 0 && pd.base > 0) ? Math.round(pd.base - _km2OrtMal) : 0;
+        var _km2SatisFiyat = (typeof sellPrice==='function') ? sellPrice(k) : pd.base;
+        var _km2KzVal = (_km2OrtMal > 0 && _km2SatisFiyat > 0) ? Math.round(_km2SatisFiyat - _km2OrtMal) : 0;
         var _km2KzPct = (_km2OrtMal > 0) ? ((_km2KzVal / _km2OrtMal) * 100).toFixed(1) : '0.0';
         var _km2KzRenk = _km2KzVal >= 0 ? '#10b981' : '#ef4444';
         var _km2KzIkon = _km2KzVal >= 0 ? '▲' : '▼';
@@ -120437,8 +120440,8 @@ var _capMax = cap(PRODUCTS[k].store);
         h += '<div id="botPanel_' + k + '" style="background:#0a1628;border:2px solid #f97316;border-radius:9px;padding:5px;margin-bottom:6px;display:' + (G.buyBotUnlocked?'':'none') + '">';
         h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:3px;background:#0d1628;border:1px solid #1f3a58;border-radius:6px;margin-bottom:4px">';
         var _om3=(pd.stock>0&&(pd.costTotal||0)>0)?Math.round((pd.costTotal||0)/pd.stock):0;
-        var _kv3=(_om3>0&&pd.base>0)?Math.round(pd.base-_om3):0;
-        var _kp3=(_om3>0)?((pd.base-_om3)/_om3*100).toFixed(1):'0.0';
+        var _sp3=(typeof sellPrice==='function')?sellPrice(k):pd.base;var _kv3=(_om3>0&&_sp3>0)?Math.round(_sp3-_om3):0;
+        var _kp3=(_om3>0)?((_kv3/_om3)*100).toFixed(1):'0.0';
         var _kr3=_kv3>=0?'#10b981':'#ef4444';var _ki3=_kv3>=0?'\u25b2':'\u25bc';
         h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:3px 4px;background:#07111f;border:1px solid #1a3050;border-radius:6px;margin-bottom:4px">';
         h += '<span style="font-size:10px;font-weight:700;color:#f59e0b;white-space:nowrap">💰 K/Z</span>';
