@@ -96520,6 +96520,8 @@ function fluctuate() {
 
 
     var pd = G.pdata[k];
+    if (!pd || !pd.base) continue;
+
 
 
 
@@ -96631,7 +96633,6 @@ function fluctuate() {
 
 
 
-    if (!pd) continue;
     var _rnd=(Math.random()*8-4)/100; var _capF=(typeof cap==='function')?cap(p.store):50; var _stokR=(_capF>0)?((pd.stock||0)/_capF):0.5; var _arzEtki=(_stokR<0.2)?0.02:(_stokR<0.4)?0.01:(_stokR>0.8)?-0.02:(_stokR>0.6)?-0.01:0; var _initB=PRODUCTS[k].base; var _sapma=(_initB>0)?((old-_initB)/_initB):0; var _geri=-_sapma*0.1; var pct=_rnd+_arzEtki+_geri;
 
 
@@ -116298,7 +116299,7 @@ function renderInv() {
     Object.keys(PRODUCTS).forEach(function(k) {
       if (!G.pdata[k]) return;
       G.pdata[k].initBase = PRODUCTS[k].base;
-      G.pdata[k].base = PRODUCTS[k].base;
+      // G.pdata[k].base sifirlanmiyor - fluctuate() tarafindan dalgalandirilir
       G.pdata[k].buyMax = Math.round(PRODUCTS[k].base * 100) / 100;
       G.pdata[k].buyMin = Math.round(PRODUCTS[k].base * 0.80 * 100) / 100;
     });
