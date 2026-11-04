@@ -109645,6 +109645,15 @@ function runCustBot() {
 
 
 
+  window._cbDebug6=(window._cbDebug6||0)+1;
+  if(window._cbDebug6 % 3 === 1){
+    var _up2=G.pdata&&G.pdata['Un'];
+    var _usp2=_up2&&(typeof sellPrice==='function')?sellPrice('Un'):0;
+    var _uom2=_up2&&_up2.stock>0&&_up2.costTotal>0?(_up2.costTotal/_up2.stock):0;
+    var _swing2=_up2&&_up2.base<((_up2.initBase||_up2.base)*0.68);
+    var _zarar2=_uom2>0&&_usp2<_uom2;
+    log('[CB6] satislar='+satislar.length+' Un:stk='+(_up2?_up2.stock:'-')+' sp='+(_usp2?_usp2.toFixed(2):'-')+' om='+(_uom2?_uom2.toFixed(2):'-')+' swing='+_swing2+' zarar='+_zarar2,'ok');
+  }
   if (satislar.length > 0) {
 
 
