@@ -107770,6 +107770,7 @@ function runCustBot() {
     var _tickSkip = _piyasaFarkPct <= 0 ? 1 : _piyasaFarkPct <= 10 ? 2 : _piyasaFarkPct <= 20 ? 3 : _piyasaFarkPct <= 30 ? 4 : 5;
     window._sellTickCount = window._sellTickCount || {};
     window._sellTickCount[k] = (window._sellTickCount[k]||0) + 1;
+    if(k==='Un'){log('[DEBUG tick] tickCount='+(window._sellTickCount['Un']||0)+' tickSkip='+_tickSkip+' pFark='+_piyasaFarkPct.toFixed(1)+'% sp='+_spTick.toFixed(2)+' piy='+pd.base.toFixed(2), 'ok');}
     if(window._sellTickCount[k] < _tickSkip) continue;
     window._sellTickCount[k] = 0;
 
