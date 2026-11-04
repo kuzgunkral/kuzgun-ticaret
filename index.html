@@ -34867,6 +34867,7 @@ function borsaFiyatGuncelle() {
         // Gerceklesen islem gecmisine ekle -- _avgCostOnce zaten yukarda hesaplandi
         if (!G.borsaIslemGecmisi) G.borsaIslemGecmisi = [];
         var _botKZ = gelir - (qty2 * _avgCostOnce);
+        if(_botKZ>0){G.borsaKazanc=(G.borsaKazanc||0)+_botKZ; G.borsaToplamKar=(G.borsaToplamKar||0)+_botKZ; borsaOtoLvKontrol();}
         var _gecIdx = G.borsaIslemGecmisi.findIndex(function(x){return x.kod===h.kod;});
         if(_gecIdx>=0){G.borsaIslemGecmisi[_gecIdx].adet+=qty2;G.borsaIslemGecmisi[_gecIdx].gelir+=gelir;G.borsaIslemGecmisi[_gecIdx].kz+=_botKZ;G.borsaIslemGecmisi[_gecIdx].zaman=Date.now();}
         else{G.borsaIslemGecmisi.unshift({kod:h.kod,adet:qty2,fiyat:bf.fiyat,gelir:gelir,kz:_botKZ,zaman:Date.now()});}
