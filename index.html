@@ -35570,7 +35570,7 @@ function renderBorsa() {
     }
     if(_bLv>0){
       _bLvH+='<span style="font-size:13px;font-weight:800;color:#c0a060;white-space:nowrap;margin-left:8px">Max: <b>'+fmt(getBorsaMaxAdet(_bLv))+'</b></span>';
-    _bLvH+='<span style="font-size:12px;color:#5a7a9e;white-space:nowrap;margin-left:8px">Ciro: <b style="color:#10b981">'+fmt(Math.round(G.borsaKazanc||0))+'</b> TL</span>';
+    _bLvH+='<span style="font-size:12px;color:#5a7a9e;white-space:nowrap;margin-left:8px">Toplam Kar: <b style="color:#10b981">'+fmt(Math.round(G.borsaToplamKar||0))+'</b> TL</span>';
       if(_bLv>20){var _bSB=Math.min(Math.round((_bLv-20)*1),10);_bLvH+='<span style="font-size:12px;background:rgba(16,185,129,0.15);color:#10b981;font-weight:800;padding:2px 8px;border-radius:4px;white-space:nowrap;margin-left:4px">+'+_bSB+'% kar</span>';}
     }
 
@@ -123100,7 +123100,7 @@ function kriptoSat(id, miktarStr) {
   kd.maliyetTop = Math.max(0, (kd.maliyetTop||0) - _satMaliyet);
   kd.miktar -= miktar;
   kd.talepEtki = (kd.talepEtki||0) - (miktar/Math.max(kd.fiyat,1))*0.00001;
-  if(_satKZ>0) G.kriptoKazanc=(G.kriptoKazanc||0)+_satKZ; // Sadece karli satista exp kazan
+  if(_satKZ>0){G.kriptoKazanc=(G.kriptoKazanc||0)+_satKZ; G.kriptoToplamKar=(G.kriptoToplamKar||0)+_satKZ;} // Sadece karli satista exp kazan
   G.kriptoCiro=(G.kriptoCiro||0)+(toplam-gasFee); // Toplam ciro
   kriptoOtoLvKontrol();
   // Talep etkisi: cok satim yapilinca fiyat duşer
@@ -123257,7 +123257,7 @@ if(_kLv>0&&_kLv<30){
   h+='<button onclick="kriptoLevelUp()" style="padding:3px 10px;font-size:11px;background:#1a0a2e;color:#a78bfa;border:1px solid #7c3aed;border-radius:5px;cursor:pointer">↑ Lv'+(_kLv+1)+' ('+_kMal+'💎)</button>';
 }
 h+='<span style="font-size:12px;color:#5a7a9e">Max: <b style="color:#dde8f8">'+fmt(Math.round(_kCap2))+'</b></span>';
-h+='<span style="font-size:12px;color:#5a7a9e;margin-left:8px">Ciro: <b style="color:#10b981">'+fmt(Math.round(G.kriptoCiro||0))+'</b> TL</span>';
+h+='<span style="font-size:12px;color:#5a7a9e;margin-left:8px">Toplam Kar: <b style="color:#10b981">'+fmt(Math.round(G.kriptoToplamKar||0))+'</b> TL</span>';
 if(_karBon>0)h+='<span style="font-size:12px;font-weight:700;background:#0a2e1a;color:#10b981;border:1px solid #10b981;border-radius:5px;padding:2px 8px">+'+_karBon+'% kar</span>';
 h+='</div>';
 h+='<div style="background:#0a1628;border:1px solid #1f3a58;border-radius:8px;padding:6px 12px;margin-bottom:6px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">';
@@ -123917,7 +123917,7 @@ function kriptoBotTick() {
         var oran = sAdet / kd.miktar;
         kd.maliyetTop = Math.max(0, (kd.maliyetTop||0)-Math.round(_bBirim*sAdet));
         kd.miktar -= sAdet;
-  if(_bSatKZ>0) G.kriptoKazanc=(G.kriptoKazanc||0)+_bSatKZ; // Bot: sadece karli satista exp
+  if(_bSatKZ>0){G.kriptoKazanc=(G.kriptoKazanc||0)+_bSatKZ; G.kriptoToplamKar=(G.kriptoToplamKar||0)+_bSatKZ;} // Bot: sadece karli satista exp
   G.kriptoCiro=(G.kriptoCiro||0)+(sToplam-gasFee); // Bot toplam ciro
         kriptoOtoLvKontrol();
         if(!G.kriptoIslemGecmisi)G.kriptoIslemGecmisi=[];
