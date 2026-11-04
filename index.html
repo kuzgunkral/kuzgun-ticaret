@@ -107299,6 +107299,19 @@ function runCustBot() {
 
 
   if (!G.started) return;
+  // DEBUG: custBot calisiyor mu?
+  window._cbTick = (window._cbTick||0)+1;
+  if(window._cbTick % 5 === 1) {
+    var _dbStr = "[CustBot #"+window._cbTick+"] started="+G.started;
+    if(G.pdata && G.pdata["Un"]) {
+      var _up=G.pdata["Un"];
+      var _usp=(typeof sellPrice==="function")?sellPrice("Un"):_up.base;
+      var _upasif=G.stores&&G.stores.market&&!!G.stores.market.pasif;
+      var _uswing=_up.base<(_up.initBase||_up.base)*0.68;
+      _dbStr += " | Un: stk="+_up.stock+" piy="+_up.base.toFixed(2)+" sp="+_usp.toFixed(2)+" pasif="+_upasif+" swing="+_uswing;
+    }
+    log(_dbStr, "ok");
+  }
 
 
 
@@ -107355,28 +107368,6 @@ function runCustBot() {
 
 
   var inf = calcInflation();
-  // === DEBUG SATIS LOG - her 30 tickte Un icin ===
-  window._debugSatisTick = (window._debugSatisTick||0)+1;
-  if(window._debugSatisTick % 30 === 1 && G.pdata && G.pdata["Un"]) {
-    var _dbk="Un"; var _dbpd=G.pdata[_dbk];
-    var _dbsp=(typeof sellPrice==="function")?sellPrice(_dbk):_dbpd.base;
-    var _dbFO=_dbpd.base>0?_dbsp/_dbpd.base:1;
-    var _dbAR=1.2/(1+_dbFO*1.8);
-    var _dbMC=1.3/(1+((_dbpd.margin||20)*0.015));
-    var _dbBR=Math.max(0.01,Math.min(0.80,_dbAR*_dbMC));
-    var _dbIP=Math.min(0.15,Math.max(0,inf/100)*0.20);
-    var _dbR=Math.max(_dbBR*0.25,_dbBR-_dbIP);
-    var _dbCM=(typeof getCityMult==="function")?getCityMult():1;
-    var _dbSB=Math.max(1,200*_dbR*_dbCM);
-    var _dbInit=_dbpd.initBase||_dbpd.base;
-    var _dbSwing=_dbpd.base<_dbInit*0.68;
-    var _dbZarar=_dbpd.costTotal>0&&_dbsp<(_dbpd.costTotal/_dbpd.stock);
-    var _dbTS=window._sellTickCount&&window._sellTickCount[_dbk]||0;
-    var _dbPF=_dbpd.base>0?((_dbsp-_dbpd.base)/_dbpd.base*100):0;
-    var _dbTSkip=_dbPF<=0?1:_dbPF<=10?2:_dbPF<=20?3:_dbPF<=30?4:5;
-    log("[DEBUG Un] sp="+_dbsp.toFixed(2)+" piy="+_dbpd.base.toFixed(2)+" farkPct="+_dbPF.toFixed(1)+"% tickSkip="+_dbTSkip+" tickCount="+_dbTS+" ratio="+_dbR.toFixed(3)+" sellBase="+_dbSB.toFixed(1)+" stock="+_dbpd.stock+" swing="+_dbSwing+" zarar="+_dbZarar+" started="+G.started+" pasif="+(G.stores&&G.stores.market&&G.stores.market.pasif), "sy");
-  }
-  // === DEBUG BITIS ===
 
 
 
