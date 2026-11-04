@@ -33792,6 +33792,41 @@ function getBorsaFiyat(kod) {
 
 
 
+// BIST acilis/kapanis saatleri (Turkiye saati)
+function isBorsaAcik() {
+  var now = new Date();
+  // Turkiye UTC+3
+  var utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  var tr = new Date(utc + 3 * 3600000);
+  var gun = tr.getDay(); // 0=Pazar, 6=Cumartesi
+  if (gun === 0 || gun === 6) return false; // Hafta sonu kapali
+  var saat = tr.getHours();
+  var dk = tr.getMinutes();
+  var dakika = saat * 60 + dk;
+  return dakika >= 600 && dakika < 1080; // 10:00 - 18:00
+}
+
+// Kapanista fiyatlari kaydet
+function borsaKapanisKaydet() {
+  if (!G.borsaHisse) return;
+  G.borsaKapanisFiyat = {};
+  for (var kod in G.borsaHisse) {
+    G.borsaKapanisFiyat[kod] = G.borsaHisse[kod].fiyat;
+  }
+  G.borsaKapanisZaman = Date.now();
+}
+
+// Acilista kapanis fiyatindan devam et
+function borsaAcilisUygula() {
+  if (!G.borsaKapanisFiyat || !G.borsaHisse) return;
+  for (var kod in G.borsaKapanisFiyat) {
+    if (G.borsaHisse[kod]) {
+      G.borsaHisse[kod].fiyat = G.borsaKapanisFiyat[kod];
+      G.borsaHisse[kod].onceki = G.borsaKapanisFiyat[kod];
+    }
+  }
+}
+
 function borsaFiyatGuncelle() {
 
 
@@ -33820,6 +33855,16 @@ function borsaFiyatGuncelle() {
 
 
 
+  // Borsa acik/kapali kontrolu
+  var _acik = isBorsaAcik();
+  // Kapanista fiyatlari kaydet (once acikti simdi kapali)
+  if (!_acik) {
+    if (!G._borsaKapaliFlag) { G._borsaKapaliFlag = true; borsaKapanisKaydet(); save(); }
+    return; // Borsa kapali - fiyat guncelleme
+  } else {
+    // Yeni acildi - kapalis fiyatindan devam et
+    if (G._borsaKapaliFlag) { G._borsaKapaliFlag = false; borsaAcilisUygula(); }
+  }
   if (!G.borsaHisse) G.borsaHisse = {};
 
 
