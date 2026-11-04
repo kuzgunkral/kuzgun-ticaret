@@ -123099,8 +123099,9 @@ function kriptoSat(id, miktarStr) {
   var _satMaliyet = Math.round(_birimMaliyet * miktar);
   var _satKZ = (toplam - gasFee) - _satMaliyet;
   var oran = miktar / kd.miktar;
-  kd.maliyetTop = Math.max(0, (kd.maliyetTop||0) - _satMaliyet);
   kd.miktar -= miktar;
+  if (kd.miktar <= 0) { kd.miktar = 0; kd.maliyetTop = 0; } // Stok bitince maliyet sifirla
+  else { kd.maliyetTop = Math.max(0, (kd.maliyetTop||0) - _satMaliyet); }
   kd.talepEtki = (kd.talepEtki||0) - (miktar/Math.max(kd.fiyat,1))*0.00001;
   if(_satKZ>0){G.kriptoKazanc=(G.kriptoKazanc||0)+_satKZ; G.kriptoToplamKar=(G.kriptoToplamKar||0)+_satKZ;} // Sadece karli satista exp kazan
   G.kriptoCiro=(G.kriptoCiro||0)+(toplam-gasFee); // Toplam ciro
@@ -123917,8 +123918,9 @@ function kriptoBotTick() {
         G.money += sToplam - gasFee;
         G.dailyRev=(G.dailyRev||0)+sToplam-gasFee;
         var oran = sAdet / kd.miktar;
-        kd.maliyetTop = Math.max(0, (kd.maliyetTop||0)-Math.round(_bBirim*sAdet));
         kd.miktar -= sAdet;
+        if (kd.miktar <= 0) { kd.miktar = 0; kd.maliyetTop = 0; } // Stok bitince maliyet sifirla
+        else { kd.maliyetTop = Math.max(0, (kd.maliyetTop||0)-Math.round(_bBirim*sAdet)); }
   if(_bSatKZ>0){G.kriptoKazanc=(G.kriptoKazanc||0)+_bSatKZ; G.kriptoToplamKar=(G.kriptoToplamKar||0)+_bSatKZ;} // Bot: sadece karli satista exp
   G.kriptoCiro=(G.kriptoCiro||0)+(sToplam-gasFee); // Bot toplam ciro
         kriptoOtoLvKontrol();
