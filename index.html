@@ -119950,7 +119950,6 @@ var _capMax = cap(PRODUCTS[k].store);
 
 
 
-        h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:nowrap;justify-content:space-between;padding:3px;background:#0d1628;border:1px solid #1f3a58;border-radius:6px;margin-bottom:4px">';
         // K/Z & Piyasa Ayari satiri - ort maliyet ve minKarPct
         var _ortMal = (pd.stock > 0 && (pd.costTotal||0) > 0) ? Math.round((pd.costTotal||0) / pd.stock * 100) / 100 : 0;
         var _kzSatisFiyat = (typeof sellPrice==='function') ? sellPrice(k) : pd.base;
@@ -120463,7 +120462,6 @@ var _capMax = cap(PRODUCTS[k].store);
         h += '<button disabled style="padding:2px 6px;font-size:10px;background:#07111f;color:#5a7a9e;border:1px solid #5a7a9e;border-radius:4px">Akıllı</button>';
         h += '</div>';
         h += '<div id="botPanel_' + k + '" style="background:#0a1628;border:2px solid #f97316;border-radius:9px;padding:5px;margin-bottom:6px;display:' + (G.buyBotUnlocked?'':'none') + '">';
-        h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:nowrap;justify-content:space-between;padding:3px;background:#0d1628;border:1px solid #1f3a58;border-radius:6px;margin-bottom:4px">';
         var _om3=(pd.stock>0&&(pd.costTotal||0)>0)?Math.round((pd.costTotal||0)/pd.stock*100)/100:0;
         var _sp3=(typeof sellPrice==='function')?sellPrice(k):pd.base;var _kv3=(_om3>0&&_sp3>0)?Math.round((_sp3-_om3)*100)/100:0;
         var _kr3=_kv3>=0?'#10b981':'#ef4444';var _ki3=_kv3>=0?'\u25b2':'\u25bc';
