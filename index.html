@@ -107245,6 +107245,8 @@ function startCustBot() {
 
 
 
+// lvBonusTL guard - tanimli degilse sifir don
+if (typeof lvBonusTL !== "function") { lvBonusTL = function(k){ return 0; }; }
 function runCustBot() {
 
 
