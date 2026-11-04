@@ -275,6 +275,9 @@ async function supaGirisYap(kullaniciAdi, sifre, gercekEmail) {
 
 // ---- ÇIKIŞ YAP ----
 async function supaGirisYapCikis() {
+  // Cikis oncesi son kaydi yap
+  try { if(typeof save === 'function') save(); } catch(e) {}
+  try { if(window._supaUser && typeof supaKaydet === 'function' && typeof G !== 'undefined') { await supaKaydet(window._currentUser, G); } } catch(e) {}
   await supa.auth.signOut();
   stopOturumKanal(); window._supaUser = null;
 }
