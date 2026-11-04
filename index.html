@@ -71193,8 +71193,8 @@ function ureticilerTick() {
       var dalgaPct = (Math.random() * 4 - 2) / 100 + _uEnflEtki + _stokEtki;
       var _baseF = p.base; // sabit baslangic referans
       var _piyF = (G.pdata && G.pdata[k] && G.pdata[k].base > 0) ? G.pdata[k].base : p.base; // anlik piyasa fiyati
-      var minF = Math.round(_piyF * 0.95 * 100) / 100; // min: piyasanin %5 altinda
-      var maxF = Math.round(_piyF * 0.99 * 100) / 100; // max: piyasanin %1 altinda (uretici min %1 max %5 ucuz)
+      var minF = Math.round(_piyF * 0.70 * 100) / 100; // min: piyasanin %30 altinda
+      var maxF = Math.round(_piyF * 0.90 * 100) / 100; // max: piyasanin %10 altinda (uretici %10-%30 ucuz)
       u.fiyat = Math.max(minF, Math.min(maxF, Math.round(u.fiyat * (1 + dalgaPct) * 100) / 100));
       // Stok yenileme
       if (u.stok < u.maxStok && (!u._sonUretim || _uretNow - u._sonUretim >= 300000)) {
