@@ -123047,7 +123047,8 @@ function kriptoAl(id, miktarStr) {
   G.money -= toplam;
   kd.miktar = (kd.miktar||0) + miktar;
   kd.maliyetTop = (kd.maliyetTop||0) + toplam;
-  G.kriptoKazanc=(G.kriptoKazanc||0)+toplam;
+  // Alimda kazanc artmaz - sadece satis karinda artar
+  G.kriptoCiro=(G.kriptoCiro||0)+toplam; // Toplam ciro
   kriptoOtoLvKontrol();
   // Talep etkisi: cok alim yapilinca fiyat yukselir
   kd.talepEtki = (kd.talepEtki||0) + (miktar/Math.max(kd.fiyat,1))*0.00001;
@@ -123098,7 +123099,8 @@ function kriptoSat(id, miktarStr) {
   kd.maliyetTop = Math.max(0, (kd.maliyetTop||0) - _satMaliyet);
   kd.miktar -= miktar;
   kd.talepEtki = (kd.talepEtki||0) - (miktar/Math.max(kd.fiyat,1))*0.00001;
-  G.kriptoKazanc=(G.kriptoKazanc||0)+(toplam-gasFee);
+  if(_satKZ>0) G.kriptoKazanc=(G.kriptoKazanc||0)+_satKZ; // Sadece karli satista exp kazan
+  G.kriptoCiro=(G.kriptoCiro||0)+(toplam-gasFee); // Toplam ciro
   kriptoOtoLvKontrol();
   // Talep etkisi: cok satim yapilinca fiyat duşer
   kd.talepEtki = (kd.talepEtki||0) - (miktar/Math.max(kd.fiyat,1))*0.000001;
@@ -123913,7 +123915,8 @@ function kriptoBotTick() {
         var oran = sAdet / kd.miktar;
         kd.maliyetTop = Math.max(0, (kd.maliyetTop||0)-Math.round(_bBirim*sAdet));
         kd.miktar -= sAdet;
-        G.kriptoKazanc=(G.kriptoKazanc||0)+(sToplam-gasFee);
+  if(_bSatKZ>0) G.kriptoKazanc=(G.kriptoKazanc||0)+_bSatKZ; // Bot: sadece karli satista exp
+  G.kriptoCiro=(G.kriptoCiro||0)+(sToplam-gasFee); // Bot toplam ciro
         kriptoOtoLvKontrol();
         if(!G.kriptoIslemGecmisi)G.kriptoIslemGecmisi=[];
         var _bigs=G.kriptoIslemGecmisi.find(function(x){return x.id===k.id;});
