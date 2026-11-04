@@ -54894,10 +54894,10 @@ function renderIhale(){
   if(_iEsik>0){
     var _iBarClr=_iPct<30?'#ef4444':_iPct<60?'#f97316':_iPct<85?'#f59e0b':'#10b981';
     h+='<span style="display:inline-flex;align-items:center;gap:4px"><span style="font-size:11px;font-weight:700;color:#dde8f8;white-space:nowrap">Lv'+(+_iLv2+1)+' icin:</span>';
-    h+='<div style="width:60px;height:6px;background:#0a1628;border-radius:3px;display:inline-block">';
+    h+='<div style="width:60px;height:6px;background:#1a3050;border-radius:3px;display:inline-block">';
     h+='<div style="height:6px;border-radius:3px;width:'+_iPct+'%;background:'+_iBarClr+';transition:width 0.3s"></div></div>';
     h+='<span style="font-size:11px;font-weight:700;color:#dde8f8;white-space:nowrap">'+_iPct+'%</span>';
-    h+='<span style="font-size:10px;color:#5a7a9e;white-space:nowrap">('+_iKalan+' kaldi)</span>';
+    h+='<span style="font-size:10px;color:#5a7a9e;white-space:nowrap">('+_iKalan+' ihale kaldi)</span>';
     h+='<span style="font-size:11px;font-weight:700;color:#c0a060;white-space:nowrap">ya da</span></span>';
   }
   if(lv<30){var uc=getIhaleUpgCost(lv);h+='<button id="ihaleUpgBtn" onclick="ihaleUpgrade()" style="padding:3px 8px;background:#7c3aed;color:#fff;border:none;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;margin-right:6px;white-space:nowrap">'+(lv===0?'&#128275; Ac (50 &#128142;)':'&#8679; Lv'+(lv+1)+' ('+uc+' &#128142;)')+'</button>';}
