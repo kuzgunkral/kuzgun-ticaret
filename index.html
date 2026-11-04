@@ -108954,12 +108954,12 @@ function runCustBot() {
 
     // Swing Trade: Panik satis korumasi - fiyat cok dusukse satma
     var _initB = pd.initBase || pd.base;
-    if(pd.stock > 0 && pd.base < _initB * 0.75) {
+    if(pd.stock > 0 && pd.base < _initB * 0.68) {
       continue; // Fiyat dip noktada - sat degil, bekle ve stokla
     }
     // Piyasa fiyati maaliyetin altindaysa satma (zarar korumasi)
     var _ortMaliyet = (pd.stock > 0 && (pd.costTotal || 0) > 0) ? (pd.costTotal / pd.stock) : 0;
-    if (_ortMaliyet > 0 && sellPrice(k) < _ortMaliyet * 1.01) {
+    if (_ortMaliyet > 0 && sellPrice(k) < _ortMaliyet ) {
       continue; // Piyasa fiyati maaliyetin altinda - satma, bekle
     }
     if (false) { // eski kontrol kaldirildi
