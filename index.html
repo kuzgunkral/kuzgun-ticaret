@@ -75142,7 +75142,7 @@ function sellPrice(k) {
   var base = Math.round(_sOrtMal * (1 + pd.margin / 100) * 100) / 100;
   // sellPrice ust siniri: piyasanin max %50 ustune cikamaz
   // ort.maliyet (yag vb) sistiginde _tickSkip=5 kilitlenmesini onler
-  var _spCap = pd.base * 1.50;
+  var _spCap = pd.base * 999;
   if (base > _spCap) base = Math.round(_spCap * 100) / 100;
 
 
@@ -107755,7 +107755,7 @@ function runCustBot() {
     var _spTick = (typeof sellPrice==='function') ? sellPrice(k) : pd.base;
     var _piyasaFarkPct = pd.base > 0 ? ((_spTick - pd.base) / pd.base * 100) : 0;
     // 0% altinda: her tick | 0-10%: 2 tick | 10-20%: 3 tick | 20-30%: 4 tick | 30%+: 5 tick
-    var _tickSkip = _piyasaFarkPct <= 0 ? 1 : _piyasaFarkPct <= 10 ? 2 : _piyasaFarkPct <= 20 ? 3 : _piyasaFarkPct <= 30 ? 4 : 5;
+    var _tickSkip = m <= 10 ? 1 : m <= 20 ? 2 : m <= 50 ? 3 : 4; // margin bazli: dusuk kar->hizli satis
     window._sellTickCount = window._sellTickCount || {};
     window._sellTickCount[k] = (window._sellTickCount[k]||0) + 1;
     if(window._sellTickCount[k] < _tickSkip) continue;
@@ -107990,10 +107990,10 @@ function runCustBot() {
     var _satisFiyati = (typeof sellPrice==='function') ? sellPrice(k) : pd.base;
     var _fiyatOran = pd.base > 0 ? _satisFiyati / pd.base : 1.0;
     // Kirmizi fiyat ilk fiyatin altindaysa hizli, ustundeyse yavas
-    var _anaRatio = 1.2 / (1 + _fiyatOran * 1.8); // oran=0.7->0.48, oran=1->0.43, oran=1.5->0.25
+    var _anaRatio = 0.80 / (1 + m * 0.025); // margin bazli: m=0->0.80, m=20->0.44, m=50->0.21, m=100->0.09
     _anaRatio = Math.max(0.02, Math.min(0.80, _anaRatio));
     // Kar marjini ikincil etki: m=5->1.3x, m=20->1.0x, m=50->0.7x, m=100->0.5x
-    var _marjinCarpan = 1.3 / (1 + m * 0.015);
+    var _marjinCarpan = 1.0; // margin etkisi _anaRatio icinde, burada sabit
     _marjinCarpan = Math.max(0.3, Math.min(1.5, _marjinCarpan));
     baseRatio = _anaRatio * _marjinCarpan;
     baseRatio = Math.max(0.01, Math.min(0.80, baseRatio));
