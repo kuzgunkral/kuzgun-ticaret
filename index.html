@@ -33541,17 +33541,16 @@ function getBorsaFiyat(kod) {
 
 
   if (!G.borsaHisse) G.borsaHisse = {};
-  // Migration: BORSA_HISSELER bazFiyat degistiyse fiyati guncelle
+  // Migration v2: BORSA_HISSELER fiyatlari guncellendi - zorla reset
   BORSA_HISSELER.forEach(function(h) {
     if (!G.borsaHisse[h.kod]) {
-      G.borsaHisse[h.kod] = {fiyat: h.fiyat, onceki: h.fiyat, bazFiyat: h.fiyat};
-    } else if (!G.borsaHisse[h.kod]._fiyatMigrated || G.borsaHisse[h.kod].bazFiyat !== h.fiyat) {
-      // Baslangic fiyati degismis - yeni fiyata gec
-      var _oran = G.borsaHisse[h.kod].fiyat > 0 ? G.borsaHisse[h.kod].fiyat / (G.borsaHisse[h.kod].bazFiyat || G.borsaHisse[h.kod].fiyat) : 1;
+      G.borsaHisse[h.kod] = {fiyat: h.fiyat, onceki: h.fiyat, bazFiyat: h.fiyat, _fiyatV: 2};
+    } else if ((G.borsaHisse[h.kod]._fiyatV || 0) < 2) {
+      // Versiyon 2 migration - yeni baslangic fiyatina oransal gec
+      G.borsaHisse[h.kod].fiyat = h.fiyat;
+      G.borsaHisse[h.kod].onceki = h.fiyat;
       G.borsaHisse[h.kod].bazFiyat = h.fiyat;
-      G.borsaHisse[h.kod].fiyat = Math.round(h.fiyat * _oran);
-      G.borsaHisse[h.kod].onceki = G.borsaHisse[h.kod].fiyat;
-      G.borsaHisse[h.kod]._fiyatMigrated = true;
+      G.borsaHisse[h.kod]._fiyatV = 2;
     }
   });
 
