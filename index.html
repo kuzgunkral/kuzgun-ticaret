@@ -71192,9 +71192,9 @@ function ureticilerTick() {
       var _stokEtki = _stokOran < 0.2 ? 0.03 : _stokOran < 0.4 ? 0.01 : 0; // az stokta fiyat yukselir
       var dalgaPct = (Math.random() * 4 - 2) / 100 + _uEnflEtki + _stokEtki;
       var _baseF = p.base; // sabit baslangic referans
-      var _piyF = (G.pdata && G.pdata[k] && G.pdata[k].base > 0) ? G.pdata[k].base : p.base; // anlik piyasa fiyati
+      var _piyF = (G.pdata && G.pdata[k] && G.pdata[k].base > 0) ? G.pdata[k].base : p.base; // anlik piyasa
       var minF = Math.round(_piyF * 0.70 * 100) / 100; // min: piyasanin %30 altinda
-      var maxF = Math.round(_piyF * 0.90 * 100) / 100; // max: piyasanin %10 altinda (uretici %10-%30 ucuz)
+      var maxF = Math.round(_piyF * 0.90 * 100) / 100; // max: baslangic fiyatinin %97'si - uretici daima piyasadan ucuz kalabilir
       u.fiyat = Math.max(minF, Math.min(maxF, Math.round(u.fiyat * (1 + dalgaPct) * 100) / 100));
       // Stok yenileme
       if (u.stok < u.maxStok && (!u._sonUretim || _uretNow - u._sonUretim >= 300000)) {
@@ -75142,7 +75142,7 @@ function sellPrice(k) {
   var base = Math.round(_sOrtMal * (1 + pd.margin / 100) * 100) / 100;
   // sellPrice ust siniri: piyasanin max %50 ustune cikamaz
   // ort.maliyet (yag vb) sistiginde _tickSkip=5 kilitlenmesini onler
-  var _spCap = pd.base * 999;
+  var _spCap = pd.base * 1.50;
   if (base > _spCap) base = Math.round(_spCap * 100) / 100;
 
 
@@ -107755,7 +107755,7 @@ function runCustBot() {
     var _spTick = (typeof sellPrice==='function') ? sellPrice(k) : pd.base;
     var _piyasaFarkPct = pd.base > 0 ? ((_spTick - pd.base) / pd.base * 100) : 0;
     // 0% altinda: her tick | 0-10%: 2 tick | 10-20%: 3 tick | 20-30%: 4 tick | 30%+: 5 tick
-    var _tickSkip = 1; // TEST: her tick satis dene
+    var _tickSkip = m <= 10 ? 1 : m <= 20 ? 2 : m <= 50 ? 3 : 4; // margin bazli
     window._sellTickCount = window._sellTickCount || {};
     window._sellTickCount[k] = (window._sellTickCount[k]||0) + 1;
     if(window._sellTickCount[k] < _tickSkip) continue;
@@ -107990,10 +107990,10 @@ function runCustBot() {
     var _satisFiyati = (typeof sellPrice==='function') ? sellPrice(k) : pd.base;
     var _fiyatOran = pd.base > 0 ? _satisFiyati / pd.base : 1.0;
     // Kirmizi fiyat ilk fiyatin altindaysa hizli, ustundeyse yavas
-    var _anaRatio = 0.80 / (1 + m * 0.025); // margin bazli: m=0->0.80, m=20->0.44, m=50->0.21, m=100->0.09
+    var _anaRatio = 0.80 / (1 + m * 0.025); // margin bazli: m=0->0.80, m=20->0.44, m=50->0.21
     _anaRatio = Math.max(0.02, Math.min(0.80, _anaRatio));
     // Kar marjini ikincil etki: m=5->1.3x, m=20->1.0x, m=50->0.7x, m=100->0.5x
-    var _marjinCarpan = 1.0; // margin etkisi _anaRatio icinde, burada sabit
+    var _marjinCarpan = 1.0; // margin etkisi anaRatio icinde
     _marjinCarpan = Math.max(0.3, Math.min(1.5, _marjinCarpan));
     baseRatio = _anaRatio * _marjinCarpan;
     baseRatio = Math.max(0.01, Math.min(0.80, baseRatio));
@@ -110093,6 +110093,7 @@ function runCustBot() {
 
 
 
+}
 
 
 
