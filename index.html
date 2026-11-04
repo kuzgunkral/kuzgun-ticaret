@@ -71193,7 +71193,7 @@ function ureticilerTick() {
       var dalgaPct = (Math.random() * 4 - 2) / 100 + _uEnflEtki + _stokEtki;
       var _baseF = p.base; // BASE fiyat = 0 noktasi
       var minF = Math.round(_baseF * 0.82 * 100) / 100; // min: base -%18
-      var maxF = Math.round(_baseF * 0.97 * 100) / 100; // max: baslangic fiyatinin %97'si - uretici daima piyasadan ucuz kalabilir
+      var maxF = Math.round(_baseF * (1.00 + Math.min(_uInf * 0.001, 0.05)) * 100) / 100; // max: piyasa fiyati, enflasyonda az artar
       u.fiyat = Math.max(minF, Math.min(maxF, Math.round(u.fiyat * (1 + dalgaPct) * 100) / 100));
       // Stok yenileme
       if (u.stok < u.maxStok && (!u._sonUretim || _uretNow - u._sonUretim >= 300000)) {
@@ -71241,7 +71241,7 @@ function ureticidentSatinAl(k, qty, isBot) {
   var _piyasaF = pd.base || 0;
   var mx = cap(PRODUCTS[k].store);
   // Piyasa fiyatinin altindaki tum ureticileri ucuzdan pahaliya sirala
-  var _uygunlar = G.ureticiler[k].filter(function(u){ return u.stok > 0 && (_piyasaF <= 0 || u.fiyat <= _piyasaF * 1.10); }); // piyasanin max %10 ustune kadar al
+  var _uygunlar = G.ureticiler[k].filter(function(u){ return u.stok > 0 && (_piyasaF <= 0 || u.fiyat <= _piyasaF); });
   _uygunlar.sort(function(a,b){ return a.fiyat - b.fiyat; });
   if(_uygunlar.length === 0) return 0;
   var kalanQty = qty;
@@ -108954,12 +108954,12 @@ function runCustBot() {
 
     // Swing Trade: Panik satis korumasi - fiyat cok dusukse satma
     var _initB = pd.initBase || pd.base;
-    if(pd.stock > 0 && pd.base < _initB * 0.68) {
+    if(pd.stock > 0 && pd.base < _initB * 0.75) {
       continue; // Fiyat dip noktada - sat degil, bekle ve stokla
     }
     // Piyasa fiyati maaliyetin altindaysa satma (zarar korumasi)
     var _ortMaliyet = (pd.stock > 0 && (pd.costTotal || 0) > 0) ? (pd.costTotal / pd.stock) : 0;
-    if (_ortMaliyet > 0 && sellPrice(k) < _ortMaliyet ) {
+    if (_ortMaliyet > 0 && sellPrice(k) < _ortMaliyet * 1.01) {
       continue; // Piyasa fiyati maaliyetin altinda - satma, bekle
     }
     if (false) { // eski kontrol kaldirildi
