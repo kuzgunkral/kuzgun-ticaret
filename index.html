@@ -35212,7 +35212,8 @@ function borsaSat(kod) {
   if (adet > G.borsaPortfoy[kod].adet) adet = G.borsaPortfoy[kod].adet;
   var fiyat = G.borsaHisse[kod].fiyat;
   var toplam = adet * fiyat;
-  var maliyetPay = (G.borsaPortfoy[kod].maliyet / G.borsaPortfoy[kod].adet) * adet;
+  var _birimMal = G.borsaPortfoy[kod].adet > 0 ? (G.borsaPortfoy[kod].maliyet / G.borsaPortfoy[kod].adet) : 0;
+  var maliyetPay = _birimMal * adet;
   var _bGlBonus=Math.max(0,Math.min((G.anaLv||0)-20,10));var _bBonus=_bGlBonus>0?Math.round(toplam*_bGlBonus/100):0;
   G.para = (G.para || 0) + toplam + _bBonus;if(!G.borsaKazanc)G.borsaKazanc=0;var _karB=toplam-maliyetPay;if(_karB>0){G.borsaKazanc+=_karB; G.borsaToplamKar=(G.borsaToplamKar||0)+_karB; borsaOtoLvKontrol();}
   if(_bBonus>0)log('☀️ Global Lv bonus: +'+fmt(_bBonus)+' TL (+%'+_bGlBonus+')','ok','borsa');
