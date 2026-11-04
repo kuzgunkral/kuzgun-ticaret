@@ -257,13 +257,13 @@ async function supaGirisYap(kullaniciAdi, sifre, gercekEmail) {
   var {data, error} = await supa.auth.signInWithPassword({email: email, password: sifre});
   if(error) return {hata: 'Kullanıcı adı veya şifre yanlış!'};
   window._supaUser = data.user;
-  return {basari: true, user: data.user};
+  if(data.user) startOturumKanal(data.user.id); return {basari: true, user: data.user};
 }
 
 // ---- ÇIKIŞ YAP ----
 async function supaGirisYapCikis() {
   await supa.auth.signOut();
-  window._supaUser = null;
+  stopOturumKanal(); window._supaUser = null;
 }
 
 // ---- OYUN KAYDET ----
@@ -290,6 +290,62 @@ supa.auth.onAuthStateChange(function(event, session) {
   if(session) { window._supaUser = session.user; }
   else { window._supaUser = null; }
 });
+
+// ============================================================
+// DC SISTEMI - Ayni hesapla cift giris engeli
+// ============================================================
+window._sessionId = Math.random().toString(36).substr(2,9) + Date.now();
+window._oturumKanal = null;
+
+function startOturumKanal(userId) {
+  if (window._oturumKanal) {
+    window._oturumKanal.unsubscribe();
+    window._oturumKanal = null;
+  }
+  var kanal = supa.channel("oturum_" + userId, {
+    config: { broadcast: { self: false } }
+  });
+  kanal.on("broadcast", { event: "yeni_giris" }, function(payload) {
+    // Baska bir session ayni hesapla girdi - bizi DC et
+    if (payload.payload && payload.payload.session_id !== window._sessionId) {
+      window._oturumKanal.unsubscribe();
+      window._oturumKanal = null;
+      // Oyunu durdur
+      G.started = false;
+      if (typeof custTimer !== "undefined" && custTimer) clearInterval(custTimer);
+      if (typeof mktTimer !== "undefined" && mktTimer) clearInterval(mktTimer);
+      if (typeof buyBotTimer !== "undefined" && buyBotTimer) clearInterval(buyBotTimer);
+      // Ekrani kilitle
+      var gw = document.getElementById("gameWrap");
+      if (gw) {
+        gw.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:20px;background:#07111f">' +
+          '<div style="font-size:48px">🔒</div>' +
+          '<div style="color:#ef4444;font-size:20px;font-weight:700">Başka bir cihazdan giriş yapıldı!</div>' +
+          '<div style="color:#5a7a9e;font-size:14px">Bu oturum sonlandırıldı.</div>' +
+          '<button onclick="location.reload()" style="padding:10px 24px;background:#1f3a58;color:#dde8f8;border:none;border-radius:8px;cursor:pointer;font-size:14px">Yeniden Giriş Yap</button>' +
+          '</div>';
+      }
+    }
+  });
+  kanal.subscribe(function(status) {
+    if (status === "SUBSCRIBED") {
+      // Kanala katildigimi duyur - diger sessionlari DC et
+      kanal.send({
+        type: "broadcast",
+        event: "yeni_giris",
+        payload: { session_id: window._sessionId, zaman: Date.now() }
+      });
+    }
+  });
+  window._oturumKanal = kanal;
+}
+
+function stopOturumKanal() {
+  if (window._oturumKanal) {
+    window._oturumKanal.unsubscribe();
+    window._oturumKanal = null;
+  }
+}
 </script>
 
 
@@ -91208,7 +91264,7 @@ function loadUserGame(username) {
 // Sayfa yüklenince ihracat sonGonderme sıfırla — gönderim olmadan timer çalışmasın
         if(G.ihracatlar){G.ihracatlar.forEach(function(ih){if(ih&&ih.sozlesme&&!ih.bitti){ih.sonGonderme=0;}});}
 
-        openGame();
+        if(window._supaUser) startOturumKanal(window._supaUser.id); openGame();
 
 
 
