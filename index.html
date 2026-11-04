@@ -238,6 +238,19 @@ window._supaUser = null;
 
 // ---- KAYIT OL ----
 async function supaKayitOl(kullaniciAdi, sifre, gercekEmail) {
+  // 1) Turkce karakter ve gecersiz karakter kontrolu
+  if (/[^a-zA-Z0-9_\-\.]/.test(kullaniciAdi)) {
+    return {hata: "Kullanıcı adında sadece İngilizce harf, rakam, _ - . kullanılabilir!"};
+  }
+  if (kullaniciAdi.length < 3 || kullaniciAdi.length > 20) {
+    return {hata: "Kullanıcı adı 3-20 karakter arasında olmalıdır!"};
+  }
+  // 2) Kullanici adi benzersizlik kontrolu
+  var {data: _kaditKontrol, error: _kaditHata} = await supa.from("oyun_kayitlari")
+    .select("kullanici_id")
+    .ilike("kullanici_adi", kullaniciAdi)
+    .maybeSingle();
+  if (_kaditKontrol) return {hata: "Bu kullanıcı adı zaten alınmış!"};
   // Email varsa gerçek email kullan, yoksa sahte email oluştur
   var email = gercekEmail && gercekEmail.length > 0 ? gercekEmail : kullaniciAdi.toLowerCase().replace(/[^a-z0-9]/g,'') + '@kuzgun.game';
   var {data, error} = await supa.auth.signUp({email: email, password: sifre, options:{emailRedirectTo: 'https://kuzgunkral.github.io/kuzgun-ticaret/', data:{kullanici_adi: kullaniciAdi}}});
