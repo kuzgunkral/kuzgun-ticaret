@@ -108744,6 +108744,7 @@ function runCustBot() {
     var _sellRand = Math.floor(Math.random() * _sellBase * 1.5);
     var _maxSell = pd.stock;
     var sold = Math.min(pd.stock, _sellRand);
+    if(k==='Un'){log('[DEBUG sold] ratio='+ratio.toFixed(3)+' sellBase='+_sellBase.toFixed(1)+' sellRand='+_sellRand+' stock='+pd.stock+' sold='+sold+' cityMult='+cityMult.toFixed(2), 'ok');}
 
 
 
