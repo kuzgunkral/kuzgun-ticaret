@@ -71191,9 +71191,10 @@ function ureticilerTick() {
       var _stokOran = u.maxStok > 0 ? u.stok / u.maxStok : 0.5;
       var _stokEtki = _stokOran < 0.2 ? 0.03 : _stokOran < 0.4 ? 0.01 : 0; // az stokta fiyat yukselir
       var dalgaPct = (Math.random() * 4 - 2) / 100 + _uEnflEtki + _stokEtki;
-      var _baseF = p.base; // BASE fiyat = 0 noktasi
-      var minF = Math.round(_baseF * 0.82 * 100) / 100; // min: base -%18
-      var maxF = Math.round(_baseF * 0.97 * 100) / 100; // max: baslangic fiyatinin %97'si - uretici daima piyasadan ucuz kalabilir
+      var _baseF = p.base; // sabit baslangic referans
+      var _piyF = (G.pdata && G.pdata[k] && G.pdata[k].base > 0) ? G.pdata[k].base : p.base; // anlik piyasa fiyati
+      var minF = Math.round(_piyF * 0.95 * 100) / 100; // min: piyasanin %5 altinda
+      var maxF = Math.round(_piyF * 0.99 * 100) / 100; // max: piyasanin %1 altinda (uretici min %1 max %5 ucuz)
       u.fiyat = Math.max(minF, Math.min(maxF, Math.round(u.fiyat * (1 + dalgaPct) * 100) / 100));
       // Stok yenileme
       if (u.stok < u.maxStok && (!u._sonUretim || _uretNow - u._sonUretim >= 300000)) {
@@ -107299,18 +107300,7 @@ function runCustBot() {
 
 
   if (!G.started) return;
-  // DEBUG: custBot calisiyor mu?
-  window._cbTick = (window._cbTick||0)+1;
-  if(window._cbTick % 5 === 1) {
-    var _dbStr = "[CustBot #"+window._cbTick+"] started="+G.started;
-    if(G.pdata && G.pdata["Un"]) {
-      var _up=G.pdata["Un"];
-      var _usp=(typeof sellPrice==="function")?sellPrice("Un"):_up.base;
-      var _upasif=G.stores&&G.stores.market&&!!G.stores.market.pasif;
-      var _uswing=_up.base<(_up.initBase||_up.base)*0.68;
-      _dbStr += " | Un: stk="+_up.stock+" piy="+_up.base.toFixed(2)+" sp="+_usp.toFixed(2)+" pasif="+_upasif+" swing="+_uswing;
     }
-    log(_dbStr, "ok");
   }
 
 
@@ -107770,7 +107760,6 @@ function runCustBot() {
     var _tickSkip = _piyasaFarkPct <= 0 ? 1 : _piyasaFarkPct <= 10 ? 2 : _piyasaFarkPct <= 20 ? 3 : _piyasaFarkPct <= 30 ? 4 : 5;
     window._sellTickCount = window._sellTickCount || {};
     window._sellTickCount[k] = (window._sellTickCount[k]||0) + 1;
-    if(k==='Un'){log('[DEBUG tick] tickCount='+(window._sellTickCount['Un']||0)+' tickSkip='+_tickSkip+' pFark='+_piyasaFarkPct.toFixed(1)+'% sp='+_spTick.toFixed(2)+' piy='+pd.base.toFixed(2), 'ok');}
     if(window._sellTickCount[k] < _tickSkip) continue;
     window._sellTickCount[k] = 0;
 
@@ -108745,7 +108734,6 @@ function runCustBot() {
     var _sellRand = Math.floor(Math.random() * _sellBase * 1.5);
     var _maxSell = pd.stock;
     var sold = Math.min(pd.stock, _sellRand);
-    if(k==='Un'){log('[DEBUG sold] ratio='+ratio.toFixed(3)+' sellBase='+_sellBase.toFixed(1)+' sellRand='+_sellRand+' stock='+pd.stock+' sold='+sold+' cityMult='+cityMult.toFixed(2), 'ok');}
 
 
 
