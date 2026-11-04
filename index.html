@@ -123189,11 +123189,27 @@ var _kLv=G.kriptoLevel||1;var _kMaxAl=kriptoMaxAl();var _kMaxSat=kriptoMaxSat();
 var _karBon=_kLv>20?Math.min(10,_kLv-20):0;
 var _kCap2=Math.round(1000*Math.pow(1000,(_kLv-1)/29));
 var _topK2=0; KRIPTO_LISTESI.forEach(function(kk){var kkd=G.kripto&&G.kripto[kk.id];if(kkd)_topK2+=(kkd.miktar||0);});
-h+='<div style="background:#0a1628;border:1px solid #1f3a58;border-radius:8px;padding:6px 12px;margin-bottom:4px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">';
-h+='<span style="font-size:12px;color:#f59e0b;font-weight:700">💎 Kripto Lv'+_kLv+'/30</span>';
+h+='<div style="background:#0a1628;border:1px solid #1f3a58;border-radius:8px;padding:6px 12px;margin-bottom:4px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">';
+h+='<span style="font-size:12px;color:#f59e0b;font-weight:700">💎 Kripto Lv'+_kLv+'/30'+((_kLv>=30)?' MAX':'')+'</span>';
+if(_kLv>0&&_kLv<30){
+  var _kEsikler=[0,50000,200000,500000,1200000,2500000,5000000,9000000,14000000,20000000,30000000,42000000,56000000,72000000,90000000,110000000,135000000,160000000,190000000,220000000,260000000,300000000,350000000,410000000,480000000,560000000,650000000,750000000,870000000,1000000000];
+  var _kKazanc=G.kriptoKazanc||0;
+  var _kEsik=_kEsikler[_kLv]||0;
+  if(_kEsik>0){
+    var _kPct=Math.min(100,Math.round((_kKazanc/_kEsik)*100));
+    var _kKalan=Math.max(0,_kEsik-_kKazanc);
+    var _kBarClr=_kPct<30?'#ef4444':_kPct<60?'#f97316':_kPct<85?'#f59e0b':'#10b981';
+    h+='<span style="display:inline-flex;align-items:center;gap:4px"><span style="font-size:11px;font-weight:700;color:#dde8f8;white-space:nowrap">Lv'+(_kLv+1)+' icin:</span>';
+    h+='<div style="width:60px;height:6px;background:#0a1628;border-radius:3px;display:inline-block"><div style="height:6px;border-radius:3px;width:'+_kPct+'%;background:'+_kBarClr+';transition:width 0.3s"></div></div>';
+    h+='<span style="font-size:11px;font-weight:700;color:#dde8f8;white-space:nowrap">'+_kPct+'%</span>';
+    h+='<span style="font-size:10px;color:#5a7a9e;white-space:nowrap">('+fmt(_kKalan)+' kaldi)</span>';
+    h+='<span style="font-size:11px;font-weight:700;color:#a78bfa;white-space:nowrap">ya da</span></span>';
+  }
+  var _kMal=Math.round(90*Math.pow(1.1832,_kLv-1));
+  h+='<button onclick="kriptoLevelUp()" style="padding:3px 10px;font-size:11px;background:#1a0a2e;color:#a78bfa;border:1px solid #7c3aed;border-radius:5px;cursor:pointer">↑ Lv'+(_kLv+1)+' ('+_kMal+'💎)</button>';
+}
 h+='<span style="font-size:12px;color:#5a7a9e">Max: <b style="color:#dde8f8">'+fmt(Math.round(_kCap2))+'</b></span>';
 if(_karBon>0)h+='<span style="font-size:12px;font-weight:700;background:#0a2e1a;color:#10b981;border:1px solid #10b981;border-radius:5px;padding:2px 8px">+'+_karBon+'% kar</span>';
-if(_kLv<30)h+='<button onclick="kriptoLevelUp()" style="padding:3px 10px;font-size:11px;background:#1a0a2e;color:#a78bfa;border:1px solid #7c3aed;border-radius:5px;cursor:pointer">↑ Lv'+(_kLv+1)+' ('+Math.round(90*Math.pow(1.1832,_kLv-1))+'💎)</button>';
 h+='</div>';
 h+='<div style="background:#0a1628;border:1px solid #1f3a58;border-radius:8px;padding:6px 12px;margin-bottom:6px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">';
 h+='<span style="font-size:12px;color:#dde8f8;font-weight:700">💼 Portföy: <b id="kpPortfoy" style="color:#f59e0b">'+fmt(Math.round(td))+' TL</b></span>';
