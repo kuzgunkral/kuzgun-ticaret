@@ -75139,6 +75139,10 @@ function sellPrice(k) {
   // Satis fiyati = ORT.MALIYET x (1 + global kar%) - kartta -> fiyati gosterir
   var _sOrtMal = (pd.stock > 0 && (pd.costTotal||0) > 0) ? Math.round((pd.costTotal||0) / pd.stock * 100) / 100 : pd.base;
   var base = Math.round(_sOrtMal * (1 + pd.margin / 100) * 100) / 100;
+  // sellPrice ust siniri: piyasanin max %50 ustune cikamaz
+  // ort.maliyet (yag vb) sistiginde _tickSkip=5 kilitlenmesini onler
+  var _spCap = pd.base * 1.50;
+  if (base > _spCap) base = Math.round(_spCap * 100) / 100;
 
 
 
@@ -75375,6 +75379,17 @@ function lvBonusTL(k) {
   var pct = lvBonusPct(k);
   if (pct <= 0) return 0;
   return Math.round(sellPrice(k) * pct / 100 * 100) / 100;
+}
+
+function maliyetSifirla(k) {
+  if (!G.pdata || !G.pdata[k]) return;
+  var pd = G.pdata[k];
+  if (!pd.stock || pd.stock <= 0) { log("Stok yok, maliyet sifirlanamaz!", "er"); return; }
+  var eskiMal = (pd.costTotal > 0 && pd.stock > 0) ? Math.round(pd.costTotal / pd.stock) : 0;
+  // costTotal = stock * pd.base  (piyasa fiyatina reset)
+  pd.costTotal = Math.round(pd.stock * pd.base);
+  log("🗑 " + k + " ort.maliyet sifirlandı: " + eskiMal + " TL → " + pd.base + " TL (piyasa)", "ok");
+  renderInv(); save();
 }
 
 
@@ -119921,6 +119936,7 @@ var _stLv = G.stores[PRODUCTS[k].store] ? (G.stores[PRODUCTS[k].store].level || 
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">|</span>';
           h += '<span style="font-size:10px;font-weight:700;color:' + _kmKzRenk + ';white-space:nowrap">' + _kmKzIkon + ' ' + fmt(Math.abs(_kmKzVal)) + ' TL</span>';
           h += '<span style="font-size:11px;font-weight:900;color:' + _kmPiyasaRenk + ';white-space:nowrap">' + (_kmPiyasaFark < -0.05 ? '▲' : _kmPiyasaFark > 0.05 ? '▼' : '=') + ' ' + Math.abs(_kmPiyasaFark).toFixed(1) + '%</span>';
+          h += '<button onclick="maliyetSifirla(\'' + k + '\')" title="Ort. maliyeti piyasa fiyatına sıfırla" style="margin-left:4px;padding:1px 5px;font-size:9px;font-weight:700;background:#3a0a0a;color:#ef4444;border:1px solid #ef4444;border-radius:4px;cursor:pointer;white-space:nowrap">🗑 Sıfırla</button>';
         } else {
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal: -</span>';
         }
@@ -120474,6 +120490,7 @@ var _capMax = cap(PRODUCTS[k].store);
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">|</span>';
           h += '<span style="font-size:10px;font-weight:700;color:' + _kr3 + ';white-space:nowrap">' + _ki3 + ' ' + fmt(Math.abs(_kv3)) + ' TL</span>';
           h += '<span style="font-size:11px;font-weight:900;color:' + _pfr3 + ';white-space:nowrap">' + (_pf3 < -0.05 ? '▲' : _pf3 > 0.05 ? '▼' : '=') + ' ' + Math.abs(_pf3).toFixed(1) + '%</span>';
+          h += '<button onclick="maliyetSifirla(\'' + k + '\')" title="Ort. maliyeti piyasa fiyatina sifirla" style="margin-left:4px;padding:1px 5px;font-size:9px;font-weight:700;background:#3a0a0a;color:#ef4444;border:1px solid #ef4444;border-radius:4px;cursor:pointer;white-space:nowrap">Sifirla</button>';
         } else {
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal: -</span>';
         }
