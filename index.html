@@ -107755,7 +107755,7 @@ function runCustBot() {
     var _spTick = (typeof sellPrice==='function') ? sellPrice(k) : pd.base;
     var _piyasaFarkPct = pd.base > 0 ? ((_spTick - pd.base) / pd.base * 100) : 0;
     // 0% altinda: her tick | 0-10%: 2 tick | 10-20%: 3 tick | 20-30%: 4 tick | 30%+: 5 tick
-    var _tickSkip = m <= 10 ? 1 : m <= 20 ? 2 : m <= 50 ? 3 : 4; // margin bazli: dusuk kar->hizli satis
+    var _tickSkip = 1; // TEST: her tick satis dene
     window._sellTickCount = window._sellTickCount || {};
     window._sellTickCount[k] = (window._sellTickCount[k]||0) + 1;
     if(window._sellTickCount[k] < _tickSkip) continue;
