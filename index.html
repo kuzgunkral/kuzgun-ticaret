@@ -54600,7 +54600,7 @@ function ihaleUpgrade(){
   if((G.elmas||0)<cost){if(typeof flashBtn==='function')flashBtn('ihaleUpgBtn');log('Yetersiz elmas! Lv'+(lv+1)+' icin '+cost+' lazim. Mevcut: '+(G.elmas||0),'er');return;}
   elmasOnayla(cost,'Ihale Lv'+(lv+1)+"'e yukselme",function(){
     G.elmas=(G.elmas||0)-cost;
-    G.ihaleLevel=lv+1;
+    G.ihaleLevel=lv+1; G.ihaleLvKazanilan=0;
     var bon=0,bonPara=0;
     if(G.ihaleLevel>=1&&G.ihaleLevel<=5)bon=1;else if(G.ihaleLevel>=6&&G.ihaleLevel<=10)bon=2;else if(G.ihaleLevel>=11&&G.ihaleLevel<=15)bon=3;else if(G.ihaleLevel>=16&&G.ihaleLevel<=20)bon=4;else if(G.ihaleLevel>=21&&G.ihaleLevel<=25)bon=5;else if(G.ihaleLevel>=26&&G.ihaleLevel<=30)bon=10;
     if(G.ihaleLevel===5){bonPara=500000;bon=10;}else if(G.ihaleLevel===10){bonPara=2000000;bon=10;}else if(G.ihaleLevel===15){bonPara=5000000;bon=15;}else if(G.ihaleLevel===20){bonPara=10000000;bon=20;}else if(G.ihaleLevel===25){bonPara=25000000;bon=25;}else if(G.ihaleLevel===30){bonPara=50000000;bon=100;}
@@ -54751,7 +54751,7 @@ function ihaleTick(){if(!G.ihaleLevel||G.ihaleLevel<1)return;if(!G.ihaleler)G.ih
         }
       }
     }
-    if(now>=ih.bitisZamani){var tt=ih.teklifler.slice();if(ih.benimTeklif!==null)tt.push({firma:'Sen',birimFiyat:ih.benimTeklif});tt.sort(function(a,b){return a.birimFiyat-b.birimFiyat;});var kaz=tt[0];ih.bitti=true;ih.kazananFirma=kaz.firma;ih.kazandi=(kaz.firma==='Sen');if(!G.ihaleTamamlanan)G.ihaleTamamlanan=0;G.ihaleTamamlanan++;if(ih.kazandi){var _gSure=(ih.gonderSureDk||ih.tipSureDk||30)*60*1000;ih.gonderBitisZamani=now+_gSure;
+    if(now>=ih.bitisZamani){var tt=ih.teklifler.slice();if(ih.benimTeklif!==null)tt.push({firma:'Sen',birimFiyat:ih.benimTeklif});tt.sort(function(a,b){return a.birimFiyat-b.birimFiyat;});var kaz=tt[0];ih.bitti=true;ih.kazananFirma=kaz.firma;ih.kazandi=(kaz.firma==='Sen');if(!G.ihaleTamamlanan)G.ihaleTamamlanan=0;G.ihaleTamamlanan++; G.ihaleLvKazanilan=(G.ihaleLvKazanilan||0)+1; (function(){var _ieLv=G.ihaleLevel||0;if(_ieLv<=0||_ieLv>=30)return;var _ieE=[0,7,8,9,10,11,12,13,14,16,18,20,22,24,27,30,33,37,41,45,50,56,62,69,76,85,94,104,115,128];if(_ieE[_ieLv]>0&&(G.ihaleLvKazanilan||0)>=_ieE[_ieLv]){G.ihaleLevel=_ieLv+1;G.ihaleLvKazanilan=0;var _ieBon=_ieLv+1>=30?100:_ieLv+1>=25?25:_ieLv+1>=20?20:_ieLv+1>=15?15:_ieLv+1>=10?10:_ieLv+1>=5?10:1;G.elmas=(G.elmas||0)+_ieBon;log('📜 İhale Lv'+G.ihaleLevel+"'e yukseldi! (XP ile) +"+_ieBon+'💎','ok');if(typeof renderIhale==='function')renderIhale();}})();if(ih.kazandi){var _gSure=(ih.gonderSureDk||ih.tipSureDk||30)*60*1000;ih.gonderBitisZamani=now+_gSure;
           // Katilim bekleme suresini hesapla (teklif / max birim orani)
           var _maxBirim=typeof ih.birim==='number'?ih.birim:(ih.maxBirimFiyat||ih.benimTeklif||100);
           var _oran=ih.benimTeklif>0&&_maxBirim>0?ih.benimTeklif/_maxBirim:0;
@@ -54920,7 +54920,7 @@ function renderIhale(){
   h+='<span style="font-size:14px;font-weight:800;color:#f59e0b">📜 Ihale</span>';
   h+='<span style="font-size:11px;color:#5a7a9e">Lv'+lv+'/30</span>';
   var _iEsikler=[0,7,8,9,10,11,12,13,14,16,18,20,22,24,27,30,33,37,41,45,50,56,62,69,76,85,94,104,115,128];
-  var _iTam=G.ihaleTamamlanan||0;
+  var _iTam=G.ihaleLvKazanilan||0;
   var _iLv2=lv||0;
   var _iEsik=(_iLv2>=0&&_iLv2<30)?_iEsikler[_iLv2+1]||0:0;
   var _iOnce=(_iLv2>=0)?_iEsikler[_iLv2]||0:0;
