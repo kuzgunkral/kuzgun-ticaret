@@ -122556,7 +122556,7 @@ function renderIhracat(){
   var _karM=ihracatKarMarji(_xp);
   var _xpSonraki=_lv<30?(_lv*100-_xp%100):0;
   var _klanLider=G.klan&&(G.klan.lider===(G._oyuncuAdi||'Ben')||G.klan.lider==='Sen'||G.klan.kuruldu);
-  var _em=Math.min(10000,Math.max(10,Math.round(10*Math.pow((_lv/30*99+1),1.5))));
+  var _em=Math.round(1000+(_lv-1)*(9000/29)); // Lv1=1000, Lv30=10000
   var h='';
   // Lv1→2:100, Lv2→3:200, ..., Lv(n)→n+1: n*100
   // Lv n başlangıç XP eşiği = (n-1)*n/2*100
@@ -122992,7 +122992,7 @@ function ihracatLvUp(){
   ihracatInit();
   var _xp=G.ihracatItibar||0;var _lv=ihracatItibarLv(_xp);
   if(_lv>=30){log('İhracat itibarı zaten MAX Lv30!','er');return;}
-  var _em=Math.min(10000,Math.max(10,Math.round(10*Math.pow((_lv/30*99+1),1.5))));
+  var _em=Math.round(1000+(_lv-1)*(9000/29)); // Lv1=1000, Lv30=10000
   if((G.elmas||0)<_em){log('Yetersiz 💎! Lv'+(_lv+1)+' için '+_em+' lazım.','er');return;}
   elmasOnayla(_em,'İhracat İtibar Lv'+(_lv+1),function(){
     G.elmas=(G.elmas||0)-_em;
