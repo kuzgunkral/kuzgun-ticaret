@@ -54919,10 +54919,10 @@ function renderIhale(){
   h+='<div style="background:#0d1f35;border:1px solid #1a3050;border-radius:9px;padding:10px 16px;margin-bottom:10px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;overflow:visible;padding:8px 12px">';
   h+='<span style="font-size:14px;font-weight:800;color:#f59e0b">📜 Ihale</span>';
   h+='<span style="font-size:11px;color:#5a7a9e">Lv'+lv+'/30</span>';
-  var _iEsikler=[0,7,8,9,10,11,12,13,14,16,18,20,22,24,27,30,33,37,41,45,50,56,62,69,76,85,94,104,115,128];
+  var _iEsikler=[0,7,8,9,10,11,12,13,14,16,18,20,22,24,27,30,33,37,41,45,50,56,62,69,76,85,94,104,115,128,128];
   var _iTam=G.ihaleLvKazanilan||0;
   var _iLv2=lv||0;
-  var _iEsik=(_iLv2>=0&&_iLv2<30)?_iEsikler[_iLv2+1]||0:0;
+  var _iEsik=(_iLv2>=0&&_iLv2<=30)?_iEsikler[_iLv2]||0:0;
   var _iPct=0,_iKalan=0;
   if(_iEsik>0){
     _iPct=Math.min(100,Math.round((_iTam/_iEsik)*100));
