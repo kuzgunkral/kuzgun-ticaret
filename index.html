@@ -54923,13 +54923,10 @@ function renderIhale(){
   var _iTam=G.ihaleLvKazanilan||0;
   var _iLv2=lv||0;
   var _iEsik=(_iLv2>=0&&_iLv2<30)?_iEsikler[_iLv2+1]||0:0;
-  var _iOnce=(_iLv2>=0)?_iEsikler[_iLv2]||0:0;
   var _iPct=0,_iKalan=0;
   if(_iEsik>0){
-    var _iKazanilan=Math.max(0,_iTam-_iOnce);
-    var _iGerek=Math.max(1,_iEsik-_iOnce);
-    _iPct=Math.min(100,Math.round((_iKazanilan/_iGerek)*100));
-    _iKalan=Math.max(0,_iGerek-_iKazanilan);
+    _iPct=Math.min(100,Math.round((_iTam/_iEsik)*100));
+    _iKalan=Math.max(0,_iEsik-_iTam);
   }
   if(_iEsik>0){
     var _iBarClr=_iPct<30?'#ef4444':_iPct<60?'#f97316':_iPct<85?'#f59e0b':'#10b981';
