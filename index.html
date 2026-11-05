@@ -122913,7 +122913,18 @@ function ihracatBotToggle(ihIdx) {
   _bot.aktif = !_bot.aktif;
   var _ih4 = G.ihracatlar && G.ihracatlar.find(function(x){ return x.sozlesme && !x.bitti; });
   if (_ih4) {
-    _ih4._botBekliyor = false; // sadece flag temizle, sonGonderme'ye dokunma
+    _ih4._botBekliyor = false;
+  }
+  // Bot baslatilinca setTimeout ile ilk gonderimi planla
+  if (_bot.aktif) {
+    if (window._ihracatBotTimeout) clearTimeout(window._ihracatBotTimeout);
+    var _sg = _ih4 && _ih4.sonGonderme ? _ih4.sonGonderme : 0;
+    var _bekle = _sg > 0 ? Math.max(0, 300000 - (Date.now() - _sg)) : 0;
+    window._ihracatBotTimeout = setTimeout(function(){
+      if(typeof ihracatBotGonder==='function') ihracatBotGonder();
+    }, _bekle);
+  } else {
+    if (window._ihracatBotTimeout) clearTimeout(window._ihracatBotTimeout);
   }
   log('\u{1F916} Gonder Botu ' + (_bot.aktif ? 'baslatildi' : 'durduruldu'), 'ok');
   save(); renderIhracat();
