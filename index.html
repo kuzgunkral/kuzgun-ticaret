@@ -122568,13 +122568,17 @@ function renderIhracat(){
   h+='<div style="background:#0a1628;border:1px solid #1f3a58;border-radius:10px;padding:8px 14px;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
   h+='<span style="font-size:13px;font-weight:800;color:#f59e0b" title="İhracat itibarınız arttıkça daha fazla kar marjı kazanırsınız!">📦 İhracat</span>';
   h+='<span style="font-size:11px;color:#a78bfa;font-weight:700">Lv'+_lv+'/30'+(_lv>=30?' MAX':'')+'</span>';
+  if(_lv<30){
+    var _xpBarClr=_xpPct<30?'#ef4444':_xpPct<60?'#f97316':_xpPct<85?'#f59e0b':'#10b981';
+    h+='<span style="display:inline-flex;align-items:center;gap:4px"><span style="font-size:11px;font-weight:700;color:#dde8f8;white-space:nowrap">Lv'+(_lv+1)+' icin:</span>';
+    h+='<div style="width:60px;height:6px;background:#1a3050;border-radius:3px;display:inline-block"><div style="height:6px;border-radius:3px;width:'+_xpPct+'%;background:'+_xpBarClr+';transition:width 0.3s"></div></div>';
+    h+='<span style="font-size:11px;font-weight:700;color:#dde8f8;white-space:nowrap">'+_xpPct+'%</span>';
+    h+='<span style="font-size:10px;color:#5a7a9e;white-space:nowrap">('+_xpKumulatif+'/'+_xpKumulatifMax+' XP kaldi)</span>';
+    h+='<span style="font-size:11px;font-weight:700;color:#a78bfa;white-space:nowrap">ya da</span></span>';
+    h+='<button onclick="ihracatLvUp()" style="padding:3px 8px;font-size:11px;background:#1a0a2e;color:#a78bfa;border:1px solid #7c3aed;border-radius:5px;cursor:pointer;white-space:nowrap">↑ Lv'+(_lv+1)+' ('+_em+'💎)</button>';
+  }
+  h+='<span style="font-size:12px;color:#5a7a9e;white-space:nowrap">Max: <b style="color:#dde8f8">'+fmt(_em)+'</b> br</span>';
   h+='<span style="font-size:11px;color:#10b981;font-weight:700;cursor:help;white-space:nowrap" title="İhracat itibar bonusu: Lv21+ her Lv +%1 kar marjı. Max Lv30 = +%10 bonus kazanç!">+%'+_karM+' Kar 💡</span>';
-  h+='<span style="font-size:11px;color:#5a7a9e;white-space:nowrap">Max: <b style="color:#dde8f8">'+fmt(_em)+'</b> br</span>';
-  h+='<div style="display:flex;align-items:center;gap:4px;min-width:120px;max-width:200px">';
-  h+='<div style="width:80px;height:4px;background:#1f3a58;border-radius:2px;flex-shrink:0"><div style="width:'+_xpPct+'%;height:4px;background:#10b981;border-radius:2px"></div></div>';
-  h+='<span style="font-size:10px;color:#10b981;font-weight:700;white-space:nowrap">'+(_lv<30?(_xpKumulatif+'/'+_xpKumulatifMax+' XP'):'MAX')+'</span>';
-  h+='</div>';
-  if(_lv<30)h+='<button onclick="ihracatLvUp()" style="padding:3px 8px;font-size:11px;background:#1a0a2e;color:#a78bfa;border:1px solid #7c3aed;border-radius:5px;cursor:pointer;white-space:nowrap">↑ Lv'+(_lv+1)+' ('+_em+'💎)</button>';
   h+='</div>';
   var aktif=G.ihracatlar.filter(function(ih){return !ih.bitti;});
   var _sozlesmeliIh=aktif.find(function(ih){return ih.sozlesme;});
