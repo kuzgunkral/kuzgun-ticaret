@@ -35264,7 +35264,7 @@ function borsaSat(kod) {
   var _bKar=toplam-maliyetPay;
   if(G.klan&&G.klan.kuruldu&&_bKar>0){
     var _bKlanPay=Math.round(_bKar*0.10);
-    if(_bKlanPay>0){G.klan.banka=(G.klan.banka||0)+_bKlanPay;klanLog('📈 Borsa ('+kod+') satışından +'+fmt(_bKlanPay)+' TL bağış. Banka: '+fmt(Math.round(G.klan.banka))+' TL','bagis');}
+    if(_bKlanPay>0){G.klan.banka=(G.klan.banka||0)+_bKlanPay;} // klanLog kaldirildi - borsa oto bagis
   }
   save();
   showMsg(adet + ' adet ' + kod + ' satildi! Gelir: ' + fmt(toplam) + ' TL');
