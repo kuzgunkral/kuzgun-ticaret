@@ -110623,7 +110623,7 @@ function klanBotKazanc(kaynak, kazananTL) {
     _toplamBagis+=_bagis;
   });
   if(_toplamBagis>0){
-    klanLog('💰 '+kaynak+' kazancından +'+fmt(_toplamBagis)+' TL klan bankasına bağışlandı','ok');
+    // klanLog('💰 '+kaynak+' kazancından +'+fmt(_toplamBagis)+' TL klan bankasına bağışlandı','ok');
   }
 }
 
@@ -110656,7 +110656,7 @@ function klanBotPeriyodikTick() {
   });
   if(G.klan.bankaBagislar.length>100)G.klan.bankaBagislar=G.klan.bankaBagislar.slice(-100);
   if(_toplamBagis>0){
-    klanLog('🏦 Üyeler servetlerinden +'+fmt(Math.round(_toplamBagis))+' TL bağışladı. Banka: '+fmt(Math.round(G.klan.banka))+' TL','ok');
+    // klanLog('🏦 Üyeler servetlerinden +'+fmt(Math.round(_toplamBagis))+' TL bağışladı. Banka: '+fmt(Math.round(G.klan.banka))+' TL','ok');
     save();
   }
 }
@@ -123150,7 +123150,7 @@ function kriptoSat(id, miktarStr) {
   // Klan bağışı — kazancın %10'u klan bankasına
   if(G.klan&&G.klan.kuruldu&&G.klan.uyeler&&_satKZ>0){
     var _klanPay=Math.round(_satKZ*0.10);
-    if(_klanPay>0){G.klan.banka=(G.klan.banka||0)+_klanPay;klanLog('₿ Kripto ('+id+') satışından +'+fmt(_klanPay)+' TL bağış. Banka: '+fmt(Math.round(G.klan.banka))+' TL','bagis');}
+    if(_klanPay>0){G.klan.banka=(G.klan.banka||0)+_klanPay;// klanLog('₿ Kripto ('+id+') satışından +'+fmt(_klanPay)+' TL bağış. Banka: '+fmt(Math.round(G.klan.banka))+' TL','bagis');}
   }
   if(!G.kriptoIslemGecmisi)G.kriptoIslemGecmisi=[];
   var _kigs=G.kriptoIslemGecmisi.find(function(x){return x.id===id;});
