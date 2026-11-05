@@ -123027,7 +123027,8 @@ window._ihracatBotTimer=setInterval(function(){
   if(!_ih||_ih.bitti)return;
   var _now=Date.now();
   var _aralik=5*60*1000; // tam 5 dakika
-  if(_now-(_ih.sonGonderme||0)<_aralik)return;
+  if((_ih.sonGonderme||0)===0)return; // ilk gonderim manuel yapilmali
+  if(_now-(_ih.sonGonderme||0)<_aralik-1000)return; // 1sn tolerans
   // 5dk doldu — gönderim yap
   var _lv=ihracatItibarLv(G.ihracatItibar||0);
   var _max=Math.round(1000+(_lv-1)*379);
