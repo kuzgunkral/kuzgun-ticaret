@@ -122388,6 +122388,7 @@ function ihracatTick(){
           var _karMarji2=ihracatKarMarji(G.ihracatItibar||0);
           var _piyFiyat2=G.pdata&&G.pdata[ih.urun]?G.pdata[ih.urun].base:(ih.birimFiyat*0.85);
           var _netKarLog=Math.round(ih.gonderilen*(ih.birimFiyat*(1+_karMarji2/100)-_piyFiyat2));
+          if(_netKarLog>0)G.ihracatToplamKar=(G.ihracatToplamKar||0)+_netKarLog;
           klanLog('📦 '+ih.urun+' ihracatı tamamlandı! '+_siralama+' +'+fmt(_netKarLog)+' TL'+(xpOdul>0?' +'+xpOdul+' XP':''),'ok');
           if(G.klan.log.length>50)G.klan.log=G.klan.log.slice(0,50);
           // Tebrik efekti
@@ -122579,6 +122580,7 @@ function renderIhracat(){
   }
   h+='<span style="font-size:12px;color:#5a7a9e;white-space:nowrap">Max: <b style="color:#dde8f8">'+fmt(_em)+'</b> br</span>';
   h+='<span style="font-size:11px;color:#10b981;font-weight:700;cursor:help;white-space:nowrap" title="İhracat itibar bonusu: Lv21+ her Lv +%1 kar marjı. Max Lv30 = +%10 bonus kazanç!">+%'+_karM+' Kar 💡</span>';
+  h+='<span style="font-size:12px;color:#5a7a9e;white-space:nowrap">Toplam Kar: <b style="color:#10b981">'+fmt(Math.round(G.ihracatToplamKar||0))+'</b> TL</span>';
   h+='</div>';
   var aktif=G.ihracatlar.filter(function(ih){return !ih.bitti;});
   var _sozlesmeliIh=aktif.find(function(ih){return ih.sozlesme;});
