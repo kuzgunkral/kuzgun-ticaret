@@ -122566,11 +122566,12 @@ function renderIhracat(){
   h+='<div style="background:#0a1628;border:1px solid #1f3a58;border-radius:10px;padding:8px 14px;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
   h+='<span style="font-size:13px;font-weight:800;color:#f59e0b" title="İhracat itibarınız arttıkça daha fazla kar marjı kazanırsınız!">📦 İhracat</span>';
   h+='<span style="font-size:11px;color:#a78bfa;font-weight:700">Lv'+_lv+'/30'+(_lv>=30?' MAX':'')+'</span>';
-  h+='<div style="display:flex;align-items:center;gap:4px;flex:1;min-width:80px">';
-  h+='<div style="flex:1;height:4px;background:#1f3a58;border-radius:2px"><div style="width:'+_xpPct+'%;height:4px;background:#10b981;border-radius:2px"></div></div>';
+  h+='<span style="font-size:11px;color:#10b981;font-weight:700;cursor:help;white-space:nowrap" title="İhracat itibar bonusu: Lv21+ her Lv +%1 kar marjı. Max Lv30 = +%10 bonus kazanç!">+%'+_karM+' Kar 💡</span>';
+  h+='<span style="font-size:11px;color:#5a7a9e;white-space:nowrap">Max: <b style="color:#dde8f8">'+fmt(_em)+'</b> br</span>';
+  h+='<div style="display:flex;align-items:center;gap:4px;min-width:120px;max-width:200px">';
+  h+='<div style="width:80px;height:4px;background:#1f3a58;border-radius:2px;flex-shrink:0"><div style="width:'+_xpPct+'%;height:4px;background:#10b981;border-radius:2px"></div></div>';
   h+='<span style="font-size:10px;color:#10b981;font-weight:700;white-space:nowrap">'+(_lv<30?(_xpKumulatif+'/'+_xpKumulatifMax+' XP'):'MAX')+'</span>';
   h+='</div>';
-  h+='<span style="font-size:11px;color:#10b981;font-weight:700;cursor:help" title="İhracat itibar bonusu: Her Lv +%1 kar marjı. Max Lv30 = +%30 bonus kazanç!">+%'+_karM+' Kar 💡</span>';
   if(_lv<30)h+='<button onclick="ihracatLvUp()" style="padding:3px 8px;font-size:11px;background:#1a0a2e;color:#a78bfa;border:1px solid #7c3aed;border-radius:5px;cursor:pointer;white-space:nowrap">↑ Lv'+(_lv+1)+' ('+_em+'💎)</button>';
   h+='</div>';
   var aktif=G.ihracatlar.filter(function(ih){return !ih.bitti;});
