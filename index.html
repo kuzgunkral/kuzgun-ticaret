@@ -123150,7 +123150,7 @@ function kriptoSat(id, miktarStr) {
   // Klan bağışı — kazancın %10'u klan bankasına
   if(G.klan&&G.klan.kuruldu&&G.klan.uyeler&&_satKZ>0){
     var _klanPay=Math.round(_satKZ*0.10);
-    if(_klanPay>0){G.klan.banka=(G.klan.banka||0)+_klanPay;// klanLog('₿ Kripto ('+id+') satışından +'+fmt(_klanPay)+' TL bağış. Banka: '+fmt(Math.round(G.klan.banka))+' TL','bagis');}
+    if(_klanPay>0){G.klan.banka=(G.klan.banka||0)+_klanPay;}
   }
   if(!G.kriptoIslemGecmisi)G.kriptoIslemGecmisi=[];
   var _kigs=G.kriptoIslemGecmisi.find(function(x){return x.id===id;});
