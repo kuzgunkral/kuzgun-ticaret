@@ -123057,10 +123057,11 @@ function ihracatBotGonder(){
     G.depo.stok[_ih.urun]-=_d;_gndr+=_d;
   }
   var _pAl=_mkt-_gndr;
-  if(_pAl>0&&G.klan&&(G.klan.banka||0)>0){
+  if(_pAl>0){
     var _f=G.pdata&&G.pdata[_ih.urun]?G.pdata[_ih.urun].base:_ih.birimFiyat;
     var _m=Math.round(_pAl*_f);
-    if(G.klan.banka>=_m){G.klan.banka-=_m;_gndr+=_pAl;}
+    if((G.money||0)>=_m){G.money-=_m;_gndr+=_pAl;}
+    else{log('⚠️ İhracat botu: Para yetersiz! '+fmt(_m)+' TL gerekli.','er');}
   }
   if(_gndr<=0)return;
   _ih.gonderilen=(_ih.gonderilen||0)+_gndr;
