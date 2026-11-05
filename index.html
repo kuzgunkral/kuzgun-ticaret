@@ -122838,9 +122838,8 @@ function renderIhracatSozlesme(_hIgnored,ih,aktif,now){
         var _km3=Math.max(0,_soz3.bitisZamani-_now3);var _ks3=Math.floor(_km3/1000);
         var _ks3h=Math.floor(_ks3/3600);var _ks3m=Math.floor((_ks3%3600)/60);var _ks3s=_ks3%60;_tEl3.textContent='⏱'+(_ks3h>0?_ks3h+':':'')+(_ks3h>0&&_ks3m<10?'0':'')+_ks3m+':'+(_ks3s<10?'0':'')+_ks3s;
       }
-      // Gönderim timer
-      var _sonGndr3=_soz3?(_soz3.sonGonderme||0):0;
-      var _gKalan3=_sonGndr3>0?Math.max(0,Math.ceil((300000-(_now3-_sonGndr3))/1000)):0;
+      // Gönderim timer - _ihracatTimerBitis bazli
+      var _gKalan3=window._ihracatTimerBitis?Math.max(0,Math.ceil((window._ihracatTimerBitis-_now3)/1000)):0;
       var _gStr3=_gKalan3>0?Math.floor(_gKalan3/60)+':'+((_gKalan3%60)<10?'0':'')+(_gKalan3%60):'';
       // Ana panel gönderim timer
       var _gEl3=document.getElementById('ihr-man-timer');
