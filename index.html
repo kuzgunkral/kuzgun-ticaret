@@ -54499,6 +54499,9 @@ function ihaleGonderBotToggle(){
 // ============================================================
 function ihaleGonderBotRun(){
   if(!G.ihaleGonderBot||!G.ihaleGonderBotKilidi)return;
+  // Sayfa yuklendikten 10 saniye sonra calis - F5 korumasi
+  if(!window._ihaleGonderBotBaslangic)window._ihaleGonderBotBaslangic=Date.now();
+  if(Date.now()-window._ihaleGonderBotBaslangic<10000)return;
   var now=Date.now();
   var kazanilanlar=(G.ihaleler||[]).filter(function(ih){
     if(!ih.kazandi||!ih.gonderBitisZamani||now>=ih.gonderBitisZamani||ih.gonderilen>=ih.miktar)return false;
