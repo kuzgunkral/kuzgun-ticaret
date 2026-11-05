@@ -81352,7 +81352,14 @@ window._satCdTimer = setInterval(function(){
     if(_sozIh2){
       var _manEl=document.getElementById('ihr-man-timer');
       if(_manEl){
-        var _manSG=_sozIh2.sonGonderme||0; var _botAktif2=G.ihracatBotlar&&G.ihracatBotlar['sozlesme']&&G.ihracatBotlar['sozlesme'].aktif; var _manMs=(_manSG>0&&_botAktif2)?Math.max(0,300000-(_now-_manSG)):0; var _manKalan=Math.ceil(_manMs/1000);
+        var _botAktif2=G.ihracatBotlar&&G.ihracatBotlar['sozlesme']&&G.ihracatBotlar['sozlesme'].aktif;
+        var _manMs=(_botAktif2&&window._ihracatTimerBitis)?Math.max(0,window._ihracatTimerBitis-_now):0;
+        var _manKalan=Math.ceil(_manMs/1000);
+        // Timer 0:00 olunca gonderimi tetikle
+        if(_botAktif2&&window._ihracatTimerBitis&&_now>=window._ihracatTimerBitis){
+          window._ihracatTimerBitis=null;
+          setTimeout(function(){if(typeof ihracatBotGonder==='function')ihracatBotGonder();},1000);
+        }
         var _manStr=_manKalan>0?Math.floor(_manKalan/60)+':'+((_manKalan%60)<10?'0':'')+(_manKalan%60):'';
         _manEl.textContent=_manStr?'⏱'+_manStr:'';
         _manEl.style.display=_manStr?'inline':'none';
@@ -122917,14 +122924,11 @@ function ihracatBotToggle(ihIdx) {
   }
   // Bot baslatilinca setTimeout ile ilk gonderimi planla
   if (_bot.aktif) {
-    if (window._ihracatBotTimeout) clearTimeout(window._ihracatBotTimeout);
+    // Bot baslatilinca - son gonderime gore timer ayarla
     var _sg = _ih4 && _ih4.sonGonderme ? _ih4.sonGonderme : 0;
-    var _bekle = _sg > 0 ? Math.max(0, 300000 - (Date.now() - _sg)) : 300000;
-    window._ihracatBotTimeout = setTimeout(function(){
-      if(typeof ihracatBotGonder==='function') ihracatBotGonder();
-    }, _bekle);
+    window._ihracatTimerBitis = _sg > 0 ? _sg + 300000 : Date.now() + 300000;
   } else {
-    if (window._ihracatBotTimeout) clearTimeout(window._ihracatBotTimeout);
+    window._ihracatTimerBitis = null;
   }
   log('\u{1F916} Gonder Botu ' + (_bot.aktif ? 'baslatildi' : 'durduruldu'), 'ok');
   save(); renderIhracat();
@@ -123063,12 +123067,8 @@ function ihracatBotGonder(){
   if(_gndr<=0)return;
   _ih.gonderilen=(_ih.gonderilen||0)+_gndr;
   _ih.sonGonderme=_now;
-  // Gonderim sonrasi tam 5 dakika bekleyip yeniden tetikle
-  if(window._ihracatBotTimeout)clearTimeout(window._ihracatBotTimeout);
-  window._ihracatBotTimeout=setTimeout(function(){
-    var _bot2=G.ihracatBotlar&&G.ihracatBotlar['sozlesme'];
-    if(_bot2&&_bot2.aktif)ihracatBotGonder();
-  },300000);
+  // Ara yazilim: gonderim oldu - yeni 5dk timer baslat
+  window._ihracatTimerBitis = _now + 300000;
   if(!_ih.katilimlar)_ih.katilimlar=[];
   var _bm=_ih.katilimlar.find(function(k){return k.oyuncu===(G._oyuncuAdi||'Sen');});
   if(_bm){_bm.miktar+=_gndr;}else{_ih.katilimlar.push({oyuncu:(G._oyuncuAdi||'Sen'),miktar:_gndr,zaman:_now});}
