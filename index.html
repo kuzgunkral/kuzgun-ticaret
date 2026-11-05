@@ -122924,9 +122924,8 @@ function ihracatBotToggle(ihIdx) {
   }
   // Bot baslatilinca setTimeout ile ilk gonderimi planla
   if (_bot.aktif) {
-    // Bot baslatilinca - son gonderime gore timer ayarla
-    var _sg = _ih4 && _ih4.sonGonderme ? _ih4.sonGonderme : 0;
-    window._ihracatTimerBitis = _sg > 0 ? _sg + 300000 : Date.now() + 300000;
+    // Bot baslatilinca - her zaman simdi + 5dk
+    window._ihracatTimerBitis = Date.now() + 300000;
   } else {
     window._ihracatTimerBitis = null;
   }
