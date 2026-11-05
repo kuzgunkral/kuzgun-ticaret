@@ -123023,16 +123023,13 @@ if(!window._ihracatTimer)window._ihracatTimer=setInterval(function(){
 // Timer sadece sonGonderme>0 iken görünür. Gönderim olmadan timer çalışmaz.
 // İhracat Gönder Botu — tam 5 dakikada bir gönderim yapar
 if(window._ihracatBotTimer){clearInterval(window._ihracatBotTimer);window._ihracatBotTimer=null;}
-window._ihracatBotTimer=setInterval(function(){
+function ihracatBotGonder(){
   if(!window.G||!G.ihracatBotlar)return;
   var _bot=G.ihracatBotlar['sozlesme'];
   if(!_bot||!_bot.aktif)return;
   var _ih=G.ihracatlar&&G.ihracatlar.find(function(x){return x.sozlesme&&!x.bitti;});
   if(!_ih||_ih.bitti)return;
   var _now=Date.now();
-  var _aralik=5*60*1000; // tam 5 dakika
-  if((_ih.sonGonderme||0)===0)return; // ilk gonderim manuel yapilmali
-  if(_now-(_ih.sonGonderme||0)<_aralik-1000)return; // 1sn tolerans
   // 5dk doldu — gönderim yap
   var _lv=ihracatItibarLv(G.ihracatItibar||0);
   var _max=Math.round(1000+(_lv-1)*379);
@@ -123053,6 +123050,12 @@ window._ihracatBotTimer=setInterval(function(){
   if(_gndr<=0)return;
   _ih.gonderilen=(_ih.gonderilen||0)+_gndr;
   _ih.sonGonderme=_now;
+  // Gonderim sonrasi tam 5 dakika bekleyip yeniden tetikle
+  if(window._ihracatBotTimeout)clearTimeout(window._ihracatBotTimeout);
+  window._ihracatBotTimeout=setTimeout(function(){
+    var _bot2=G.ihracatBotlar&&G.ihracatBotlar['sozlesme'];
+    if(_bot2&&_bot2.aktif)ihracatBotGonder();
+  },300000);
   if(!_ih.katilimlar)_ih.katilimlar=[];
   var _bm=_ih.katilimlar.find(function(k){return k.oyuncu===(G._oyuncuAdi||'Sen');});
   if(_bm){_bm.miktar+=_gndr;}else{_ih.katilimlar.push({oyuncu:(G._oyuncuAdi||'Sen'),miktar:_gndr,zaman:_now});}
@@ -123061,7 +123064,7 @@ window._ihracatBotTimer=setInterval(function(){
   _ih.log.push(_zk+' <b style="color:#ef4444;font-weight:900">Gonder Botu</b>: '+fmt(_gndr)+' '+(_ih.birim||'adet'));
   if(_ih.log.length>100)_ih.log=_ih.log.slice(-100);
   save();
-},1000);
+}
 function kriptoSifirla(){
   G.kriptoIslemGecmisi=[];
   if(G.kripto){
