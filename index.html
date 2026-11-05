@@ -91363,8 +91363,7 @@ function loadUserGame(username) {
 
 
 
-// Sayfa yüklenince ihracat sonGonderme sıfırla — gönderim olmadan timer çalışmasın
-        if(G.ihracatlar){G.ihracatlar.forEach(function(ih){if(ih&&ih.sozlesme&&!ih.bitti){ih.sonGonderme=0;}});}
+// sonGonderme sifirlanmiyor - kayittan yuklenecek
 
         if(window._supaUser) startOturumKanal(window._supaUser.id); openGame();
 
