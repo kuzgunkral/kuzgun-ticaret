@@ -122543,6 +122543,7 @@ function ihracatGonder(ihIdx, miktar) {
   if (_gonderildi <= 0) { log('Gonderim basarisiz!','er'); return; }
   ih.gonderilen = (ih.gonderilen||0) + _gonderildi;
   ih.sonGonderme = _now;
+  window._ihracatTimerBitis = _now + 300000;
   if (!ih.katilimlar) ih.katilimlar = [];
   var _bm = ih.katilimlar.find(function(k){ return k.oyuncu==='Ben'||k.oyuncu==='Sen'||k.oyuncu===(G._oyuncuAdi||'Sen'); });
   if (_bm) { _bm.miktar += _gonderildi; } else { ih.katilimlar.push({oyuncu:(G._oyuncuAdi||'Sen'),miktar:_gonderildi,zaman:_now}); }
