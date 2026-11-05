@@ -122760,6 +122760,7 @@ function renderIhracatSozlesme(_hIgnored,ih,aktif,now){
     h+='<span style="font-size:11px;color:#5a7a9e">'+ih.birim+'</span>';
     h+='<button class="ihr-gbtn" onclick="ihracatGonderKaynak(0,parseFloat(document.getElementById(\'ihr-mkt-'+_ihIdx+'\').value))" style="padding:5px 10px;background:#0a2e1a;color:#10b981;border:1px solid #10b981;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;display:'+(_gKalan>0?'none':'inline-block')+'">📦 Gönder</button>';
     h+='<button class="ihr-maxbtn" onclick="document.getElementById(\'ihr-mkt-'+_ihIdx+'\').value='+_maxBirim+'" style="padding:5px 8px;background:#0a2010;color:#10b981;border:1px solid #10b981;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;display:'+(_gKalan>0?'none':'inline-block')+'">Max</button>';
+    h+='<span id="ihr-countdown" style="font-size:13px;color:#f59e0b;font-weight:800;font-family:monospace;display:'+(_gKalan>0?'inline':'none')+'">'+(_gKalan>0?'⏱'+_gKalanStr:'')+'</span>';
     h+='</div>';
     // Kaynak toggle butonları — her ikisi aynı anda seçilebilir
     var _piySeç=(_kaynak==='piyasa'||_kaynak==='her ikisi');
@@ -122929,7 +122930,8 @@ function ihracatBotTick() {
   if (_pAl > 0 && (_kaynak === 'piyasa' || _kaynak === 'her ikisi')) {
     var _f2 = G.pdata && G.pdata[ih.urun] ? G.pdata[ih.urun].base : ih.birimFiyat;
     var _m2 = Math.round(_pAl * _f2);
-    if (G.klan && (G.klan.banka||0) >= _m2) { G.klan.banka -= _m2; _gndr += _pAl; }
+    if ((G.money||0) >= _m2) { G.money -= _m2; _gndr += _pAl; }
+    else { log('⚠️ İhracat botu: Para yetersiz!','er'); }
   }
   if (_gndr <= 0) return;
   ih.gonderilen = (ih.gonderilen||0) + _gndr;
@@ -122943,8 +122945,27 @@ function ihracatBotTick() {
   var _malStr2=_maliyet2>0?' <span style="color:#fbbf24;font-size:10px">('+fmt(_maliyet2)+' TL)</span>':'';
   ih.log.push(_zk+' <b style="color:#ef4444;font-weight:900">Gonder Botu</b>: '+fmt(_gndr)+' '+ih.birim+' '+_ks+_malStr2);
   if (ih.log.length > 100) ih.log = ih.log.slice(-100);
-  save(); ihracatTick();
+  save(); ihracatTick(); renderIhracat();
 }
+
+// ihracatBotTick her saniye calis - timer guncelle + bot kontrol
+if(!window._ihracatBotTickTimer) window._ihracatBotTickTimer = setInterval(function(){
+  if(!window.G) return;
+  ihracatBotTick();
+  // Timer UI guncelle - renderIhracat agir, sadece buton/timer guncelle
+  var _ih = G.ihracatlar && G.ihracatlar.find(function(x){return x.sozlesme&&!x.bitti;});
+  if(!_ih) return;
+  var _now = Date.now();
+  var _sg = _ih.sonGonderme||0;
+  var _kalan = _sg>0 ? Math.max(0, Math.ceil((300000-(_now-_sg))/1000)) : 0;
+  var _str = _kalan>0 ? Math.floor(_kalan/60)+':'+((_kalan%60)<10?'0':'')+(_kalan%60) : '';
+  // Timer span guncelle
+  var _tEl = document.getElementById('ihr-countdown');
+  if(_tEl){ _tEl.textContent = _str ? '⏱'+_str : ''; _tEl.style.display = _str ? 'inline' : 'none'; }
+  // Buton goster/gizle
+  var _btns = document.querySelectorAll('.ihr-gbtn,.ihr-maxbtn');
+  for(var _bi=0;_bi<_btns.length;_bi++) _btns[_bi].style.display = _kalan>0?'none':'inline-block';
+}, 1000);
 
 function ihracatKlanTick(){
   // Klan üyelerinin ihracata katkısı — botun sonGonderme'sine dokunmaz
