@@ -122919,7 +122919,7 @@ function ihracatBotToggle(ihIdx) {
   if (_bot.aktif) {
     if (window._ihracatBotTimeout) clearTimeout(window._ihracatBotTimeout);
     var _sg = _ih4 && _ih4.sonGonderme ? _ih4.sonGonderme : 0;
-    var _bekle = _sg > 0 ? Math.max(0, 300000 - (Date.now() - _sg) + 15000) : 0;
+    var _bekle = _sg > 0 ? Math.max(0, 300000 - (Date.now() - _sg)) : 300000;
     window._ihracatBotTimeout = setTimeout(function(){
       if(typeof ihracatBotGonder==='function') ihracatBotGonder();
     }, _bekle);
