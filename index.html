@@ -122512,6 +122512,7 @@ function ihracatSozlesmeImzala(ihKey){
   // Sadece 1 aktif sözleşme olabilir — diğerlerini iptal et
   G.ihracatlar.forEach(function(x){if(x!==ih&&x.sozlesme&&!x.bitti){x.sozlesme=false;}});
   ih.sozlesme=true;
+  ih.kaynak='piyasa'; // varsayilan piyasa - depo acikca secilmeli
   ih.sozlesmePesinat=0;
   ih.manuelSonGonderme=0;
   ih.botSonGonderme=0;
