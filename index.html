@@ -35571,11 +35571,22 @@ function getBorsaBotMaxAdet(lv){
   return Math.round(100+(l-1)*(2900/29));
 }
 function renderBorsa() {
-  // Borsa kilidi - kilitliyse sadece kilit ekrani goster
+  // Borsa kilidi - overlay ile goster, innerHTML sifirlanmasin
+  var _borsaKilitEl = document.getElementById('borsaKilitOverlay');
   if(!G.borsaUnlocked){
-    var _tabBorsa = document.getElementById('tab-borsa');
-    if(_tabBorsa) _tabBorsa.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:16px"><div style="font-size:64px">🔒</div><div style="font-size:20px;font-weight:800;color:#f59e0b">Borsa Kilidi</div><div style="font-size:13px;color:#5a7a9e">Borsaya erişim için 50 elmas gerekiyor</div><button onclick="elmasOnayla(50,\'Borsa Kilidi\',function(){G.elmas-=50;G.borsaUnlocked=true;if(!G.borsaLevel)G.borsaLevel=1;log(\'Borsa acildi! -50 elmas\',\'ok\');renderHeader();save();renderBorsa();})" style="padding:12px 32px;font-size:15px;font-weight:700;background:#10b981;color:#fff;border:none;border-radius:10px;cursor:pointer">💎 50 Elmas ile Aç</button></div>';
+    if(!_borsaKilitEl){
+      var _tabBorsa = document.getElementById('tab-borsa');
+      if(_tabBorsa){
+        var _ov = document.createElement('div');
+        _ov.id = 'borsaKilitOverlay';
+        _ov.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:16px;position:relative;z-index:10;background:#07111f';
+        _ov.innerHTML = '<div style="font-size:64px">🔒</div><div style="font-size:20px;font-weight:800;color:#f59e0b">Borsa Kilidi</div><div style="font-size:13px;color:#5a7a9e">Borsaya erişim için 50 elmas gerekiyor</div><button onclick="elmasOnayla(50,\'Borsa Kilidi\',function(){G.elmas-=50;G.borsaUnlocked=true;if(!G.borsaLevel)G.borsaLevel=1;log(\'Borsa acildi!\',\'ok\');renderHeader();save();var o=document.getElementById(\'borsaKilitOverlay\');if(o)o.remove();renderBorsa();})" style="padding:12px 32px;font-size:15px;font-weight:700;background:#10b981;color:#fff;border:none;border-radius:10px;cursor:pointer">💎 50 Elmas ile Aç</button>';
+        _tabBorsa.insertBefore(_ov, _tabBorsa.firstChild);
+      }
+    }
     return;
+  } else {
+    if(_borsaKilitEl) _borsaKilitEl.remove();
   }
   // Ticker pozisyonlarini kaydet — renderBorsa DOM'u yenilediginde kaybolmasin
   var _tkrUstSave = window._tkrUst ? window._tkrUst.x : 0;
