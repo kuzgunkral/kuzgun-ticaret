@@ -52763,7 +52763,7 @@ function renderDepo() {
         h += '<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-top:4px">';
 
         var _depGoz2 = G.depoPiyasaAcik && G.depoPiyasaAcik[k] ? true : false;
-        h += '<button onclick="toggleDepoPiyasa(\''+k+'\')" title="'+(_depGoz2?'Piyasayı Kapat':'Piyasaya Aç')+'" style="font-size:12px;padding:1px 4px;border-radius:50%;border:2px solid '+(_depGoz2?'#10b981':'#ef4444')+';background:'+(_depGoz2?'#0a2a1a':'#1a0505')+';cursor:pointer;line-height:1">'+(_depGoz2?'👁️':'🔴')+'</button>';
+        h += '<button onclick="toggleDepoPiyasa(\''+k+'\')" title="'+(_depGoz2?'Piyasayı Kapat':'Piyasaya Aç')+'" style="font-size:12px;padding:1px 4px;border-radius:50%;border:2px solid '+(_depGoz2?'#10b981':'#ef4444')+';background:'+(_depGoz2?'#0a2a1a':'#1a0505')+';cursor:pointer;line-height:1">'+(_depGoz2?'👁️':'😑')+'</button>';
         h += '<span style="font-size:10px;color:#5a7a9e">Al:</span>';
 
         h += '<input type="number" id="depo-qty-' + k + '" value="1" min="1" style="width:55px;font-size:11px;padding:2px 4px;background:#07111f;border:1px solid #1f3a58;color:#dde8f8;border-radius:4px;text-align:center" oninput="window._depoQtyCache=window._depoQtyCache||{};window._depoQtyCache[\''+k+'\']=this.value">';
