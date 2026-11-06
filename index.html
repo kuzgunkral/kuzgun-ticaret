@@ -54931,7 +54931,9 @@ function ihaleKilidiAc(){
     G.ihaleLevel=1;
     G.ihaleKatilimBitis=0; // bekleme suresini sifirla - direk ihaleler gorunsun
     G.ihaleKatilimOran=0;
+    G.ihaleler=[]; // eski ihaleleri temizle
     save();
+    ihaleTick(); // hemen yeni ihale olustur
     renderIhale();
     log('İhale sistemi açıldı! 🎉','ok');
   });
