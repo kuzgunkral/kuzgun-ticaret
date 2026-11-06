@@ -35574,7 +35574,7 @@ function renderBorsa() {
   // Borsa kilidi - kilitliyse sadece kilit ekrani goster
   if(!G.borsaUnlocked){
     var _tabBorsa = document.getElementById('tab-borsa');
-    if(_tabBorsa) _tabBorsa.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:16px"><div style="font-size:64px">🔒</div><div style="font-size:20px;font-weight:800;color:#f59e0b">Borsa Kilidi</div><div style="font-size:13px;color:#5a7a9e">Borsaya erişim için 50 elmas gerekiyor</div><button onclick="if((G.elmas||0)<50){log(\'Borsa icin 50 elmas gerekiyor!\',\'er\');return;}G.elmas-=50;G.borsaUnlocked=true;if(!G.borsaLevel)G.borsaLevel=1;log(\'Borsa acildi! -50 elmas\',\'ok\');renderHeader();save();renderBorsa();" style="padding:12px 32px;font-size:15px;font-weight:700;background:#10b981;color:#fff;border:none;border-radius:10px;cursor:pointer">💎 50 Elmas ile Aç</button></div>';
+    if(_tabBorsa) _tabBorsa.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:16px"><div style="font-size:64px">🔒</div><div style="font-size:20px;font-weight:800;color:#f59e0b">Borsa Kilidi</div><div style="font-size:13px;color:#5a7a9e">Borsaya erişim için 50 elmas gerekiyor</div><button onclick="elmasOnayla(50,\'Borsa Kilidi\',function(){G.elmas-=50;G.borsaUnlocked=true;if(!G.borsaLevel)G.borsaLevel=1;log(\'Borsa acildi! -50 elmas\',\'ok\');renderHeader();save();renderBorsa();})" style="padding:12px 32px;font-size:15px;font-weight:700;background:#10b981;color:#fff;border:none;border-radius:10px;cursor:pointer">💎 50 Elmas ile Aç</button></div>';
     return;
   }
   // Ticker pozisyonlarini kaydet — renderBorsa DOM'u yenilediginde kaybolmasin
