@@ -67546,7 +67546,7 @@ function showDevConsole() {
   if (!sifre) return;
   fetch('https://lvqeatihvyplioitrtiu.supabase.co/functions/v1/verify-dev-password',{
     method:'POST',
-    headers:{'Content-Type':'application/json','apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2cWVhdGlodnlwbGlvaXRydGl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1NDk4MjMsImV4cCI6MjEwOTEyNTgyM30.4DSEKiRc7JILzsU0LzTav-fC2c-GL_syYfPZEa-00DY'},
+    headers:{'Content-Type':'application/json','apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2cWVhdGlodnlwbGlvaXRydGl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1NDk4MjMsImV4cCI6MjEwOTEyNTgyM30.4DSEKiRc7JILzsU0LzTav-fC2c-GL_syYfPZEa-00DY','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2cWVhdGlodnlwbGlvaXRydGl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1NDk4MjMsImV4cCI6MjEwOTEyNTgyM30.4DSEKiRc7JILzsU0LzTav-fC2c-GL_syYfPZEa-00DY'},
     body:JSON.stringify({password:sifre})
   }).then(function(r){return r.json();}).then(function(d){
     if(d.ok){_devConsoleAc();}
