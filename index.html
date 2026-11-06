@@ -19618,7 +19618,7 @@ button,input,select{font-family:inherit}
 
 
         <div id="invCalisanBar" style="display:flex;align-items:center;justify-content:space-between;background:#071120;border:1px solid #1a3050;border-radius:8px;padding:6px 14px;margin-bottom:6px;width:100%;box-sizing:border-box;gap:8px">
-          <span style="font-size:11px;color:#5a7a9e;font-weight:700;display:flex;align-items:center;gap:6px" id="invCalisanBarName">🏪 Merkez Market</span>
+          <span style="font-size:11px;color:#5a7a9e;font-weight:700;display:flex;align-items:center;gap:6px" id="invCalisanBarName">🏪 Market</span>
           <span id="invPasifBtn" onclick="togglePasif(window._invTab||'market')" style="font-size:11px;font-weight:800;padding:2px 10px;border-radius:6px;cursor:pointer;border:1px solid #10b981;background:#0a1e12;color:#10b981">▶️ Aktif</span>
           <span style="font-size:11px;color:#dde8f8;font-weight:700" id="invCalisanBarCal">👥 <b>1</b> çalışan</span>
           <span style="font-size:11px;color:#ef4444;font-weight:700" id="invCalisanBarMaas">💸 0 TL/hafta</span>
@@ -28851,9 +28851,9 @@ function getStoreName(sk) {
   if (!st) return sk;
   var lv = st.level || 1;
   if (sk === 'market') {
-    if (lv >= 20) return 'Merkez Hipermarket';
-    if (lv >= 10) return 'Merkez Süpermarket';
-    return 'Merkez Market';
+    if (lv >= 20) return 'Hipermarket';
+    if (lv >= 10) return 'Süpermarket';
+    return 'Market';
   }
   return st.name || sk;
 }
@@ -33174,7 +33174,7 @@ var BORSA_HISSELER = [
 
 
 
-  {kod:"MKRT", ad:"Merkez Market A.Ş.", sek:"Market", fiyat:1500, volatil:0.04},
+  {kod:"MKRT", ad:"Market A.Ş.", sek:"Market", fiyat:1500, volatil:0.04},
 
 
 
@@ -35038,7 +35038,7 @@ function borsaFiyatGuncelle() {
 
 function _borsaHaberUret() {
   var _hb = [
-    {sek:"Market",etki:0.04,mesaj:"Merkez Market rekoru! MKRT yukseliyor!"},
+    {sek:"Market",etki:0.04,mesaj:"Market rekoru! MKRT yukseliyor!"},
     {sek:"Gida",etki:0.05,mesaj:"Gida ihracati! GIDA canlaniyor!"},
     {sek:"Teknoloji",etki:0.07,mesaj:"Teknoloji yatirimlari! TECH zirvede!"},
     {sek:"Market",etki:-0.04,mesaj:"Market daralma! MKRT baski altinda!"},
@@ -70427,7 +70427,7 @@ var G = {
 
 
 
-    market:     { name:"Merkez Market", superName:"Süpermarket",    unlocked:true,  level:1, upgCost:30000 },
+    market:     { name:"Market", superName:"Süpermarket",    unlocked:true,  level:1, upgCost:30000 },
 
 
 
