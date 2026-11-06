@@ -54925,25 +54925,23 @@ function ihaleIptalOnayla(id){ihaleIptal(id);}
 function ihalePiyasadanAl(idx){}
 function ihaleGunSonuKontrol(){ihaleTick();}
 function ihaleKilidiAc(){
-  if((G.elmas||0)<50){log('Yetersiz elmas! 50 💎 gerekli.','er');return;}
-  elmasOnayla(50,'Ihale sistemi kilidi acma',function(){
-    G.elmas-=50;
-    G.ihaleLevel=1;
-    G.ihaleKatilimBitis=0; // bekleme suresini sifirla - direk ihaleler gorunsun
-    G.ihaleKatilimOran=0;
-    G.ihaleler=[]; // eski ihaleleri temizle
-    save();
-    ihaleTick(); // hemen yeni ihale olustur
-    renderIhale();
-    log('İhale sistemi açıldı! 🎉','ok');
-  });
+  // Klan kontrolu - klana girilince otomatik acilir
+  if(!G.klan||!G.klan.kuruldu){log('İhale sistemi için önce bir klana katılman gerekiyor!','er');return;}
+  G.ihaleLevel=1;
+  G.ihaleKatilimBitis=0;
+  G.ihaleKatilimOran=0;
+  G.ihaleler=[];
+  save();
+  ihaleTick();
+  renderIhale();
+  log('İhale sistemi açıldı! 🎉','ok');
 }
 
 function renderIhale(){
   var el=document.getElementById('ihalePanel');
   if(!el)return;
   if(!G.ihaleLevel||G.ihaleLevel<1){
-    el.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:16px;background:#07111f"><div style="font-size:64px">🔒</div><div style="font-size:20px;font-weight:800;color:#f59e0b">İhale Kilidi</div><div style="font-size:13px;color:#5a7a9e">İhale sistemine erişim için 50 elmas gerekiyor</div><button onclick="ihaleKilidiAc()" style="padding:12px 32px;font-size:15px;font-weight:700;background:#10b981;color:#fff;border:none;border-radius:10px;cursor:pointer">💎 50 Elmas ile Aç</button></div>';
+    el.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:16px;background:#07111f"><div style="font-size:64px">🔒</div><div style="font-size:20px;font-weight:800;color:#f59e0b">İhale Kilidi</div><div style="font-size:13px;color:#5a7a9e;text-align:center">İhale sistemini açabilmek için<br>bir klana girmeniz gerekmektedir</div><div style="display:flex;gap:10px"><button onclick="klanListesiGoster()" style="padding:12px 32px;font-size:15px;font-weight:700;background:#10b981;color:#fff;border:none;border-radius:10px;cursor:pointer">⚔️ Klana Katıl</button><button onclick="switchTab(\'klan\',document.getElementById(\'tab-btn-klan\'))" style="padding:12px 32px;font-size:15px;font-weight:700;background:#7c3aed;color:#fff;border:none;border-radius:10px;cursor:pointer">🏴 Klan Kur</button></div></div>';
     return;
   }
   if(!G.ihaleler)G.ihaleler=[];
@@ -110495,6 +110493,8 @@ function klanKur(ad) {
   }
   save(); renderKlan(); log('Klan kuruldu: '+G.klan.ad+' ⚔️','ok');
   if(typeof renderIhracat==='function') renderIhracat();
+  // Klana katilinca ihale otomatik ac
+  if(!G.ihaleLevel||G.ihaleLevel<1){G.ihaleLevel=1;G.ihaleKatilimBitis=0;G.ihaleKatilimOran=0;G.ihaleler=[];ihaleTick();if(typeof renderIhale==='function')renderIhale();}
 }
 
 // Klan listesini Supabase'den çek ve göster
@@ -110548,6 +110548,8 @@ function klanKatilSupa(klanAd) {
   }
   save(); renderKlan();
   if(typeof renderIhracat==='function') renderIhracat();
+  // Klana katilinca ihale otomatik ac
+  if(!G.ihaleLevel||G.ihaleLevel<1){G.ihaleLevel=1;G.ihaleKatilimBitis=0;G.ihaleKatilimOran=0;G.ihaleler=[];ihaleTick();if(typeof renderIhale==='function')renderIhale();}
   var m = document.getElementById('klanListesiModal'); if(m) m.remove();
   log('⚔️ '+klanAd+' klanına katıldın!','ok');
 }
