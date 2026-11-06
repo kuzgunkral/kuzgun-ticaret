@@ -69692,15 +69692,7 @@ function switchTab(tab, el) {
   if(window._borsaTabTimer && tab !== 'borsa'){ clearInterval(window._borsaTabTimer); window._borsaTabTimer=null; }
   // Kilitli sekme kontrolu
 
-  if (tab === 'kripto') {
-    if (!G.kriptoAcik) {
-      elmasOnayla(50, 'Kripto Kilidi', function(){
-        G.elmas -= 50; G.kriptoAcik = true;
-        log('₿ Kripto açıldı!', 'ok'); save(); switchTab('kripto');
-      });
-      return;
-    }
-  }
+  // kripto kilidi switchTab'da engelleme yok - renderKripto icinde gosterilir
 
   if (tab === 'maden') {
 
@@ -123263,6 +123255,11 @@ function _kriptoTickerRAF_start() {
 function renderKripto(){
 if(!G.kripto)kriptoInit();
 var el=document.getElementById('kriptoPanel');if(!el)return;
+  // Kripto kilidi
+  if(!G.kriptoAcik){
+    el.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:16px"><div style="font-size:48px">₿</div><div style="font-size:18px;font-weight:800;color:#dde8f8">Kripto Kilitli</div><div style="font-size:13px;color:#5a7a9e">50 💎 ile kilidi aç</div><button onclick="elmasOnayla(50,\'Kripto Kilidi\',function(){G.elmas-=50;G.kriptoAcik=true;log(\'₿ Kripto açıldı!\',\'ok\');save();renderKripto();})" style="padding:10px 28px;font-size:14px;font-weight:700;background:#7c3aed;color:#fff;border:none;border-radius:10px;cursor:pointer">🔓 Aç (50 💎)</button></div>';
+    return;
+  }
 
 var td=0,tm=0;
 KRIPTO_LISTESI.forEach(function(k){var kd=G.kripto[k.id];if(!kd)return;td+=((kd.miktar||0)+(kd.staking||0))*kd.fiyat;tm+=(kd.maliyetTop||0);});
