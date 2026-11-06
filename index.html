@@ -110474,6 +110474,10 @@ function klanKur(ad) {
   klanInit();
   if (G.klan.kuruldu) { log('Klan zaten kuruldu!','er'); return; }
   if (!ad||ad.trim().length<3) { log('Klan adi en az 3 karakter!','er'); return; }
+  if(G._klanCezaBitis && Date.now() < G._klanCezaBitis) {
+    var _kalan = Math.ceil((G._klanCezaBitis - Date.now()) / 3600000);
+    log('⏳ Klandan çıkış cezası! ' + _kalan + ' saat daha klan kuramazsın.', 'er'); return;
+  }
   var _oyAdi = G._oyuncuAdi || (window._supaUser&&window._supaUser.user_metadata&&window._supaUser.user_metadata.kullanici_adi) || 'Lider';
   G.klan.ad = ad.trim(); G.klan.kuruldu = true; G.klan.lider = _oyAdi; G.klan.uyeler = []; G.klan.yardimci = null;
   // Supabase'e kaydet
@@ -110527,13 +110531,16 @@ async function klanListesiGoster() {
 
 function klanKatilSupa(klanAd) {
   if(G.klan && G.klan.kuruldu) { log('Zaten bir klana üyesin!','er'); return; }
+  if(G._klanCezaBitis && Date.now() < G._klanCezaBitis) {
+    var _kalan = Math.ceil((G._klanCezaBitis - Date.now()) / 3600000);
+    log('⏳ Klandan çıkış cezası! ' + _kalan + ' saat daha bekleyin.', 'er'); return;
+  }
   klanInit();
   G.klan.ad = klanAd;
   G.klan.kuruldu = true;
   var _oyAdi = G._oyuncuAdi || 'Oyuncu';
   G.klan.lider = _oyAdi;
   G.klan.uyeler = [];
-  // Supabase uye_sayisi güncelle
   if(window.supa) {
     supa.from('klanlar').select('uye_sayisi').eq('ad', klanAd).single().then(function(r) {
       if(r.data) supa.from('klanlar').update({uye_sayisi: (r.data.uye_sayisi||1)+1}).eq('ad', klanAd);
@@ -110544,6 +110551,44 @@ function klanKatilSupa(klanAd) {
   var m = document.getElementById('klanListesiModal'); if(m) m.remove();
   log('⚔️ '+klanAd+' klanına katıldın!','ok');
 }
+
+function klandanCik() {
+  if(!G.klan || !G.klan.kuruldu) { log('Zaten bir klana üye değilsin!','er'); return; }
+  var _onayDiv = document.createElement('div');
+  _onayDiv.id = 'klanCikOnay';
+  _onayDiv.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center';
+  _onayDiv.innerHTML = '<div style="background:#0d1f35;border:2px solid #ef4444;border-radius:14px;padding:32px;max-width:420px;text-align:center">'
+    + '<div style="font-size:48px;margin-bottom:12px">⚠️</div>'
+    + '<div style="font-size:18px;font-weight:800;color:#ef4444;margin-bottom:12px">Klandan Çık</div>'
+    + '<div style="font-size:13px;color:#dde8f8;margin-bottom:8px"><b style="color:#f59e0b">'+G.klan.ad+'</b> klanından ayrılmak istediğine emin misin?</div>'
+    + '<div style="font-size:12px;color:#ef4444;background:#1a0505;border:1px solid #ef4444;border-radius:8px;padding:10px;margin-bottom:20px;text-align:left">'
+    + '⛔ Klandan çıkarsanız <b>72 saat</b> boyunca:<br>'
+    + '&nbsp;&nbsp;• Başka klana giremezsiniz<br>'
+    + '&nbsp;&nbsp;• Yeni klan kuramazsınız<br>'
+    + '&nbsp;&nbsp;• Aktif ihalelere katılamazsınız'
+    + '</div>'
+    + '<div style="display:flex;gap:10px;justify-content:center">'
+    + '<button onclick="document.getElementById(\'klanCikOnay\').remove()" style="padding:10px 24px;background:#1a3050;color:#dde8f8;border:1px solid #1f3a58;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">İptal</button>'
+    + '<button onclick="klandanCikOnayla()" style="padding:10px 24px;background:#ef4444;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">Evet, Çık</button>'
+    + '</div></div>';
+  document.body.appendChild(_onayDiv);
+}
+
+function klandanCikOnayla() {
+  var _onay = document.getElementById('klanCikOnay'); if(_onay) _onay.remove();
+  var _klanAd = G.klan.ad;
+  if(window.supa) {
+    supa.from('klanlar').select('uye_sayisi').eq('ad', _klanAd).single().then(function(r) {
+      if(r.data) supa.from('klanlar').update({uye_sayisi: Math.max(0,(r.data.uye_sayisi||1)-1)}).eq('ad', _klanAd);
+    });
+  }
+  G._klanCezaBitis = Date.now() + (72 * 60 * 60 * 1000);
+  G.klan = {ad:null, kuruldu:false, lider:'Sen', yardimci:null, uyeler:[], seviye:1, xp:0, ihaleler:[], kasaTL:0, banka:0, log:[]};
+  save(); renderKlan();
+  if(typeof renderIhracat==='function') renderIhracat();
+  log('🚪 ' + _klanAd + ' klanından ayrıldın. 72 saat ceza başladı.','er');
+}
+
 function klanBotUyeEkle() {
   klanInit();
   if (!G.klan.kuruldu) { log('Once klan kur!','er'); return; }
@@ -110844,6 +110889,7 @@ function renderKlan() {
     var xpPct=Math.min(100,Math.round((G.klan.xp/klanSonrakiXP(G.klan.seviye))*100));
     h+='<div style="background:#0a1628;border:1px solid #1a3050;border-radius:12px;padding:16px 20px;margin-bottom:10px">';
     h+='<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">';
+    h+='<button onclick="klandanCik()" style="padding:5px 14px;background:#1a0505;border:1px solid #ef4444;border-radius:7px;font-size:11px;font-weight:700;color:#ef4444;cursor:pointer;margin-left:auto">🚪 Klandan Çık</button>';
     var _klanElmasMaliyet=klanElmasLvMaliyeti(G.klan.seviye||1);
     var _klanXpBonus=Math.min((G.anaLv||0),30);
     h+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:22px;font-weight:900;color:#a78bfa">⚔️ '+G.klan.ad+'</span><span style="font-size:11px;color:#5a7a9e;background:#071120;border:1px solid #1a3050;border-radius:4px;padding:2px 8px">Lv '+G.klan.seviye+'</span>'+(G.klan.seviye<30?'<span style="font-size:11px;color:#5a7a9e">ya da</span><button onclick="klanElmasLvAtla()" style="padding:3px 10px;background:#1a0a30;border:1px solid #7c3aed;border-radius:6px;font-size:11px;color:#a78bfa;font-weight:700;cursor:pointer">💎 '+_klanElmasMaliyet+'</button>':'<span style="font-size:11px;color:#f59e0b;font-weight:800">MAX</span>')+(_klanXpBonus>0?'<span style="font-size:15px;font-weight:900;color:#10b981">+%'+_klanXpBonus+' XP</span>':'')+'</div>';
@@ -122653,7 +122699,7 @@ function renderIhracat(){
   var el=document.getElementById('ihracatPanel');if(!el)return;
   // Klan kontrolu - klan yoksa kilit ekrani goster
   if(!G.klan||!G.klan.ad){
-    el.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:16px;background:#07111f"><div style="font-size:64px">🔒</div><div style="font-size:20px;font-weight:800;color:#f59e0b">İhracat Kilidi</div><div style="font-size:13px;color:#5a7a9e;text-align:center">İhracat sistemini açabilmek için<br>bir klana girmeniz gerekmektedir</div><div style="display:flex;gap:10px"><button onclick="klanListesiGoster()" style="padding:12px 32px;font-size:15px;font-weight:700;background:#10b981;color:#fff;border:none;border-radius:10px;cursor:pointer">⚔️ Klana Katıl</button><button onclick="switchMainTab(\'klan\')" style="padding:12px 32px;font-size:15px;font-weight:700;background:#7c3aed;color:#fff;border:none;border-radius:10px;cursor:pointer">🏴 Klan Kur</button></div></div>';
+    el.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:16px;background:#07111f"><div style="font-size:64px">🔒</div><div style="font-size:20px;font-weight:800;color:#f59e0b">İhracat Kilidi</div><div style="font-size:13px;color:#5a7a9e;text-align:center">İhracat sistemini açabilmek için<br>bir klana girmeniz gerekmektedir</div><div style="display:flex;gap:10px"><button onclick="klanListesiGoster()" style="padding:12px 32px;font-size:15px;font-weight:700;background:#10b981;color:#fff;border:none;border-radius:10px;cursor:pointer">⚔️ Klana Katıl</button><button onclick="switchTab(\'klan\',document.getElementById(\'tab-btn-klan\'))" style="padding:12px 32px;font-size:15px;font-weight:700;background:#7c3aed;color:#fff;border:none;border-radius:10px;cursor:pointer">🏴 Klan Kur</button></div></div>';
     return;
   }
   var now=Date.now();
