@@ -110733,11 +110733,29 @@ function renderKlan() {
     var xpPct=Math.min(100,Math.round((G.klan.xp/klanSonrakiXP(G.klan.seviye))*100));
     h+='<div style="background:#0a1628;border:1px solid #1a3050;border-radius:12px;padding:16px 20px;margin-bottom:10px">';
     h+='<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">';
-    h+='<button onclick="klandanCik()" style="padding:5px 14px;background:#1a0505;border:1px solid #ef4444;border-radius:7px;font-size:11px;font-weight:700;color:#ef4444;cursor:pointer;margin-left:auto">🚪 Klandan Çık</button>';
+    
     var _klanElmasMaliyet=klanElmasLvMaliyeti(G.klan.seviye||1);
     var _klanXpBonus=Math.min((G.anaLv||0),30);
-    h+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:22px;font-weight:900;color:#a78bfa">⚔️ '+G.klan.ad+'</span><span style="font-size:11px;color:#5a7a9e;background:#071120;border:1px solid #1a3050;border-radius:4px;padding:2px 8px">Lv '+G.klan.seviye+'</span>'+(G.klan.seviye<30?'<div style="display:flex;align-items:center;gap:5px"><div style="background:#071120;border:1px solid #1a3050;border-radius:6px;height:10px;width:120px;overflow:hidden"><div style="background:#7c3aed;height:10px;border-radius:6px;width:'+xpPct+'%"></div></div><span style="font-size:10px;color:#5a7a9e">'+Math.round(G.klan.xp)+'/'+klanSonrakiXP(G.klan.seviye)+' XP</span><span style="font-size:11px;color:#5a7a9e">ya da</span><button onclick="klanElmasLvAtla()" style="padding:3px 10px;background:#1a0a30;border:1px solid #7c3aed;border-radius:6px;font-size:11px;color:#a78bfa;font-weight:700;cursor:pointer">💎 '+_klanElmasMaliyet+'</button></div>':'<span style="font-size:11px;color:#f59e0b;font-weight:800">MAX</span>')+(_klanXpBonus>0?'<span style="font-size:15px;font-weight:900;color:#10b981">+%'+_klanXpBonus+' XP</span>':'')+'</div>';
-    h+='<div style="font-size:12px;color:#5a7a9e">👥 '+tu+'/30 Üye</div></div>';
+    // Satır 1: Klan adı (sol) + üye sayısı + çıkış butonu (sağ)
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">';
+    h+='<span style="font-size:22px;font-weight:900;color:#a78bfa">⚔️ '+G.klan.ad+'</span>';
+    h+='<div style="display:flex;align-items:center;gap:8px">';
+    h+='<div style="font-size:12px;color:#5a7a9e">👥 '+tu+'/30 Üye</div>';
+    h+='<button onclick="klandanCik()" style="padding:5px 14px;background:#1a0505;border:1px solid #ef4444;border-radius:7px;font-size:11px;font-weight:700;color:#ef4444;cursor:pointer">🚪 Klandan Çık</button>';
+    h+='</div></div>';
+    // Satır 2: Lv | bar | XP | ya da | 💎
+    h+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px">';
+    h+='<span style="font-size:11px;color:#5a7a9e;background:#071120;border:1px solid #1a3050;border-radius:4px;padding:2px 8px">Lv '+G.klan.seviye+'</span>';
+    if(G.klan.seviye<30){
+      h+='<div style="background:#071120;border:1px solid #1a3050;border-radius:6px;height:10px;width:120px;overflow:hidden"><div style="background:#7c3aed;height:10px;border-radius:6px;width:'+xpPct+'%"></div></div>';
+      h+='<span style="font-size:10px;color:#5a7a9e">'+Math.round(G.klan.xp)+'/'+klanSonrakiXP(G.klan.seviye)+' XP</span>';
+      h+='<span style="font-size:11px;color:#5a7a9e">ya da</span>';
+      h+='<button onclick="klanElmasLvAtla()" style="padding:3px 10px;background:#1a0a30;border:1px solid #7c3aed;border-radius:6px;font-size:11px;color:#a78bfa;font-weight:700;cursor:pointer">💎 '+_klanElmasMaliyet+'</button>';
+    } else {
+      h+='<span style="font-size:11px;color:#f59e0b;font-weight:800">MAX</span>';
+    }
+    if(_klanXpBonus>0) h+='<span style="font-size:15px;font-weight:900;color:#10b981">+%'+_klanXpBonus+' XP</span>';
+    h+='</div>';
     // Klan Bankası özeti — kartın altında sabit
     if(!G.klan.banka)G.klan.banka=0;
     h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:8px 12px;background:#071120;border:1px solid #f59e0b44;border-radius:8px;flex-wrap:wrap;gap:6px">';
