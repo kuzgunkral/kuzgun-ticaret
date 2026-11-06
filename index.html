@@ -123257,7 +123257,7 @@ if(!G.kripto)kriptoInit();
 var el=document.getElementById('kriptoPanel');if(!el)return;
   // Kripto kilidi
   if(!G.kriptoAcik){
-    el.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:16px"><div style="font-size:48px">₿</div><div style="font-size:18px;font-weight:800;color:#dde8f8">Kripto Kilitli</div><div style="font-size:13px;color:#5a7a9e">50 💎 ile kilidi aç</div><button onclick="elmasOnayla(50,\'Kripto Kilidi\',function(){G.elmas-=50;G.kriptoAcik=true;log(\'₿ Kripto açıldı!\',\'ok\');save();renderKripto();})" style="padding:10px 28px;font-size:14px;font-weight:700;background:#7c3aed;color:#fff;border:none;border-radius:10px;cursor:pointer">🔓 Aç (50 💎)</button></div>';
+    el.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:16px"><div style="font-size:64px">🔒</div><div style="font-size:20px;font-weight:800;color:#f59e0b">Kripto Kilidi</div><div style="font-size:13px;color:#5a7a9e">Kriptoya erişim için 50 elmas gerekiyor</div><button onclick="elmasOnayla(50,\'Kripto Kilidi\',function(){G.elmas-=50;G.kriptoAcik=true;log(\'₿ Kripto açıldı!\',\'ok\');save();renderKripto();})" style="padding:12px 32px;font-size:15px;font-weight:700;background:#10b981;color:#fff;border:none;border-radius:10px;cursor:pointer">💎 50 Elmas ile Aç</button></div>';
     return;
   }
 
