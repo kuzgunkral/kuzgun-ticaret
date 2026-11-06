@@ -120077,7 +120077,7 @@ var _stLv = G.stores[PRODUCTS[k].store] ? (G.stores[PRODUCTS[k].store].level || 
         var _kmPiyasaFark = pd.base > 0 ? ((_kmSatisFiyat - pd.base) / pd.base * 100) : 0;
         var _kmPiyasaStr = (_kmPiyasaFark > 0.05 ? '+' : '') + _kmPiyasaFark.toFixed(1) + '%';
         var _kmPiyasaRenk = _kmPiyasaFark < -0.05 ? '#10b981' : _kmPiyasaFark > 0.05 ? '#ef4444' : '#5a7a9e';
-        h += '<div style="background:#0d1628;border:1px solid #1f3a58;border-radius:6px;padding:3px 6px;margin-bottom:4px;display:flex;align-items:center;gap:4px;flex-wrap:nowrap;justify-content:space-between">';
+        h += '<div style="background:#0d1628;border:1px solid #1f3a58;border-radius:6px;padding:3px 6px;margin-bottom:4px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:space-between;overflow:hidden">';
         h += '<span style="font-size:10px;font-weight:700;color:#f59e0b;white-space:nowrap">💰 K/Z</span>';
         if (_kmOrtMal > 0) {
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal:</span>';
@@ -120125,7 +120125,7 @@ var _capMax = cap(PRODUCTS[k].store);
         var _kzPiyasaStr = (_kzPiyasaFark > 0.05 ? '+' : '') + _kzPiyasaFark.toFixed(1) + '%';
         var _kzPiyasaRenk = _kzPiyasaFark < -0.05 ? '#10b981' : _kzPiyasaFark > 0.05 ? '#ef4444' : '#5a7a9e';
 
-        h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:nowrap;justify-content:space-between;padding:3px 4px;background:#07111f;border:1px solid #1a3050;border-radius:6px;margin-bottom:4px">';
+        h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:space-between;overflow:hidden;padding:3px 4px;background:#07111f;border:1px solid #1a3050;border-radius:6px;margin-bottom:4px">';
         h += '<span style="font-size:10px;font-weight:700;color:#f59e0b;white-space:nowrap">💰 K/Z</span>';
         if (_ortMal > 0) {
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal:</span>';
@@ -120607,7 +120607,7 @@ var _capMax = cap(PRODUCTS[k].store);
         var _km2PiyasaFark = pd.base > 0 ? ((_km2SatisFiyat - pd.base) / pd.base * 100) : 0;
         var _km2PiyasaStr = (_km2PiyasaFark > 0.05 ? '+' : '') + _km2PiyasaFark.toFixed(1) + '%';
         var _km2PiyasaRenk = _km2PiyasaFark < -0.05 ? '#10b981' : _km2PiyasaFark > 0.05 ? '#ef4444' : '#5a7a9e';
-        h += '<div style="background:#0d1628;border:1px solid #1f3a58;border-radius:6px;padding:3px 6px;margin-bottom:4px;display:flex;align-items:center;gap:4px;flex-wrap:nowrap;justify-content:space-between">';
+        h += '<div style="background:#0d1628;border:1px solid #1f3a58;border-radius:6px;padding:3px 6px;margin-bottom:4px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:space-between;overflow:hidden">';
         h += '<span style="font-size:10px;font-weight:700;color:#f59e0b;white-space:nowrap">💰 K/Z</span>';
         if (_km2OrtMal > 0) {
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal:</span>';
@@ -120631,7 +120631,7 @@ var _capMax = cap(PRODUCTS[k].store);
         var _sp3=(typeof sellPrice==='function')?sellPrice(k):pd.base;var _kv3=(_om3>0&&_sp3>0)?Math.round((_sp3-_om3)*100)/100:0;
         var _kr3=_kv3>=0?'#10b981':'#ef4444';var _ki3=_kv3>=0?'\u25b2':'\u25bc';
         var _pf3=pd.base>0?((_sp3-pd.base)/pd.base*100):0;var _pfs3=(_pf3>0.05?'+':'')+_pf3.toFixed(1)+'%';var _pfr3=_pf3<-0.05?'#10b981':_pf3>0.05?'#ef4444':'#5a7a9e';
-        h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:nowrap;justify-content:space-between;padding:3px 4px;background:#07111f;border:1px solid #1a3050;border-radius:6px;margin-bottom:4px">';
+        h += '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:space-between;overflow:hidden;padding:3px 4px;background:#07111f;border:1px solid #1a3050;border-radius:6px;margin-bottom:4px">';
         h += '<span style="font-size:10px;font-weight:700;color:#f59e0b;white-space:nowrap">💰 K/Z</span>';
         if (_om3>0) {
           h += '<span style="font-size:9px;color:#5a7a9e;white-space:nowrap">Ort.Mal:</span>';
