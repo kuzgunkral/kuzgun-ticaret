@@ -68620,13 +68620,11 @@ var buyBotOn = false;
 
 function unlockBorsa() {
   if ((G.elmas||0) < 50) { log('Borsa icin 50 elmas gerekiyor! Mevcut: '+(G.elmas||0), 'er'); return; }
-  elmasOnayla(50, 'Borsa erisimi acilacak', function() {
-    G.elmas -= 50; G.borsaUnlocked=true;
-    if (!G.borsaLevel) G.borsaLevel=1;
-    if (G.bankaLevel===undefined) G.bankaLevel=0;
-    log('Borsa acildi! -50 elmas', 'ok');
-    renderHeader(); save(); renderBorsa();
-  });
+  G.elmas -= 50; G.borsaUnlocked=true;
+  if (!G.borsaLevel) G.borsaLevel=1;
+  if (G.bankaLevel===undefined) G.bankaLevel=0;
+  log('Borsa acildi! -50 elmas', 'ok');
+  renderHeader(); save(); renderBorsa();
 }
 
 
