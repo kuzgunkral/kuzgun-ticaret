@@ -69692,6 +69692,16 @@ function switchTab(tab, el) {
   if(window._borsaTabTimer && tab !== 'borsa'){ clearInterval(window._borsaTabTimer); window._borsaTabTimer=null; }
   // Kilitli sekme kontrolu
 
+  if (tab === 'kripto') {
+    if (!G.kriptoAcik) {
+      elmasOnayla(50, 'Kripto Kilidi', function(){
+        G.elmas -= 50; G.kriptoAcik = true;
+        log('₿ Kripto açıldı!', 'ok'); save(); switchTab('kripto');
+      });
+      return;
+    }
+  }
+
   if (tab === 'maden') {
 
     var _anaLvM = G.anaLv || 0;
@@ -123271,7 +123281,7 @@ var _abKilitli = G.kriptoAnaBotKilidi;
 h+='<div style="background:#060f1e;border:2px solid '+(_abAktif?'#10b981':_abKilitli?'#7c3aed':'#1f3a58')+';border-radius:8px;padding:7px 14px;margin-bottom:6px;display:flex;align-items:center;gap:10px">';
 h+='<span style="font-size:13px;font-weight:700;color:#10b981">🤖 Kripto Ana Botu</span>';
 if(_abKilitli){
-  h+='<button onclick="elmasOnayla(100,\'Kripto botu kilidi\',function(){G.elmas-=100;G.kriptoAnaBotKilidi=false;log(\'Kripto botu açıldı!\',\'ok\');save();renderKripto();})" style="padding:3px 14px;font-size:12px;font-weight:700;background:#1a0a2e;color:#a78bfa;border:1px solid #7c3aed;border-radius:5px;cursor:pointer">🔒 Kilidi Aç (100💎)</button>';
+  h+='<button onclick="elmasOnayla(1000,\'Kripto botu kilidi\',function(){G.elmas-=1000;G.kriptoAnaBotKilidi=false;log(\'Kripto botu açıldı!\',\'ok\');save();renderKripto();})" style="padding:3px 14px;font-size:12px;font-weight:700;background:#1a0a2e;color:#a78bfa;border:1px solid #7c3aed;border-radius:5px;cursor:pointer">🔒 Kilidi Aç (1000💎)</button>';
   h+='<span style="font-size:11px;color:#5a7a9e">Kripto botu kilitli</span>';
 } else {
   h+='<button onclick="kriptoAnaBotToggle()" style="padding:3px 14px;font-size:12px;font-weight:700;background:'+(_abAktif?'#7f1d1d':'#0a2e1a')+';color:'+(_abAktif?'#ef4444':'#10b981')+';border:1px solid '+(_abAktif?'#ef4444':'#10b981')+';border-radius:5px;cursor:pointer">'+(_abAktif?'■ Durdur':'▶ Başlat')+'</button>';
