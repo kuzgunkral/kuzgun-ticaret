@@ -118374,8 +118374,7 @@ function renderInv() {
       // Market gorunurluk siniri: mevcut ve onceki gruplar gorunsun, sadece bir sonraki grup gizlensin
       if (activeSk === 'market') {
         var _ua = (PRODUCTS[k].unlockedAt || 1);
-        if (active && _ua > _marketLvLimit) continue;
-        if (!active && _ua > _marketLvLimit + 9) continue;
+        if (_ua > _marketLvLimit) continue;
       }
 
 
