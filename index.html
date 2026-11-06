@@ -110441,7 +110441,7 @@ function _setGlobalKarUygula(v) {
 
 function klanInit() {
   if (G.klan) return;
-  G.klan = {ad:null,kuruldu:false,lider:'Sen',yardimci:null,uyeler:[],seviye:1,xp:0,ihaleler:[],kasaTL:0};
+  G.klan = {ad:null,kuruldu:false,lider:'Sen',yardimci:null,uyeler:[],seviye:0,xp:0,ihaleler:[],kasaTL:0,banka:0};
 }
 
 function klanKur(ad) {
@@ -110592,6 +110592,10 @@ function klanBankaYatir(miktar){
   if(G.klan.bankaBagislar.length>100)G.klan.bankaBagislar=G.klan.bankaBagislar.slice(-100);
   log('🏦 Klan bankasına '+fmt(miktar)+' TL yatırıldı! Bakiye: '+fmt(Math.round(G.klan.banka))+' TL','ok');
   klanLog('💰 Sen '+fmt(miktar)+' TL bağış yaptı. Banka: '+fmt(Math.round(G.klan.banka))+' TL','bagis');
+  // Klan XP: her 1 milyar = 1 XP
+  if(typeof klanBankaXpHesapla==='function') klanBankaXpHesapla(miktar);
+  // Supabase banka guncelle
+  if(window.supa&&G.klan.ad) supa.from('klanlar').update({banka:G.klan.banka}).eq('ad',G.klan.ad);
   save();renderKlan();renderHeader();
 }
 
@@ -110624,12 +110628,16 @@ function klanSonrakiXP(lv){return Math.round(1000*Math.pow(1.5,(lv||1)-1));}
 function klanElmasLvMaliyeti(lv){return Math.round(90*Math.pow(1.1832,(lv||1)-1));}
 function klanElmasLvAtla(){
   klanInit(); if(!G.klan||!G.klan.kuruldu)return;
-  var lv=G.klan.seviye||1; if(lv>=30){log('Klan zaten max lv!','er');return;}
+  var lv=G.klan.seviye||0; if(lv>=30){log('Klan zaten max lv!','er');return;}
   var maliyet=klanElmasLvMaliyeti(lv);
-  elmasOnayla(maliyet,'Klan Lv'+(lv+1)+"'e yukselme",function(){
+  elmasOnayla(maliyet,'Klan Lv'+(lv+1)+"'e yukselme",async function(){
     G.klan.xp=0; G.klan.seviye++;
     log('Klan Lv'+G.klan.seviye+"'e yukseldi! ⚔️",'ok');
-    
+    klanLog('💎 Elmas ile Klan Lv'+G.klan.seviye+"'e yükseldi!",'ok');
+    // Supabase guncelle
+    if(window.supa&&G.klan.ad){
+      await supa.from('klanlar').update({seviye: G.klan.seviye, xp: 0}).eq('ad', G.klan.ad);
+    }
     save(); renderKlan();
   });
 }
@@ -110638,22 +110646,13 @@ function klanElmasLvAtla(){
 
 function klanIhaleKazandi(urun,tipKisiler,kazanilanTL,madalya) {
   klanInit(); if (!G.klan.kuruldu) return;
-  // XP: tip kisiligine gore artan XP
-  var xpTablosu={1:50,3:150,5:300,8:600,10:800,15:1500};
-  var xp=xpTablosu[tipKisiler]||(tipKisiler*50);
-  // Madalya bonus XP: Altin %20, Gumus %10, Bronz %5
-  if (madalya) {
-    var bonusPct=0;
-    if (madalya.ad==='Altin') bonusPct=20;
-    else if (madalya.ad==='Gumus') bonusPct=10;
-    else if (madalya.ad==='Bronz') bonusPct=5;
-    if (bonusPct>0) {
-      var bonus=Math.round(xp*bonusPct/100);
-      xp+=bonus;
-      log('⚔️ Klan XP: +'+xp+' ('+madalya.emoji+' '+madalya.ad+' +%'+bonusPct+' bonus)','ok');
-    } else { log('⚔️ Klan XP: +'+xp,'sy'); }
+  // Klan XP: 3kisi=1, 5kisi=2, 8kisi=3, 10kisi=4, 15kisi=5
+  var xpTablosu={3:1, 5:2, 8:3, 10:4, 15:5};
+  var xp=xpTablosu[tipKisiler]||0;
+  if(xp > 0) {
+    klanSupaXpEkle(xp);
+    log('⚔️ Klan XP: +'+xp+' ('+tipKisiler+' kişilik ihale)','ok');
   }
-  klanXpEkle(xp);
   klanLog('🏆 İhale kazanıldı: '+urun+' ('+tipKisiler+' kişilik) +'+fmt(kazanilanTL)+' TL'+(madalya?' '+madalya.emoji+madalya.ad:''),'ok');
   if (!G.klan.ihaleler) G.klan.ihaleler=[];
   var t=new Date(); var ts=t.getHours().toString().padStart(2,'0')+':'+t.getMinutes().toString().padStart(2,'0');
@@ -110671,36 +110670,53 @@ function klanIhaleKazandi(urun,tipKisiler,kazanilanTL,madalya) {
   var _ihMadSonra=_ihMadBon>0?Math.round((_ihGlobalSonra||kazanilanTL)*(1+_ihMadBon/100)):0;
   G.klan.ihaleler.push({zaman:ts,urun:urun,tipKisiler:tipKisiler,kazanilan:kazanilanTL,xp:xp,miktar:_ihMiktar,bazKazanc:_ihBazKazanc,ihLvBonus:_ihLvBonus,ihLvSonra:_ihLvSonra,globalBonus:_ihGlobalBonus,globalSonra:_ihGlobalSonra,madBon:_ihMadBon,madSonra:_ihMadSonra,madalya:madalya?{ad:madalya.ad,emoji:madalya.emoji,renk:madalya.renk,pct:madalya.pct}:null});
   if (G.klan.ihaleler.length>50) G.klan.ihaleler.splice(0,G.klan.ihaleler.length-50);
-  // Klan üyeleri kendi paylarını kazanır ve %10'unu bankaya bağışlar
-  if(G.klan.uyeler&&kazanilanTL>0){
-    var _botUyeler=G.klan.uyeler.filter(function(u){return u.bot;});
-    if(_botUyeler.length>0){
-      var _uyePayi=Math.round(kazanilanTL/_botUyeler.length); // Kazancın tamamı üyeler arasında paylaşılır
-      var _toplamBagis=0;
-      if(!G.klan.banka)G.klan.banka=0;
-      if(!G.klan.bankaBagislar)G.klan.bankaBagislar=[];
-      _botUyeler.forEach(function(u){
-        if(!u.servet)u.servet=500000;
-        if(!u.toplamKazanc)u.toplamKazanc=0;
-        if(!u.toplamBagis)u.toplamBagis=0;
-        var _bagis=Math.round(_uyePayi*0.50); // %50 bankaya
-        u.servet+=(_uyePayi-_bagis); // %50 kişisel
-        u.toplamKazanc+=_uyePayi;
-        u.toplamBagis+=_bagis;
-        G.klan.banka+=_bagis;
-        _toplamBagis+=_bagis;
-        G.klan.bankaBagislar.push({oyuncu:u.isim,miktar:_bagis,zaman:Date.now()});
-      });
-      if(G.klan.bankaBagislar.length>100)G.klan.bankaBagislar=G.klan.bankaBagislar.slice(-100);
-      if(_toplamBagis>0){log('🏦 Klan üyeleri bankaya +'+fmt(_toplamBagis)+' TL bağışladı','ok');klanLog('🏦 Üyeler ihale karından +'+fmt(_toplamBagis)+' TL bağışladı. Banka: '+fmt(Math.round(G.klan.banka))+' TL','bagis');}
-    }
-  }
+  if (!G.klan.ihaleler) G.klan.ihaleler=[];
+  var t=new Date(); var ts=t.getHours().toString().padStart(2,'0')+':'+t.getMinutes().toString().padStart(2,'0');
+  G.klan.ihaleler.push({zaman:ts,urun:urun,tipKisiler:tipKisiler,kazanilan:kazanilanTL,xp:xp});
+  if (G.klan.ihaleler.length>50) G.klan.ihaleler.splice(0,G.klan.ihaleler.length-50);
   save(); if(window._activeTab==='klan') renderKlan();
+}
+
+// Supabase klan XP ekle + lv kontrol (ortak)
+async function klanSupaXpEkle(xp) {
+  if(!G.klan||!G.klan.ad||!window.supa) return;
+  var {data, error} = await supa.from('klanlar').select('xp,seviye').eq('ad', G.klan.ad).single();
+  if(error||!data) return;
+  var yeniXp = (data.xp||0) + xp;
+  var yeniSeviye = data.seviye||0;
+  while(true) {
+    var esik = Math.round(1000 * Math.pow(1.5, yeniSeviye));
+    if(yeniXp >= esik && yeniSeviye < 30) {
+      yeniXp -= esik; yeniSeviye++;
+      log('🎉 Klan Lv'+yeniSeviye+"'e yükseldi! ⚔️",'ok');
+      klanLog('🎉 Klan Lv'+yeniSeviye+"'e yükseldi!",'ok');
+    } else break;
+  }
+  await supa.from('klanlar').update({xp: yeniXp, seviye: yeniSeviye}).eq('ad', G.klan.ad);
+  G.klan.xp = yeniXp; G.klan.seviye = yeniSeviye;
+  save(); if(window._activeTab==='klan') renderKlan();
+}
+
+// Klan bankasina para yatirma: her 1 milyar = 1 XP
+function klanBankaXpHesapla(tlMiktar) {
+  var xp = Math.floor(tlMiktar / 1000000000);
+  if(xp > 0) klanSupaXpEkle(xp);
+}
+
+// Supabase'den klan bilgilerini yukle (her acilista)
+async function klanSupaYukle() {
+  if(!G.klan||!G.klan.ad||!window.supa) return;
+  var {data, error} = await supa.from('klanlar').select('xp,seviye,uye_sayisi').eq('ad', G.klan.ad).single();
+  if(error||!data) return;
+  G.klan.xp = data.xp||0; G.klan.seviye = data.seviye||0;
+  save();
 }
 
 function renderKlan() {
   var el = document.getElementById('klanPanel'); if (!el) return;
   klanInit(); klanTabLvGuncelle();
+  // Supabase'den guncel klan bilgilerini yukle
+  if(typeof klanSupaYukle==='function') klanSupaYukle();
   var h='';
   h+='<div style="max-width:680px;margin:0 auto;padding:8px">';
   if (!G.klan.kuruldu) {
@@ -122365,6 +122381,8 @@ function ihracatTick(){
           if(_netKarLog>0)G.ihracatToplamKar=(G.ihracatToplamKar||0)+_netKarLog;
           klanLog('📦 '+ih.urun+' ihracatı tamamlandı! '+_siralama+' +'+fmt(_netKarLog)+' TL'+(xpOdul>0?' +'+xpOdul+' XP':''),'ok');
           if(G.klan.log.length>50)G.klan.log=G.klan.log.slice(0,50);
+          // Klan XP: her ihracat +5 XP
+          if(typeof klanSupaXpEkle==='function') klanSupaXpEkle(5);
           // Tebrik efekti
           setTimeout(function(){
             var _ef=document.createElement('div');
