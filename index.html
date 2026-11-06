@@ -54941,7 +54941,7 @@ function renderIhale(){
   var el=document.getElementById('ihalePanel');
   if(!el)return;
   if(!G.ihaleLevel||G.ihaleLevel<1){
-    el.innerHTML='<div style="text-align:center;padding:40px 20px"><div style="font-size:48px;margin-bottom:16px">🔒</div><div style="font-size:18px;font-weight:800;color:#f59e0b;margin-bottom:8px">İhale Sistemi Kilitli</div><div style="font-size:13px;color:#5a7a9e;margin-bottom:20px">İhale sistemini açmak için 50 💎 elmas gereklidir.</div><button onclick="ihaleKilidiAc()" style="padding:10px 28px;background:#7c3aed;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:800;cursor:pointer">🔓 Aç (50 💎)</button></div>';
+    el.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:16px;background:#07111f"><div style="font-size:64px">🔒</div><div style="font-size:20px;font-weight:800;color:#f59e0b">İhale Kilidi</div><div style="font-size:13px;color:#5a7a9e">İhale sistemine erişim için 50 elmas gerekiyor</div><button onclick="ihaleKilidiAc()" style="padding:12px 32px;font-size:15px;font-weight:700;background:#10b981;color:#fff;border:none;border-radius:10px;cursor:pointer">💎 50 Elmas ile Aç</button></div>';
     return;
   }
   if(!G.ihaleler)G.ihaleler=[];
@@ -122580,9 +122580,13 @@ function ihracatGonder(ihIdx, miktar) {
 
 function renderIhracat(){
   // Timer yenile
-  
   ihracatInit();
   var el=document.getElementById('ihracatPanel');if(!el)return;
+  // Klan kontrolu - klan yoksa kilit ekrani goster
+  if(!G.klan||!G.klan.ad){
+    el.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:16px;background:#07111f"><div style="font-size:64px">🔒</div><div style="font-size:20px;font-weight:800;color:#f59e0b">İhracat Kilidi</div><div style="font-size:13px;color:#5a7a9e;text-align:center">İhracat sistemini açabilmek için<br>bir klana girmeniz gerekmektedir</div><button onclick="switchMainTab(\'klan\')" style="padding:12px 32px;font-size:15px;font-weight:700;background:#7c3aed;color:#fff;border:none;border-radius:10px;cursor:pointer">🏴 Klana Git</button></div>';
+    return;
+  }
   var now=Date.now();
   var _xp=G.ihracatItibar||0;
   var _lv=ihracatItibarLv(_xp);
