@@ -68624,7 +68624,10 @@ function unlockBorsa() {
   if (!G.borsaLevel) G.borsaLevel=1;
   if (G.bankaLevel===undefined) G.bankaLevel=0;
   log('Borsa acildi! -50 elmas', 'ok');
-  renderHeader(); save(); renderBorsa();
+  var _tabB = document.getElementById('tab-borsa');
+  if(_tabB) _tabB.innerHTML = '';
+  renderHeader(); save();
+  setTimeout(function(){ renderBorsa(); }, 50);
 }
 
 
