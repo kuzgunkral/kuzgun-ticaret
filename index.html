@@ -94349,8 +94349,8 @@ function startGame() {
 
 
 function openGame() {
-  // Oyuncu adını Supabase user metadata'dan set et
-  if(!G._oyuncuAdi && window._supaUser && window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi) {
+  // Oyuncu adını Supabase user metadata'dan set et (her açılışta override)
+  if(window._supaUser && window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi) {
     G._oyuncuAdi = window._supaUser.user_metadata.kullanici_adi;
   }
 
