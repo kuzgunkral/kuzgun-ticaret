@@ -55092,6 +55092,8 @@ function renderIhale(){
     var _tipYazi=ih.tipKisiler?ih.tipKisiler+' Kisilik':'';
     var _tipRenk=ih.tipKisiler===1?'#10b981':ih.tipKisiler<=3?'#3b82f6':ih.tipKisiler<=5?'#f59e0b':ih.tipKisiler<=8?'#ef4444':ih.tipKisiler<=10?'#a855f7':'#f43f5e';
     if(_tipYazi)h+='<div style="position:absolute;top:10px;left:14px;font-size:13px;font-weight:800;color:'+_tipRenk+'">'+_tipYazi+'</div>';
+    if(_magStoreName&&_magStoreLv>0)h+='<div style="position:absolute;top:10px;right:14px;font-size:10px;font-weight:700;color:#5a7a9e;background:#0d1f35;border:1px solid #1a3050;border-radius:5px;padding:2px 7px;">🏪 '+_magStoreName+' Lv'+_magStoreLv+'</div>';
+    else if(_magStoreName)h+='<div style="position:absolute;top:10px;right:14px;font-size:10px;font-weight:700;color:#5a7a9e;background:#0d1f35;border:1px solid #1a3050;border-radius:5px;padding:2px 7px;">🏪 '+_magStoreName+'</div>';
     h+='<div style="text-align:center;padding:10px 0 6px">';
     h+='<div style="font-size:72px;line-height:1">'+ih.icon+'</div>';
     h+='<div style="font-size:20px;font-weight:900;color:#dde8f8;margin-top:6px">'+ihaleDisplayName(ih.urun)+'</div>';
