@@ -110708,7 +110708,7 @@ async function klanMesajlariYukle() {
     var t=new Date(m.zaman);
     var ts=t.getHours().toString().padStart(2,'0')+':'+t.getMinutes().toString().padStart(2,'0');
     var _isMe=(m.oyuncu===(G._oyuncuAdi||'Ben')||m.oyuncu==='Ben');
-    var _adClick=_isYon&&!_isMe?'onclick="window._klanSohbetSecili=\''+m.oyuncu+'\';var p=document.getElementById(\'klanSohbetPopup\');var pa=document.getElementById(\'klanSohbetPopupAd\');if(p&&pa){pa.textContent=\''+m.oyuncu+'\';p.style.display=\'block\';p.style.left=\'50%\';p.style.top=\'50%\';p.style.transform=\'translate(-50%,-50%)\';}" style="cursor:pointer"':'';
+    var _adClick=_isYon?'onclick="window._klanSeciliUye=\''+m.oyuncu+'\';window._klanSohbetSecili=\''+m.oyuncu+'\';var _sp=document.getElementById(\'klanSeciliUyeAd\');if(_sp){_sp.textContent=\''+m.oyuncu+'\';}var _ab=document.getElementById(\'klanUyeAksiyonBar\');if(_ab){_ab.style.display=\'flex\';}" style="cursor:pointer;text-decoration:underline dotted;"':'';
     h+='<div style="display:flex;gap:4px;align-items:flex-start;margin-bottom:4px;">';
     // Lider/asist için seçim checkbox'ı
     if(_isYon){
