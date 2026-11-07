@@ -110745,13 +110745,23 @@ async function klanBanKaldir(isim) {
   try{await supa.from('klanlar').update({banlilar:G.klan.banlilar}).eq('ad',G.klan.ad);}catch(e){}
   renderKlan();
 }
+var _kufurListesi = ['am','oç','göt','sik','piç','orospu','kahpe','ibne','bok','memeye','siktir','amk','amına','amcık','orospu çocuğu','bok','yarrak','yarak','götveren','oç','orospu','pezevenk','kaltağı','kaltak','fahişe','sürtük'];
+function kufurFiltrele(metin) {
+  var _t = metin;
+  _kufurListesi.forEach(function(k){
+    var re = new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi');
+    _t = _t.replace(re, function(m){ return '*'.repeat(m.length); });
+  });
+  return _t;
+}
 async function klanMesajGonder(mesaj) {
   if(!mesaj||!mesaj.trim()){return;}
   var _sustur=G.klan&&G.klan.susturulanlar&&G.klan.susturulanlar[G._oyuncuAdi||'Ben']&&Date.now()<G.klan.susturulanlar[G._oyuncuAdi||'Ben'];
   if(_sustur){log('🔇 Susturuldunuz, mesaj gönderemezsiniz!','er');return;}
   if(!G.klan||!G.klan.ad){log('Klan gerekli!','er');return;}
   var _oyAdi=G._oyuncuAdi||'Ben';
-  try{await supa.from('klan_mesajlar').insert({klan_ad:G.klan.ad,oyuncu:_oyAdi,mesaj:mesaj.trim()});}catch(e){log('Mesaj gönderilemedi!','er');return;}
+  var _temizMesaj = kufurFiltrele(mesaj.trim());
+  try{await supa.from('klan_mesajlar').insert({klan_ad:G.klan.ad,oyuncu:_oyAdi,mesaj:_temizMesaj});}catch(e){log('Mesaj gönderilemedi!','er');return;}
   var inp=document.getElementById('klanSohbetInp');
   if(inp)inp.value='';
   klanMesajlariYukle();
@@ -110778,7 +110788,8 @@ async function klanMesajlariYukle() {
     var _mBan=G.klan.banlilar&&G.klan.banlilar.indexOf(m.oyuncu)>=0;
     var _mIkon=_mBan?'🔨':_mSustur?'🔇':'';
     h+='<span '+_adClick+' style="font-size:12px;font-weight:700;color:'+(_isMe?'#10b981':'#a78bfa')+';white-space:nowrap;'+(_isYon&&!_isMe?'text-decoration:underline dotted;cursor:pointer;':'')+'">'+(_mIkon?'<span style="font-size:10px;margin-right:2px">'+_mIkon+'</span>':'')+m.oyuncu+'</span>';
-    h+='<span style="font-size:11px;background:'+(_isMe?'#0d2a1a':'#0d1f35')+';border:1px solid '+(_isMe?'#10b981':'#1a3050')+';border-radius:0 10px 10px 10px;padding:5px 10px;color:#dde8f8;display:inline-block;max-width:80%;word-break:break-word">'+m.mesaj+'</span>';
+    var _mBanStyle=_mBan?'text-decoration:line-through;opacity:0.6;border-color:#991b1b;':'';
+    h+='<span style="font-size:11px;background:'+(_isMe?'#0d2a1a':_mBan?'#1a0505':'#0d1f35')+';border:1px solid '+(_isMe?'#10b981':_mBan?'#991b1b':'#1a3050')+';border-radius:0 10px 10px 10px;padding:5px 10px;color:'+(_mBan?'#fca5a5':'#dde8f8')+';display:inline-block;max-width:80%;word-break:break-word;'+_mBanStyle+'">'+m.mesaj+'</span>';
     h+='<span style="font-size:9px;color:#5a7a9e;white-space:nowrap;align-self:flex-end">'+ts+'</span>';
     h+='</div>';
   });
