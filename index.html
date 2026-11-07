@@ -46576,25 +46576,7 @@ function renderBanka() {
   h+='</div>';
   if((_bh.vdFaizToplam||0)>0) h+='<div style="font-size:10px;color:#10b981;margin-top:3px">Toplam kazanılan faiz: <b>'+fmt(_bh.vdFaizToplam)+' TL</b></div>';
   h+='</div>';
-  h+='<div style="background:#071120;border:1px solid #1a3050;border-radius:6px;padding:4px 8px;margin-bottom:4px">';
-  h+='<div style="display:flex;align-items:center;gap:8px">';
-  h+='<span style="font-size:11px;font-weight:700;color:#dde8f8">&#128197; Vadeli <span style="font-size:10px;color:#f59e0b">%8/30g'+(_bh.vadeli>0?' • '+_vdKG+'g kaldı':'')+' </span></span>';
-  h+='<span style="font-size:12px;font-weight:800;color:'+(_bh.vadeli>=1000000000000?'#ef4444':_bh.vadeli>=100000000000?'#fbbf24':_bh.vadeli>=10000000000?'#f97316':_bh.vadeli>=1000000000?'#3b82f6':'#f59e0b')+';flex:1;text-align:right">'+fmt(_bh.vadeli||0)+' TL</span>';
-  if(_bh.vadeli>0&&_vdKG<=0){
-    var _vdF=Math.round((_bh.vadeli||0)*0.08);
-    h+='<button onclick="bankaHesapIslem(\'vadeli\',\'tahsil\')" style="padding:2px 8px;background:#0a1e12;color:#10b981;border:1px solid #10b981;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer">✅ Tahsil +'+fmt(_vdF)+'</button>';
-  }else if(_bh.vadeli>0){
-    h+='<button disabled style="padding:2px 8px;background:#1a2a3a;color:#4a6a8a;border:1px solid #1a3050;border-radius:4px;font-size:10px;cursor:not-allowed">'+_vdKG+'g kaldı</button>';
-    h+='<button onclick="bankaHesapIslem(\'vadeli\',\'erken\')" style="padding:2px 8px;background:#3a1a0a;color:#f97316;border:1px solid #f97316;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer">Erken Çek</button>';
-    h+='<input id="_bhVlInp" type="number" min="1" placeholder="TL" style="width:90px;padding:2px 5px;background:#0d1820;color:#dde8f8;border:1px solid #1a3050;border-radius:4px;font-size:11px">';
-    h+='<button onclick="var v=parseInt(document.getElementById(\'_bhVlInp\').value);if(v>0)bankaHesapIslem2(\'vadeli\',\'yatir\',v)" style="padding:2px 8px;background:#1a1205;color:#f59e0b;border:1px solid #f59e0b;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer">+Yat(30g %8)</button>';
-
-
-  }else{
-    h+='<input id="_bhVlInp" type="number" min="1" placeholder="TL" style="width:90px;padding:2px 5px;background:#0d1820;color:#dde8f8;border:1px solid #1a3050;border-radius:4px;font-size:11px">';
-    h+='<button onclick="var v=parseInt(document.getElementById(\'_bhVlInp\').value);if(v>0)bankaHesapIslem2(\'vadeli\',\'yatir\',v)" style="padding:2px 8px;background:#1a1205;color:#f59e0b;border:1px solid #f59e0b;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer">+Yat(30g %8)</button>';
-  }
-  h+='</div>';
+  
   h+='<div style="background:#071120;border:1px solid #c0a06044;border-radius:8px;padding:8px 12px;margin-top:6px;display:flex;flex-direction:column;gap:6px">';
   h+='<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">';
   h+='<div style="display:flex;align-items:center;gap:8px"><span style="font-size:22px">&#129351;</span><span style="font-size:13px;font-weight:900;color:#fbbf24;letter-spacing:1px">Altın Hesabı</span></div>';
@@ -122492,7 +122474,7 @@ function ihracatSozlesmeImzala(ihKey){
   ihracatInit();
   var ih=G.ihracatlar.find(function(x){return String(x.id)===String(ihKey);});
   if(!ih||ih.bitti){log('İhracat bulunamadı!','er');return;}
-  if(!G.klan||!G.klan.banka){log('Klan bankası gerekli!','er');return;}
+  if(!G.klan||!G.klan.kuruldu){log('İhracat için klana üye olmanız gerekli!','er');return;}
   // Tamamlama süresine göre bekleme: <1s=1s, <2s=2s, >2s=3s
   var _now2h=Date.now();
   var _bekSure=(G._sonIhracatBekSure||60)*60*1000; // dakika * 60 * 1000 = ms
