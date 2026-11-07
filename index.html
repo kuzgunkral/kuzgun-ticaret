@@ -44830,6 +44830,44 @@ function altinIslem(tip){
   if(tot<1){alert('En az 1 gram!\nTon:'+t+' Kg:'+k+' gr:'+g+'\nToplam: '+tot+' gr');return;}
   bankaHesapIslem2('altin',tip,tot);
 }
+function altinIslemTL(tip){
+  var _tl = parseFloat(document.getElementById('_bhAlTL')?document.getElementById('_bhAlTL').value||0:0);
+  if(!_tl||_tl<=0){log('TL miktarı girin!','er');return;}
+  var _af=(typeof G.altinFiyat!=='undefined'&&G.altinFiyat>0)?G.altinFiyat:1000000;
+  if(tip==='al'){
+    // Ettiği kadar altın al, kalanı para olarak bırak
+    var _maxGr = _tl / _af;
+    var _tamGr = Math.floor(_maxGr * 1000) / 1000; // 0.001 hassasiyet
+    if(_tamGr <= 0){log('Bu TL ile en az 0.001 gr alınamıyor!','er');return;}
+    var _harcanacakTL = Math.round(_tamGr * _af);
+    if(_harcanacakTL > G.money){log('Yetersiz bakiye! Gereken: '+fmt(_harcanacakTL)+' TL','er');return;}
+    G.money -= _harcanacakTL;
+    var bh = G.bankaHesaplar;
+    bh.altinMiktar = Math.round(((bh.altinMiktar||0) + _tamGr) * 1000) / 1000;
+    bh.altinMaliyet = (bh.altinMaliyet||0) + _harcanacakTL;
+    var _kalan = _tl - _harcanacakTL;
+    log('🥇 Altın +'+_tamGr.toFixed(3)+' gr ('+fmt(_harcanacakTL)+' TL)'+(_kalan>0?' | Kalan: '+fmt(_kalan)+' TL':''),'ok','banka');
+    window._bhTLInput = 0;
+    renderBanka(); renderHeader(); save();
+  } else if(tip==='sat'){
+    // TL karşılığı kadar altın sat
+    var _satGr = Math.floor((_tl / _af) * 1000) / 1000;
+    var bh = G.bankaHesaplar;
+    var _mevcut = Math.round((bh.altinMiktar||0) * 1000) / 1000;
+    if(_satGr <= 0){log('Bu TL için yetersiz miktar!','er');return;}
+    if(_satGr > _mevcut){log('Yeterli altın yok! Mevcut: '+_mevcut+' gr','er');return;}
+    var _gelir = Math.round(_satGr * _af);
+    var _satOran = _satGr / (_mevcut||1);
+    bh.altinMaliyet = Math.round((bh.altinMaliyet||0) * (1 - _satOran));
+    bh.altinMiktar = Math.round((_mevcut - _satGr) * 1000) / 1000;
+    G.money += _gelir;
+    bh.altinSatisToplam = (bh.altinSatisToplam||0) + _gelir;
+    if(bh.altinMiktar <= 0){bh.altinMaliyet = 0;}
+    log('🥇 Altın -'+_satGr.toFixed(3)+' gr (+'+fmt(_gelir)+' TL)','ok','banka');
+    window._bhTLInput = 0;
+    renderBanka(); renderHeader(); save();
+  }
+}
 
 function bankaHesapIslem2(tip,islem,tutar) {
   if(!tutar||tutar<=0){alert('Gecersiz miktar!');return;}
@@ -46590,13 +46628,14 @@ function renderBanka() {
   h+='</div>';
   h+='</div>';
   h+='<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">';
-  h+='<span style="font-size:13px;font-weight:900;color:#fbbf24">'+  _agS +'</span>';
+  var _grKarsilik = G.altinFiyat > 0 ? Math.floor((window._bhTLInput||0) / G.altinFiyat * 1000) / 1000 : 0;
+  h+='<span style="font-size:13px;font-weight:900;color:#fbbf24">'+_agS+'</span>';
   h+='<div style="display:flex;align-items:center;gap:5px">';
-  h+='<span style="font-size:11px;color:#5a7a9e">Ton</span><input id="_bhAlT" type="number" min="0" value="0" style="width:44px;padding:1px 3px;background:#0d1820;color:#fbbf24;border:1px solid #2a3a20;border-radius:3px;font-size:11px;text-align:center">';
-  h+='<span style="font-size:11px;color:#5a7a9e">Kg</span><input id="_bhAlK" type="number" min="0" max="999" value="0" style="width:44px;padding:1px 3px;background:#0d1820;color:#fbbf24;border:1px solid #2a3a20;border-radius:3px;font-size:11px;text-align:center">';
-  h+='<span style="font-size:11px;color:#5a7a9e">gr</span><input id="_bhAlG" type="number" min="0" max="999" value="0" style="width:44px;padding:1px 3px;background:#0d1820;color:#fbbf24;border:1px solid #2a3a20;border-radius:3px;font-size:11px;text-align:center">';
-  h+='<button onclick="altinIslem(\'al\')" style="padding:2px 8px;background:#1a1205;color:#fbbf24;border:1px solid #fbbf24;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer">+Al</button>';
-  h+='<button onclick="altinIslem(\'sat\')" style="padding:2px 8px;background:#1a1205;color:#f59e0b;border:1px solid #f59e0b;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer">−Sat</button>';
+  h+='<span style="font-size:11px;color:#5a7a9e">≈ <b style="color:#fbbf24">'+(_grKarsilik>0?_grKarsilik.toFixed(3)+' gr':'')+'</b></span>';
+  h+='<input id="_bhAlTL" type="number" min="0" value="'+(window._bhTLInput||0)+'" placeholder="TL girin" oninput="window._bhTLInput=parseFloat(this.value)||0;renderBanka();" style="width:120px;padding:2px 6px;background:#0d1820;color:#fbbf24;border:1px solid #2a3a20;border-radius:4px;font-size:11px;text-align:right">';
+  h+='<span style="font-size:11px;color:#5a7a9e">TL</span>';
+  h+='<button onclick="altinIslemTL(\'al\')" style="padding:2px 8px;background:#1a1205;color:#fbbf24;border:1px solid #fbbf24;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer">+Al</button>';
+  h+='<button onclick="altinIslemTL(\'sat\')" style="padding:2px 8px;background:#1a1205;color:#f59e0b;border:1px solid #f59e0b;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer">−Sat</button>';
   h+='</div>';
   h+='</div>';
   if(_ortMaliyet>0&&_agMiktarGercek>0){
