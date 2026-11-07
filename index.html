@@ -110666,6 +110666,33 @@ function klanYardimciAta(isim) {
   else{G.klan.yardimci=isim;log('🤝 '+isim+' yardımcı yapıldı.','ok');}
   save(); renderKlan();
 }
+function klanLiderYap(isim) {
+  if(!isim){log('Üye seçin!','er');return;}
+  if(G.klan.yardimci!==isim){log('Önce bu kişiyi asist yapmalısın!','er');return;}
+  // Onay popup
+  var popup = document.createElement('div');
+  popup.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:99999;display:flex;align-items:center;justify-content:center;';
+  popup.innerHTML = '<div style="background:#0d1f35;border:2px solid #f59e0b;border-radius:14px;padding:28px;max-width:380px;text-align:center">'
+    + '<div style="font-size:40px;margin-bottom:10px">👑</div>'
+    + '<div style="font-size:16px;font-weight:800;color:#f59e0b;margin-bottom:10px">Liderliği Devret</div>'
+    + '<div style="font-size:13px;color:#dde8f8;margin-bottom:8px"><b style="color:#a78bfa">'+isim+'</b> yeni lider olacak.</div>'
+    + '<div style="font-size:12px;color:#f59e0b;margin-bottom:20px">Sen asist konumuna düşeceksin. Emin misin?</div>'
+    + '<div style="display:flex;gap:10px;justify-content:center">'
+    + '<button onclick="this.closest(\'div[style*=fixed]\').remove();" style="padding:8px 20px;background:#071120;color:#5a7a9e;border:1px solid #1a3050;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">İptal</button>'
+    + '<button onclick="klanLiderYapOnayla(\''+isim+'\');this.closest(\'div[style*=fixed]\').remove();" style="padding:8px 20px;background:#78350f;color:#f59e0b;border:1px solid #f59e0b;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">👑 Evet, Devret</button>'
+    + '</div></div>';
+  document.body.appendChild(popup);
+}
+async function klanLiderYapOnayla(isim) {
+  var _eskiLider = G._oyuncuAdi || 'Ben';
+  G.klan.yardimci = _eskiLider;
+  G.klan.lider = isim;
+  log('👑 '+isim+' yeni lider oldu. Sen asist oldun.','ok');
+  klanLog('👑 '+isim+' yeni lider oldu.','ok');
+  save();
+  try{await supa.from('klanlar').update({lider:isim}).eq('ad',G.klan.ad);}catch(e){}
+  renderKlan();
+}
 async function klanSustur(isim) {
   if(!isim){log('Üye seçin!','er');return;}
   klanInit();
@@ -110975,6 +111002,7 @@ function renderKlan() {
       h+='<div id="klanUyeAksiyonBar" style="display:none;align-items:center;gap:6px;padding:6px 10px;background:#0d1f35;border:1px solid #1a3050;border-radius:8px;margin-bottom:8px;flex-wrap:wrap">';
       h+='<span id="klanSeciliUyeAd" style="font-size:12px;font-weight:700;color:#a78bfa;flex:1">— Üye seçin —</span>';
       h+='<button onclick="klanYardimciAta(window._klanSeciliUye);renderKlan();" style="padding:4px 10px;background:#1a0a30;color:#a78bfa;border:1px solid #7c3aed;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer">🤝 Asist</button>';
+      h+='<button onclick="klanLiderYap(window._klanSeciliUye);" style="padding:4px 10px;background:#2a1a05;color:#f59e0b;border:1px solid #f59e0b;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer">👑 Lider Yap</button>';
       h+='<button onclick="klanSustur(window._klanSeciliUye);renderKlan();" style="padding:4px 10px;background:#1a0f05;color:#f97316;border:1px solid #f97316;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer">🔇 Sustur / 🔊 Aç</button>';
       h+='<button onclick="klanBan(window._klanSeciliUye);" style="padding:4px 10px;background:#2a0505;color:#fca5a5;border:1px solid #991b1b;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer">🔨 Banla</button>';
       h+='<button onclick="klanCikart(window._klanSeciliUye);" style="padding:4px 10px;background:#1a0505;color:#ef4444;border:1px solid #ef4444;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer">🚫 Çıkart</button>';
