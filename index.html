@@ -110695,19 +110695,27 @@ async function klanMesajlariYukle() {
   if(!data)return;
   var el=document.getElementById('klanSohbetList');
   if(!el)return;
+  var _isYon=G.klan&&(G.klan.kuruldu||(G.klan.yardimci&&(G.klan.yardimci===(G._oyuncuAdi||'Ben'))));
   var h='';
   data.slice().reverse().forEach(function(m){
     var t=new Date(m.zaman);
     var ts=t.getHours().toString().padStart(2,'0')+':'+t.getMinutes().toString().padStart(2,'0');
     var _isMe=(m.oyuncu===(G._oyuncuAdi||'Ben')||m.oyuncu==='Ben');
-    h+='<div style="display:flex;gap:6px;align-items:flex-start;margin-bottom:4px;'+ (_isMe?'flex-direction:row-reverse':'') +'">';
-    h+='<span style="font-size:10px;font-weight:700;color:'+(_isMe?'#10b981':'#a78bfa')+';white-space:nowrap">'+m.oyuncu+'</span>';
+    var _adClick=_isYon&&!_isMe?'onclick="window._klanSohbetSecili=\''+m.oyuncu+'\';var p=document.getElementById(\'klanSohbetPopup\');var pa=document.getElementById(\'klanSohbetPopupAd\');if(p&&pa){pa.textContent=\''+m.oyuncu+'\';p.style.display=\'block\';p.style.left=\'50%\';p.style.top=\'50%\';p.style.transform=\'translate(-50%,-50%)\';}" style="cursor:pointer"':'';
+    h+='<div style="display:flex;gap:6px;align-items:flex-start;margin-bottom:4px;'+(_isMe?'flex-direction:row-reverse':'')+'">';
+    h+='<span '+_adClick+' style="font-size:12px;font-weight:700;color:'+(_isMe?'#10b981':'#a78bfa')+';white-space:nowrap;'+(_isYon&&!_isMe?'text-decoration:underline dotted;':'')+'">'+m.oyuncu+'</span>';
     h+='<span style="font-size:11px;background:'+(_isMe?'#0d2a1a':'#0d1f35')+';border:1px solid '+(_isMe?'#10b981':'#1a3050')+';border-radius:8px;padding:3px 8px;color:#dde8f8;max-width:220px;word-break:break-word">'+m.mesaj+'</span>';
     h+='<span style="font-size:9px;color:#5a7a9e;white-space:nowrap;align-self:flex-end">'+ts+'</span>';
     h+='</div>';
   });
+  if(!h)h='<div style="font-size:11px;color:#5a7a9e;text-align:center;padding:8px">Henüz mesaj yok.</div>';
   el.innerHTML=h;
   el.scrollTop=el.scrollHeight;
+}
+async function klanSohbetiTemizle() {
+  if(!G.klan||!G.klan.ad)return;
+  if(!confirm('Tüm sohbet geçmişi silinsin mi?'))return;
+  try{await supa.from('klan_mesajlar').delete().eq('klan_ad',G.klan.ad);klanMesajlariYukle();log('🗑 Sohbet temizlendi.','sy');}catch(e){log('Sohbet temizlenemedi!','er');}
 }
 function klanToplamUye() {
   klanInit(); if (!G.klan.kuruldu) return 0; return G.klan.uyeler.length+1;
@@ -110903,15 +110911,45 @@ function renderKlan() {
     h+='</div>';
     
 // Klan Sohbet
+    var _sohbetKapali=G.klan.sohbetKapali||false;
+    var _isYonetici=_isLider||(G.klan.yardimci&&(G.klan.yardimci===(G._oyuncuAdi||'Ben')||G.klan.yardimci==='Ben'));
     h+='<div style="background:#0a1628;border:1px solid #1a3050;border-radius:10px;padding:12px 16px;margin-top:10px">';
-    h+='<div style="font-size:12px;font-weight:700;color:#dde8f8;margin-bottom:8px">💬 Klan Sohbeti</div>';
-    h+='<div id="klanSohbetList" style="height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;margin-bottom:8px;padding:4px;background:#071120;border-radius:6px;border:1px solid #1a3050">';
-    h+='<div style="font-size:11px;color:#5a7a9e;text-align:center;padding:8px">Yükleniyor...</div>';
+    // Başlık satırı
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+    h+='<div style="font-size:12px;font-weight:700;color:#dde8f8">💬 Klan Sohbeti</div>';
+    if(_isYonetici){
+      h+='<div style="display:flex;gap:4px">';
+      h+='<button onclick="G.klan.sohbetKapali=!G.klan.sohbetKapali;save();renderKlan();" style="padding:3px 8px;background:'+(  _sohbetKapali?'#1a3050':'#1a0f05')+';color:'+(_sohbetKapali?'#10b981':'#f97316')+';border:1px solid '+(_sohbetKapali?'#10b981':'#f97316')+';border-radius:4px;font-size:10px;font-weight:700;cursor:pointer">'+(_sohbetKapali?'🔓 Aç':'🔒 Kapat')+'</button>';
+      h+='<button onclick="klanSohbetiTemizle()" style="padding:3px 8px;background:#1a0505;color:#ef4444;border:1px solid #ef4444;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer">🗑 Temizle</button>';
+      h+='</div>';
+    }
     h+='</div>';
-    h+='<div style="display:flex;gap:6px">';
-    h+='<input id="klanSohbetInp" type="text" maxlength="200" placeholder="Mesaj yaz..." onkeydown="if(event.key===\'Enter\')klanMesajGonder(this.value)" style="flex:1;padding:6px 10px;background:#071120;border:1px solid #1a3050;border-radius:6px;color:#dde8f8;font-size:12px">';
-    h+='<button onclick="klanMesajGonder(document.getElementById(\'klanSohbetInp\').value)" style="padding:6px 14px;background:#7c3aed;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Gönder</button>';
+    // Sohbet listesi
+    if(_sohbetKapali&&!_isYonetici){
+      h+='<div style="font-size:11px;color:#f97316;text-align:center;padding:16px">🔒 Sohbet yönetici tarafından kapatılmıştır.</div>';
+    } else {
+      h+='<div id="klanSohbetList" style="height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;margin-bottom:8px;padding:4px;background:#071120;border-radius:6px;border:1px solid #1a3050">';
+      h+='<div style="font-size:11px;color:#5a7a9e;text-align:center;padding:8px">Yükleniyor...</div>';
+      h+='</div>';
+      var _benSustur=G.klan.susturulanlar&&G.klan.susturulanlar[G._oyuncuAdi||'Ben']&&Date.now()<G.klan.susturulanlar[G._oyuncuAdi||'Ben'];
+      h+='<div style="display:flex;gap:6px">';
+      if(_benSustur){
+        h+='<div style="flex:1;padding:6px 10px;background:#1a0f05;border:1px solid #f97316;border-radius:6px;color:#f97316;font-size:12px">🔇 Susturuldunuz</div>';
+      } else {
+        h+='<input id="klanSohbetInp" type="text" maxlength="200" placeholder="Mesaj yaz..." onkeydown="if(event.key===\'Enter\')klanMesajGonder(this.value)" style="flex:1;padding:6px 10px;background:#071120;border:1px solid #1a3050;border-radius:6px;color:#dde8f8;font-size:12px">';
+        h+='<button onclick="klanMesajGonder(document.getElementById(\'klanSohbetInp\').value)" style="padding:6px 14px;background:#7c3aed;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Gönder</button>';
+      }
+      h+='</div>';
+    }
     h+='</div>';
+    // Sohbet popup (kişiye tıklayınca)
+    h+='<div id="klanSohbetPopup" style="display:none;position:fixed;z-index:9999;background:#0d1f35;border:1px solid #1a3050;border-radius:8px;padding:10px 14px;box-shadow:0 4px 20px #000a">';
+    h+='<div id="klanSohbetPopupAd" style="font-size:13px;font-weight:700;color:#a78bfa;margin-bottom:8px"></div>';
+    if(_isYonetici){
+      h+='<button onclick="klanSustur(window._klanSohbetSecili);document.getElementById(\'klanSohbetPopup\').style.display=\'none\';" style="display:block;width:100%;padding:5px 10px;margin-bottom:4px;background:#1a0f05;color:#f97316;border:1px solid #f97316;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;text-align:left">🔇 Sustur / Konuştur</button>';
+      h+='<button onclick="klanCikart(window._klanSohbetSecili);document.getElementById(\'klanSohbetPopup\').style.display=\'none\';" style="display:block;width:100%;padding:5px 10px;background:#1a0505;color:#ef4444;border:1px solid #ef4444;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;text-align:left">🚫 At</button>';
+    }
+    h+='<button onclick="document.getElementById(\'klanSohbetPopup\').style.display=\'none\';" style="display:block;width:100%;padding:5px 10px;margin-top:4px;background:#071120;color:#5a7a9e;border:1px solid #1a3050;border-radius:5px;font-size:11px;cursor:pointer;text-align:left">✖ Kapat</button>';
     h+='</div>';
     // Canlı Log — açılır/kapanır
     if(!G.klan.log)G.klan.log=[];
