@@ -110684,14 +110684,15 @@ async function klanMesajGonder(mesaj) {
   if(!mesaj||!mesaj.trim()){return;}
   var _sustur=G.klan&&G.klan.susturulanlar&&G.klan.susturulanlar[G._oyuncuAdi||'Ben']&&Date.now()<G.klan.susturulanlar[G._oyuncuAdi||'Ben'];
   if(_sustur){log('🔇 Susturuldunuz, mesaj gönderemezsiniz!','er');return;}
-  if(!window.supa||!G.klan||!G.klan.ad){log('Klan gerekli!','er');return;}
+  if(!G.klan||!G.klan.ad){log('Klan gerekli!','er');return;}
   var _oyAdi=G._oyuncuAdi||'Ben';
-  await supa.from('klan_mesajlar').insert({klan_ad:G.klan.ad,oyuncu:_oyAdi,mesaj:mesaj.trim()});
+  try{await supa.from('klan_mesajlar').insert({klan_ad:G.klan.ad,oyuncu:_oyAdi,mesaj:mesaj.trim()});}catch(e){log('Mesaj gönderilemedi!','er');return;}
   var inp=document.getElementById('klanSohbetInp');
   if(inp)inp.value='';
+  klanMesajlariYukle();
 }
 async function klanMesajlariYukle() {
-  if(!window.supa||!G.klan||!G.klan.ad)return;
+  if(!G.klan||!G.klan.ad)return;
   var {data}=await supa.from('klan_mesajlar').select('*').eq('klan_ad',G.klan.ad).order('zaman',{ascending:false}).limit(30);
   if(!data)return;
   var el=document.getElementById('klanSohbetList');
@@ -118903,7 +118904,7 @@ var _stLv = G.stores[PRODUCTS[k].store] ? (G.stores[PRODUCTS[k].store].level || 
         var _lvB = _stLv > 10 ? Math.min(_stLv - 10, 20) : 0;
 
     var _isPasifStore = G.stores[sk] && G.stores[sk].pasif;
-    h += '<div class="pcard" style="'+(_isPasifStore?'opacity:0.35;filter:grayscale(60%)':'')+'">';
+    h += '<div class="pcard" id="inv-card-'+k+'" style="'+(_isPasifStore?'opacity:0.35;filter:grayscale(60%)':'')+'">';
 
 
 
