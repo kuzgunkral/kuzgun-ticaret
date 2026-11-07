@@ -270,6 +270,9 @@ async function supaGirisYap(kullaniciAdi, sifre, gercekEmail) {
   var {data, error} = await supa.auth.signInWithPassword({email: email, password: sifre});
   if(error) return {hata: 'Kullanıcı adı veya şifre yanlış!'};
   window._supaUser = data.user;
+  if(data.user && data.user.user_metadata && data.user.user_metadata.kullanici_adi) {
+    if(typeof G !== 'undefined') G._oyuncuAdi = data.user.user_metadata.kullanici_adi;
+  }
   if(data.user) startOturumKanal(data.user.id); return {basari: true, user: data.user};
 }
 
@@ -94346,8 +94349,10 @@ function startGame() {
 
 
 function openGame() {
-  // Oyuncu adını G.company'den set et
-  if(G.company && !G._oyuncuAdi) G._oyuncuAdi = G.company;
+  // Oyuncu adını Supabase user metadata'dan set et
+  if(!G._oyuncuAdi && window._supaUser && window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi) {
+    G._oyuncuAdi = window._supaUser.user_metadata.kullanici_adi;
+  }
 
 
 
