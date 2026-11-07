@@ -46632,8 +46632,10 @@ function renderBanka() {
   h+='<span style="font-size:13px;font-weight:900;color:#fbbf24">'+_agS+'</span>';
   h+='<div style="display:flex;align-items:center;gap:5px">';
   h+='<span style="font-size:11px;color:#6080a0">≈ <b style="color:#fbbf24">'+(_grKarsilik>0?_grKarsilik.toFixed(3)+' gr':'')+'</b></span>';
-  h+='<input id="_bhAlTL" type="number" min="0" value="'+(window._bhTLInput||0)+'" placeholder="TL girin" oninput="window._bhTLInput=parseFloat(this.value)||0;renderBanka();" style="width:120px;padding:2px 6px;background:#131824;color:#fbbf24;border:1px solid #2a3a20;border-radius:4px;font-size:11px;text-align:right">';
-  h+='<span style="font-size:11px;color:#6080a0">TL</span>';
+  h+='<div style="position:relative;display:inline-flex;align-items:center">';
+  h+='<input id="_bhAlTL" type="number" min="0" value="'+(window._bhTLInput||0)+'" placeholder="TL girin" oninput="window._bhTLInput=parseFloat(this.value)||0;renderBanka();" style="width:120px;padding:2px 32px 2px 6px;background:#131824;color:#fbbf24;border:1px solid #2a3550;border-radius:4px;font-size:11px;text-align:right">';
+  h+='<span style="position:absolute;right:6px;font-size:10px;color:#6080a0;pointer-events:none">TL</span>';
+  h+='</div>';
   h+='<button onclick="altinIslemTL(\'al\')" style="padding:2px 8px;background:#1a1205;color:#fbbf24;border:1px solid #fbbf24;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer">+Al</button>';
   h+='<button onclick="altinIslemTL(\'sat\')" style="padding:2px 8px;background:#1a1205;color:#f59e0b;border:1px solid #f59e0b;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer">−Sat</button>';
   h+='</div>';
