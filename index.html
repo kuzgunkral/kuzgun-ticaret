@@ -110924,9 +110924,9 @@ function renderKlan() {
       h+='<div id="klanUyeAksiyonBar" style="display:none;align-items:center;gap:6px;padding:6px 10px;background:#0d1f35;border:1px solid #1a3050;border-radius:8px;margin-bottom:8px;flex-wrap:wrap">';
       h+='<span id="klanSeciliUyeAd" style="font-size:12px;font-weight:700;color:#a78bfa;flex:1">— Üye seçin —</span>';
       h+='<button onclick="klanYardimciAta(window._klanSeciliUye);renderKlan();" style="padding:4px 10px;background:#1a0a30;color:#a78bfa;border:1px solid #7c3aed;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer">🤝 Asist</button>';
-      h+='<button onclick="klanSustur(window._klanSeciliUye);" style="padding:4px 10px;background:#1a0f05;color:#f97316;border:1px solid #f97316;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer">🔇 Sustur</button>';
-      h+='<button onclick="klanCikart(window._klanSeciliUye);" style="padding:4px 10px;background:#1a0505;color:#ef4444;border:1px solid #ef4444;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer">🚫 Çıkart</button>';
-      h+='<button onclick="klanBan(window._klanSeciliUye);" style="padding:4px 10px;background:#2a0505;color:#fca5a5;border:1px solid #991b1b;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer">🔨 Ban</button>';
+      h+='<button onclick="klanSustur(window._klanSeciliUye);renderKlan();" style="padding:4px 10px;background:#1a0f05;color:#f97316;border:1px solid #f97316;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer">🔇 Sustur / 🔊 Aç</button>';
+      h+='<button onclick="klanBan(window._klanSeciliUye);renderKlan();" style="padding:4px 10px;background:#2a0505;color:#fca5a5;border:1px solid #991b1b;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer">🔨 Engelle / 🔓 Aç</button>';
+      h+='<button onclick="klanCikart(window._klanSeciliUye);" style="padding:4px 10px;background:#1a0505;color:#ef4444;border:1px solid #ef4444;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer">🚫 At</button>';
       h+='</div>';
       h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:#071120;border-radius:6px;margin-bottom:4px"><span>👑</span><span style="font-size:12px;font-weight:700;color:#f59e0b">Sen (Lider)</span></div>';
       for(var _ui=0;_ui<G.klan.uyeler.length;_ui++){var _u=G.klan.uyeler[_ui];var _iy=G.klan.yardimci===_u.isim;
