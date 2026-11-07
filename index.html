@@ -110594,14 +110594,32 @@ function klandanCik() {
   document.body.appendChild(_onayDiv);
 }
 
-function klandanCikOnayla() {
+async function klandanCikOnayla() {
   var _onay = document.getElementById('klanCikOnay'); if(_onay) _onay.remove();
   var _klanAd = G.klan.ad;
-  if(window.supa) {
-    supa.from('klanlar').select('uye_sayisi').eq('ad', _klanAd).single().then(function(r) {
-      if(r.data) supa.from('klanlar').update({uye_sayisi: Math.max(0,(r.data.uye_sayisi||1)-1)}).eq('ad', _klanAd);
-    });
+  var _yardimci = G.klan.yardimci;
+  var _lider = G.klan.kuruldu; // ben lidersem true
+  
+  if(_lider && _yardimci) {
+    // Asist var → asist lider olur
+    try {
+      await supa.from('klanlar').update({lider: _yardimci, uye_sayisi: Math.max(1,(G.klan.uyeler.length))}).eq('ad', _klanAd);
+      log('👑 ' + _yardimci + ' yeni lider oldu.','ok');
+    } catch(e){}
+  } else if(_lider && !_yardimci) {
+    // Asist yok → klan silinir
+    try {
+      await supa.from('klanlar').delete().eq('ad', _klanAd);
+      await supa.from('klan_mesajlar').delete().eq('klan_ad', _klanAd);
+      log('💀 ' + _klanAd + ' klanı silindi (lider ayrıldı, asist yoktu).','er');
+    } catch(e){}
+  } else {
+    // Normal üye çıkışı
+    try {
+      await supa.from('klanlar').update({uye_sayisi: Math.max(0,(G.klan.uyeler.length))}).eq('ad', _klanAd);
+    } catch(e){}
   }
+
   G._klanCezaBitis = Date.now() + (72 * 60 * 60 * 1000);
   G.klan = {ad:null, kuruldu:false, lider:'Sen', yardimci:null, uyeler:[], seviye:1, xp:0, ihaleler:[], kasaTL:0, banka:0, log:[]};
   save(); renderKlan();
