@@ -341,7 +341,7 @@ function startOturumKanal(userId) {
           '<div style="font-size:48px">🔒</div>' +
           '<div style="color:#ef4444;font-size:20px;font-weight:700">Başka bir cihazdan giriş yapıldı!</div>' +
           '<div style="color:#6080a0;font-size:14px">Bu oturum sonlandırıldı.</div>' +
-          '<button onclick="location.reload()" style="padding:10px 24px;background:#283858;color:#d8e8f8;border:none;border-radius:8px;cursor:pointer;font-size:14px">Yeniden Giriş Yap</button>' +
+          '<button onclick="supa.auth.signOut().then(function(){var gw=document.getElementById(\'gameWrap\');if(gw)gw.style.display=\'none\';var lw=document.getElementById(\'loginWrap\');if(lw)lw.style.display=\'\';})" style="padding:10px 24px;background:#283858;color:#d8e8f8;border:none;border-radius:8px;cursor:pointer;font-size:14px">Yeniden Giriş Yap</button>' +
           '</div>';
       }
     }
