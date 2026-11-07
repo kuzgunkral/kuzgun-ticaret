@@ -110725,8 +110725,23 @@ async function klanMesajlariYukle() {
 }
 async function klanSohbetiTemizle() {
   if(!G.klan||!G.klan.ad)return;
-  if(!confirm('Tüm sohbet geçmişi silinsin mi?'))return;
   try{await supa.from('klan_mesajlar').delete().eq('klan_ad',G.klan.ad);klanMesajlariYukle();log('🗑 Sohbet temizlendi.','sy');}catch(e){log('Sohbet temizlenemedi!','er');}
+}
+function klanSohbetiTemizleOnayla() {
+  if(!G.klan||!G.klan.ad)return;
+  // Onay popup'ı
+  var popup = document.createElement('div');
+  popup.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:99999;display:flex;align-items:center;justify-content:center;';
+  popup.innerHTML = '<div style="background:#0d1f35;border:1px solid #991b1b;border-radius:12px;padding:24px 28px;max-width:360px;text-align:center">'
+    + '<div style="font-size:32px;margin-bottom:12px">⚠️</div>'
+    + '<div style="font-size:15px;font-weight:700;color:#fca5a5;margin-bottom:8px">Sohbeti Temizle</div>'
+    + '<div style="font-size:12px;color:#dde8f8;margin-bottom:6px">Tüm sohbet geçmişi silinecek.</div>'
+    + '<div style="font-size:12px;color:#ef4444;font-weight:700;margin-bottom:20px">⚠️ Bu işlem geri alınamaz!</div>'
+    + '<div style="display:flex;gap:10px;justify-content:center">'
+    + '<button onclick="this.closest(\'div[style*=fixed]\').remove();" style="padding:8px 20px;background:#071120;color:#5a7a9e;border:1px solid #1a3050;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">İptal</button>'
+    + '<button onclick="klanSohbetiTemizle();this.closest(\'div[style*=fixed]\').remove();" style="padding:8px 20px;background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Evet, Temizle</button>'
+    + '</div></div>';
+  document.body.appendChild(popup);
 }
 async function klanTekMesajSil(id) {
   if(!id)return;
@@ -110948,10 +110963,12 @@ function renderKlan() {
     h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
     h+='<div style="font-size:12px;font-weight:700;color:#dde8f8">💬 Klan Sohbeti</div>';
     if(_isYonetici){
+      var _seciliSustur=window._klanSeciliUye&&G.klan.susturulanlar&&G.klan.susturulanlar[window._klanSeciliUye]&&Date.now()<G.klan.susturulanlar[window._klanSeciliUye];
       h+='<div style="display:flex;gap:4px;flex-wrap:wrap">';
+      h+='<button onclick="klanSustur(window._klanSeciliUye);renderKlan();" style="padding:3px 8px;background:#1a0f05;color:#f97316;border:1px solid #f97316;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer" title="Önce üye listesinden üye seçin">🔇 Sustur / 🔊 Aç</button>';
       h+='<button onclick="G.klan.sohbetKapali=!G.klan.sohbetKapali;save();renderKlan();" style="padding:3px 8px;background:'+(_sohbetKapali?'#0a1e0a':'#1a0f05')+';color:'+(_sohbetKapali?'#10b981':'#f97316')+';border:1px solid '+(_sohbetKapali?'#10b981':'#f97316')+';border-radius:4px;font-size:10px;font-weight:700;cursor:pointer">'+(_sohbetKapali?'🔓 Sohbeti Aç':'🔒 Sohbeti Kapat')+'</button>';
       h+='<button onclick="klanSeciliMesajlariSil()" style="padding:3px 8px;background:#1a0505;color:#ef4444;border:1px solid #ef4444;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer">🗑 Seçili Sil</button>';
-      h+='<button onclick="klanSohbetiTemizle()" style="padding:3px 8px;background:#2a0505;color:#fca5a5;border:1px solid #991b1b;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer">🗑 Sohbeti Temizle</button>';
+      h+='<button onclick="klanSohbetiTemizleOnayla()" style="padding:3px 8px;background:#2a0505;color:#fca5a5;border:1px solid #991b1b;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer">🗑 Sohbeti Temizle</button>';
       h+='</div>';
     }
     h+='</div>';
