@@ -110714,7 +110714,10 @@ async function klanMesajlariYukle() {
     if(_isYon){
       h+='<input type="checkbox" data-mesaj-id="'+m.id+'" title="Seç" style="width:12px;height:12px;margin-top:3px;cursor:pointer;accent-color:#7c3aed;flex-shrink:0">';
     }
-    h+='<span '+_adClick+' style="font-size:12px;font-weight:700;color:'+(_isMe?'#10b981':'#a78bfa')+';white-space:nowrap;'+(_isYon&&!_isMe?'text-decoration:underline dotted;':'')+'">'+m.oyuncu+'</span>';
+    var _mSustur=G.klan.susturulanlar&&G.klan.susturulanlar[m.oyuncu]&&Date.now()<G.klan.susturulanlar[m.oyuncu];
+    var _mBan=G.klan.banlananlar&&G.klan.banlananlar[m.oyuncu];
+    var _mIkon=_mBan?'🔨':_mSustur?'🔇':'';
+    h+='<span '+_adClick+' style="font-size:12px;font-weight:700;color:'+(_isMe?'#10b981':'#a78bfa')+';white-space:nowrap;'+(_isYon&&!_isMe?'text-decoration:underline dotted;cursor:pointer;':'')+'">'+(_mIkon?'<span style="font-size:10px;margin-right:2px">'+_mIkon+'</span>':'')+m.oyuncu+'</span>';
     h+='<span style="font-size:11px;background:'+(_isMe?'#0d2a1a':'#0d1f35')+';border:1px solid '+(_isMe?'#10b981':'#1a3050')+';border-radius:0 10px 10px 10px;padding:5px 10px;color:#dde8f8;display:inline-block;max-width:80%;word-break:break-word">'+m.mesaj+'</span>';
     h+='<span style="font-size:9px;color:#5a7a9e;white-space:nowrap;align-self:flex-end">'+ts+'</span>';
     h+='</div>';
