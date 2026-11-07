@@ -54788,6 +54788,11 @@ G.ihaleler.forEach(function(ih){
 });
 G.ihaleler=G.ihaleler.filter(function(ih){if(!ih.bitti)return true;if(ih.kazandi&&ih.gonderilen<ih.miktar&&ih.gonderBitisZamani&&now<ih.gonderBitisZamani)return true;return(now-ih.bitisZamani)<15000;});ihaleUret();ihaleTeklifBotRun();ihaleGonderBotRun();save();}
 function ihaleTeklifVer(id){var inp=document.getElementById('ihaleTeklif_'+id);if(!inp)return;var deger=parseFloat((inp.value||'').replace(',','.'));if(!deger||deger<=0){log('Gecerli fiyat girin!','er');return;}var ih=null;for(var i=0;i<(G.ihaleler||[]).length;i++){if(G.ihaleler[i].id===id){ih=G.ihaleler[i];break;}}if(!ih||ih.bitti)return;
+  // Klan rol kontrolu: sadece lider veya yardimci teklif verebilir
+  var _oyAdi=G._oyuncuAdi||'Ben';
+  var _isLider=G.klan&&(G.klan.lider===_oyAdi||G.klan.lider==='Ben'||G.klan.lider==='Sen'||G.klan.kuruldu);
+  var _isYardimci=G.klan&&G.klan.yardimci&&(G.klan.yardimci===_oyAdi||G.klan.yardimci==='Ben');
+  if(!_isLider&&!_isYardimci){log('⚔️ Sadece klan lideri veya yardımcısı teklif verebilir!','er');return;}
   var km2=Math.max(0,ih.bitisZamani-Date.now());if(km2<=10000){log('Son 10 saniye! Teklif degistirilemez/iptali yapilamaz.','er');return;}var _minT=ih.birim?Math.ceil(ih.birim*0.50):1;if(deger<_minT){log('Teklif cok dusuk! Min: '+fmt(_minT)+' TL (%50)','er');return;}if(deger>ih.birim){log('Teklif birim fiyatin uzerinde olamaz! Max: '+fmt(ih.birim)+' TL','er');return;}if(ih.benimTeklif===deger){log('Bu fiyati zaten verdiniz!','er');return;}if(ih.guncellemeHakki===undefined)ih.guncellemeHakki=3;if(ih.guncellemeHakki<=0){log('Teklif hakkin bitti! (max 3)','er');return;}ih.guncellemeHakki--;ih.benimTeklif=deger;var hk=ih.guncellemeHakki!==undefined?ih.guncellemeHakki:3;if(!G.ihaleLog)G.ihaleLog=[];G.ihaleLog.push({zaman:Date.now(),mesaj:'Teklif: '+ih.urun+' @ '+fmt(deger)+' TL ('+hk+' hak)',tip:'teklif'});if(G.ihaleLog.length>50){G.ihaleLog.splice(0,G.ihaleLog.length-50);}log('Teklif verildi: '+ih.urun+' @ '+fmt(deger)+' TL | '+hk+' guncelleme hakki kaldi','sy');
   // Teklif verildikten sonra madalyayi goster
   var _mBirimTv=ih.birim||100;
@@ -122514,6 +122519,11 @@ function ihracatSozlesmeImzala(ihKey){
   var ih=G.ihracatlar.find(function(x){return String(x.id)===String(ihKey);});
   if(!ih||ih.bitti){log('İhracat bulunamadı!','er');return;}
   if(!G.klan||!G.klan.kuruldu){log('İhracat için klana üye olmanız gerekli!','er');return;}
+  // Klan rol kontrolu: sadece lider veya yardimci sozlesme imzalayabilir
+  var _oyAdi2=G._oyuncuAdi||'Ben';
+  var _isLider2=G.klan&&(G.klan.lider===_oyAdi2||G.klan.lider==='Ben'||G.klan.lider==='Sen'||G.klan.kuruldu);
+  var _isYardimci2=G.klan&&G.klan.yardimci&&(G.klan.yardimci===_oyAdi2||G.klan.yardimci==='Ben');
+  if(!_isLider2&&!_isYardimci2){log('⚔️ Sadece klan lideri veya yardımcısı sözleşme imzalayabilir!','er');return;}
   // Tamamlama süresine göre bekleme: <1s=1s, <2s=2s, >2s=3s
   var _now2h=Date.now();
   var _bekSure=(G._sonIhracatBekSure||60)*60*1000; // dakika * 60 * 1000 = ms
