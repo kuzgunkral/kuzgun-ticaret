@@ -110648,22 +110648,22 @@ function klanYardimciAta(isim) {
   else{G.klan.yardimci=isim;log('🤝 '+isim+' yardımcı yapıldı.','ok');}
   save(); renderKlan();
 }
-function klanSustur(isim) {
+async function klanSustur(isim) {
   if(!isim){log('Üye seçin!','er');return;}
   klanInit();
   if(!G.klan.susturulanlar)G.klan.susturulanlar={};
   if(G.klan.susturulanlar[isim]&&Date.now()<G.klan.susturulanlar[isim]){
-    // Zaten susturulmuş → konuştur
     delete G.klan.susturulanlar[isim];
     log('🔊 '+isim+' konuşturuldu.','ok');
   } else {
-    // Sustur (1 saat)
     G.klan.susturulanlar[isim]=Date.now()+3600000;
     log('🔇 '+isim+' 1 saat susturuldu.','sy');
   }
-  save(); renderKlan();
+  save();
+  try{await supa.from('klanlar').update({susturulanlar:G.klan.susturulanlar}).eq('ad',G.klan.ad);}catch(e){}
+  renderKlan();
 }
-function klanCikart(isim) {
+async function klanCikart(isim) {
   if(!isim){log('Üye seçin!','er');return;}
   if(!confirm(isim+' klandan çıkarılsın mı? 72 saat başka klana giremez.')){return;}
   klanInit();
@@ -110671,19 +110671,34 @@ function klanCikart(isim) {
   if(G.klan.yardimci===isim)G.klan.yardimci='';
   log('🚫 '+isim+' klandan çıkarıldı.','er');
   klanLog('🚫 '+isim+' klandan çıkarıldı.','er');
-  save(); renderKlan();
+  save();
+  try{await supa.from('klanlar').update({uye_sayisi:G.klan.uyeler.length+1}).eq('ad',G.klan.ad);}catch(e){}
+  renderKlan();
 }
-function klanBan(isim) {
+async function klanBan(isim) {
   if(!isim){log('Üye seçin!','er');return;}
+  if(!G.klan.banlilar)G.klan.banlilar=[];
   if(!confirm(isim+' kalıcı olarak banlanacak. Bu klana bir daha giremeyecek. Emin misiniz?')){return;}
   klanInit();
   G.klan.uyeler=G.klan.uyeler.filter(function(u){return u.isim!==isim;});
   if(G.klan.yardimci===isim)G.klan.yardimci='';
-  if(!G.klan.banlilar)G.klan.banlilar=[];
   if(G.klan.banlilar.indexOf(isim)<0)G.klan.banlilar.push(isim);
-  log('🔨 '+isim+' kalıcı olarak banlandi.','er');
-  klanLog('🔨 '+isim+' kalıcı olarak banlandi.','er');
-  save(); renderKlan();
+  log('🔨 '+isim+' banlandı.','er');
+  klanLog('🔨 '+isim+' banlandı.','er');
+  save();
+  try{await supa.from('klanlar').update({banlilar:G.klan.banlilar}).eq('ad',G.klan.ad);}catch(e){}
+  renderKlan();
+}
+async function klanBanKaldir(isim) {
+  if(!isim)return;
+  if(!confirm(isim+' banı kaldırılsın mı?')){return;}
+  if(!G.klan.banlilar)G.klan.banlilar=[];
+  G.klan.banlilar=G.klan.banlilar.filter(function(x){return x!==isim;});
+  log('🔓 '+isim+' banı kaldırıldı.','ok');
+  klanLog('🔓 '+isim+' banı kaldırıldı.','ok');
+  save();
+  try{await supa.from('klanlar').update({banlilar:G.klan.banlilar}).eq('ad',G.klan.ad);}catch(e){}
+  renderKlan();
 }
 async function klanMesajGonder(mesaj) {
   if(!mesaj||!mesaj.trim()){return;}
@@ -110943,15 +110958,30 @@ function renderKlan() {
       h+='<span id="klanSeciliUyeAd" style="font-size:12px;font-weight:700;color:#a78bfa;flex:1">— Üye seçin —</span>';
       h+='<button onclick="klanYardimciAta(window._klanSeciliUye);renderKlan();" style="padding:4px 10px;background:#1a0a30;color:#a78bfa;border:1px solid #7c3aed;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer">🤝 Asist</button>';
       h+='<button onclick="klanSustur(window._klanSeciliUye);renderKlan();" style="padding:4px 10px;background:#1a0f05;color:#f97316;border:1px solid #f97316;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer">🔇 Sustur / 🔊 Aç</button>';
-      h+='<button onclick="klanBan(window._klanSeciliUye);renderKlan();" style="padding:4px 10px;background:#2a0505;color:#fca5a5;border:1px solid #991b1b;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer">🔨 Engelle / 🔓 Aç</button>';
-      h+='<button onclick="klanCikart(window._klanSeciliUye);" style="padding:4px 10px;background:#1a0505;color:#ef4444;border:1px solid #ef4444;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer">🚫 At</button>';
+      h+='<button onclick="klanBan(window._klanSeciliUye);" style="padding:4px 10px;background:#2a0505;color:#fca5a5;border:1px solid #991b1b;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer">🔨 Banla</button>';
+      h+='<button onclick="klanCikart(window._klanSeciliUye);" style="padding:4px 10px;background:#1a0505;color:#ef4444;border:1px solid #ef4444;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer">🚫 Çıkart</button>';
       h+='</div>';
       h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:#071120;border-radius:6px;margin-bottom:4px"><span>👑</span><span style="font-size:12px;font-weight:700;color:#f59e0b">Sen (Lider)</span></div>';
       for(var _ui=0;_ui<G.klan.uyeler.length;_ui++){var _u=G.klan.uyeler[_ui];var _iy=G.klan.yardimci===_u.isim;
         var _uSustur=G.klan.susturulanlar&&G.klan.susturulanlar[_u.isim]&&Date.now()<G.klan.susturulanlar[_u.isim];
-        h+='<div onclick="window._klanSeciliUye=\''+_u.isim+'\';var b=document.getElementById(\'klanUyeAksiyonBar\');if(b){b.style.display=\'flex\';document.getElementById(\'klanSeciliUyeAd\').textContent=\''+(_iy?'🥈 ':_uSustur?'🔇 ':'👤 ')+_u.isim+'\';}document.querySelectorAll(\'.klan-uye-row\').forEach(function(x){x.style.borderColor=\'#1a3050\';});this.style.borderColor=\'#7c3aed\';" class="klan-uye-row" style="display:flex;align-items:center;gap:6px;padding:5px 10px;background:#071120;border:1px solid #1a3050;border-radius:6px;margin-bottom:3px;cursor:pointer">';
-        h+='<span>'+(_iy?'🥈':_uSustur?'🔇':'👤')+'</span>';
-        h+='<span style="font-size:11px;color:'+(_iy?'#a78bfa':_uSustur?'#f97316':'#dde8f8')+';flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+_u.isim+(_iy?' (Yrd.)':'')+(_uSustur?' (Susturuldu)':'')+'</span>';
+        var _uBan=G.klan.banlilar&&G.klan.banlilar.indexOf(_u.isim)>=0;
+        var _uIkon=_uBan?'🔨':_uSustur?'🔇':_iy?'🥈':'👤';
+        h+='<div onclick="window._klanSeciliUye=\''+_u.isim+'\';var b=document.getElementById(\'klanUyeAksiyonBar\');if(b){b.style.display=\'flex\';document.getElementById(\'klanSeciliUyeAd\').textContent=\''+_uIkon+' '+_u.isim+'\';}document.querySelectorAll(\'.klan-uye-row\').forEach(function(x){x.style.borderColor=\'#1a3050\';});this.style.borderColor=\'#7c3aed\';" class="klan-uye-row" style="display:flex;align-items:center;gap:6px;padding:5px 10px;background:#071120;border:1px solid #1a3050;border-radius:6px;margin-bottom:3px;cursor:pointer">';
+        h+='<span>'+_uIkon+'</span>';
+        h+='<span style="font-size:11px;color:'+(_uBan?'#fca5a5':_iy?'#a78bfa':_uSustur?'#f97316':'#dde8f8')+';flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+_u.isim+(_iy?' (Yrd.)':'')+(_uSustur?' (Susturuldu)':'')+(_uBan?' (Banlı)':'')+'</span>';
+        h+='</div>';
+      }
+      // Banlı listesi
+      var _banList=G.klan.banlilar||[];
+      if(_banList.length>0){
+        h+='<div style="margin-top:10px;border-top:1px solid #1a3050;padding-top:8px">';
+        h+='<div style="font-size:11px;font-weight:700;color:#fca5a5;margin-bottom:6px">🔨 Banlı Listesi ('+_banList.length+')</div>';
+        for(var _bi=0;_bi<_banList.length;_bi++){
+          h+='<div style="display:flex;align-items:center;gap:6px;padding:4px 8px;background:#1a0505;border:1px solid #991b1b;border-radius:6px;margin-bottom:3px">';
+          h+='<span style="font-size:11px;color:#fca5a5;flex:1">🔨 '+_banList[_bi]+'</span>';
+          h+='<button onclick="klanBanKaldir(\''+_banList[_bi]+'\')" style="padding:2px 8px;background:#071120;color:#10b981;border:1px solid #10b981;border-radius:4px;font-size:10px;cursor:pointer">🔓 Banı Kaldır</button>';
+          h+='</div>';
+        }
         h+='</div>';
       }
       h+='</div>';
