@@ -110715,7 +110715,7 @@ async function klanMesajlariYukle() {
       h+='<input type="checkbox" data-mesaj-id="'+m.id+'" title="Seç" style="width:12px;height:12px;margin-top:3px;cursor:pointer;accent-color:#7c3aed;flex-shrink:0">';
     }
     var _mSustur=G.klan.susturulanlar&&G.klan.susturulanlar[m.oyuncu]&&Date.now()<G.klan.susturulanlar[m.oyuncu];
-    var _mBan=G.klan.banlananlar&&G.klan.banlananlar[m.oyuncu];
+    var _mBan=G.klan.banlilar&&G.klan.banlilar.indexOf(m.oyuncu)>=0;
     var _mIkon=_mBan?'🔨':_mSustur?'🔇':'';
     h+='<span '+_adClick+' style="font-size:12px;font-weight:700;color:'+(_isMe?'#10b981':'#a78bfa')+';white-space:nowrap;'+(_isYon&&!_isMe?'text-decoration:underline dotted;cursor:pointer;':'')+'">'+(_mIkon?'<span style="font-size:10px;margin-right:2px">'+_mIkon+'</span>':'')+m.oyuncu+'</span>';
     h+='<span style="font-size:11px;background:'+(_isMe?'#0d2a1a':'#0d1f35')+';border:1px solid '+(_isMe?'#10b981':'#1a3050')+';border-radius:0 10px 10px 10px;padding:5px 10px;color:#dde8f8;display:inline-block;max-width:80%;word-break:break-word">'+m.mesaj+'</span>';
@@ -110969,6 +110969,7 @@ function renderKlan() {
       var _seciliSustur=window._klanSeciliUye&&G.klan.susturulanlar&&G.klan.susturulanlar[window._klanSeciliUye]&&Date.now()<G.klan.susturulanlar[window._klanSeciliUye];
       h+='<div style="display:flex;gap:4px;flex-wrap:wrap">';
       h+='<button onclick="klanSustur(window._klanSeciliUye);renderKlan();" style="padding:3px 8px;background:#1a0f05;color:#f97316;border:1px solid #f97316;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer" title="Önce üye listesinden üye seçin">🔇 Sustur / 🔊 Aç</button>';
+      h+='<button onclick="klanBan(window._klanSeciliUye);renderKlan();" style="padding:3px 8px;background:#2a0505;color:#fca5a5;border:1px solid #991b1b;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer" title="Önce üye listesinden üye seçin">🔨 Engelle / 🔓 Aç</button>';
       h+='<button onclick="G.klan.sohbetKapali=!G.klan.sohbetKapali;save();renderKlan();" style="padding:3px 8px;background:'+(_sohbetKapali?'#0a1e0a':'#1a0f05')+';color:'+(_sohbetKapali?'#10b981':'#f97316')+';border:1px solid '+(_sohbetKapali?'#10b981':'#f97316')+';border-radius:4px;font-size:10px;font-weight:700;cursor:pointer">'+(_sohbetKapali?'🔓 Sohbeti Aç':'🔒 Sohbeti Kapat')+'</button>';
       h+='<button onclick="klanSeciliMesajlariSil()" style="padding:3px 8px;background:#1a0505;color:#ef4444;border:1px solid #ef4444;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer">🗑 Seçili Sil</button>';
       h+='<button onclick="klanSohbetiTemizleOnayla()" style="padding:3px 8px;background:#2a0505;color:#fca5a5;border:1px solid #991b1b;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer">🗑 Sohbeti Temizle</button>';
