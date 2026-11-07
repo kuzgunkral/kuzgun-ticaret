@@ -110709,7 +110709,7 @@ async function klanMesajlariYukle() {
     var ts=t.getHours().toString().padStart(2,'0')+':'+t.getMinutes().toString().padStart(2,'0');
     var _isMe=(m.oyuncu===(G._oyuncuAdi||'Ben')||m.oyuncu==='Ben');
     var _adClick=_isYon&&!_isMe?'onclick="window._klanSohbetSecili=\''+m.oyuncu+'\';var p=document.getElementById(\'klanSohbetPopup\');var pa=document.getElementById(\'klanSohbetPopupAd\');if(p&&pa){pa.textContent=\''+m.oyuncu+'\';p.style.display=\'block\';p.style.left=\'50%\';p.style.top=\'50%\';p.style.transform=\'translate(-50%,-50%)\';}" style="cursor:pointer"':'';
-    h+='<div style="display:flex;gap:4px;align-items:flex-start;margin-bottom:4px;'+(_isMe?'flex-direction:row-reverse':'')+'">';
+    h+='<div style="display:flex;gap:4px;align-items:flex-start;margin-bottom:4px;">';
     // Lider/asist için seçim checkbox'ı
     if(_isYon){
       h+='<input type="checkbox" data-mesaj-id="'+m.id+'" title="Seç" style="width:12px;height:12px;margin-top:3px;cursor:pointer;accent-color:#7c3aed;flex-shrink:0">';
