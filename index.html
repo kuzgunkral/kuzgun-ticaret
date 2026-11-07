@@ -288,9 +288,15 @@ async function supaGirisYapCikis() {
 // ---- OYUN KAYDET ----
 async function supaKaydet(kullaniciAdi, veri) {
   if(!window._supaUser) return;
+  var _saveData = veri || (typeof G !== 'undefined' ? G : null);
+  if(!_saveData) return;
   await supa.from('oyun_kayitlari')
-    .update({veri: veri, updated_at: new Date().toISOString()})
-    .eq('kullanici_id', window._supaUser.id);
+    .upsert({
+      kullanici_id: window._supaUser.id,
+      kullanici_adi: window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi || (kullaniciAdi||''),
+      veri: _saveData,
+      updated_at: new Date().toISOString()
+    }, {onConflict: 'kullanici_id'});
 }
 
 // ---- OYUN YUKLE ----
