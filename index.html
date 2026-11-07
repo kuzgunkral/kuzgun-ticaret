@@ -110702,7 +110702,11 @@ async function klanMesajlariYukle() {
     var ts=t.getHours().toString().padStart(2,'0')+':'+t.getMinutes().toString().padStart(2,'0');
     var _isMe=(m.oyuncu===(G._oyuncuAdi||'Ben')||m.oyuncu==='Ben');
     var _adClick=_isYon&&!_isMe?'onclick="window._klanSohbetSecili=\''+m.oyuncu+'\';var p=document.getElementById(\'klanSohbetPopup\');var pa=document.getElementById(\'klanSohbetPopupAd\');if(p&&pa){pa.textContent=\''+m.oyuncu+'\';p.style.display=\'block\';p.style.left=\'50%\';p.style.top=\'50%\';p.style.transform=\'translate(-50%,-50%)\';}" style="cursor:pointer"':'';
-    h+='<div style="display:flex;gap:6px;align-items:flex-start;margin-bottom:4px;'+(_isMe?'flex-direction:row-reverse':'')+'">';
+    h+='<div style="display:flex;gap:4px;align-items:flex-start;margin-bottom:4px;'+(_isMe?'flex-direction:row-reverse':'')+'">';
+    // Lider/asist için tek mesaj silme checkbox'ı
+    if(_isYon){
+      h+='<input type="checkbox" title="Seç" onclick="window._klanSilMesajId=\''+m.id+'\';klanTekMesajSil(\''+m.id+'\');" style="width:12px;height:12px;margin-top:3px;cursor:pointer;accent-color:#ef4444;flex-shrink:0">';
+    }
     h+='<span '+_adClick+' style="font-size:12px;font-weight:700;color:'+(_isMe?'#10b981':'#a78bfa')+';white-space:nowrap;'+(_isYon&&!_isMe?'text-decoration:underline dotted;':'')+'">'+m.oyuncu+'</span>';
     h+='<span style="font-size:11px;background:'+(_isMe?'#0d2a1a':'#0d1f35')+';border:1px solid '+(_isMe?'#10b981':'#1a3050')+';border-radius:8px;padding:3px 8px;color:#dde8f8;max-width:220px;word-break:break-word">'+m.mesaj+'</span>';
     h+='<span style="font-size:9px;color:#5a7a9e;white-space:nowrap;align-self:flex-end">'+ts+'</span>';
@@ -110716,6 +110720,10 @@ async function klanSohbetiTemizle() {
   if(!G.klan||!G.klan.ad)return;
   if(!confirm('Tüm sohbet geçmişi silinsin mi?'))return;
   try{await supa.from('klan_mesajlar').delete().eq('klan_ad',G.klan.ad);klanMesajlariYukle();log('🗑 Sohbet temizlendi.','sy');}catch(e){log('Sohbet temizlenemedi!','er');}
+}
+async function klanTekMesajSil(id) {
+  if(!id)return;
+  try{await supa.from('klan_mesajlar').delete().eq('id',id);klanMesajlariYukle();}catch(e){log('Mesaj silinemedi!','er');}
 }
 function klanToplamUye() {
   klanInit(); if (!G.klan.kuruldu) return 0; return G.klan.uyeler.length+1;
