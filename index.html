@@ -110832,6 +110832,8 @@ function renderKlan() {
   klanInit(); klanTabLvGuncelle();
   // Supabase'den guncel klan bilgilerini yukle
   if(typeof klanSupaYukle==='function') klanSupaYukle();
+  var _oyAdi=G._oyuncuAdi||'Ben';
+  var _isLider=G.klan&&(G.klan.lider===_oyAdi||G.klan.lider==='Ben'||G.klan.lider==='Sen'||G.klan.kuruldu);
   var h='';
   h+='<div style="max-width:680px;margin:0 auto;padding:8px">';
   if (!G.klan.kuruldu) {
