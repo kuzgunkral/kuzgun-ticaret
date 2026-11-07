@@ -9597,7 +9597,9 @@ button,input,select{font-family:inherit}
 #elmasPopupEvet:hover{background:#6d28d9;}
 #elmasPopupHayir{padding:5px 16px;background:#202f4a;color:#7090b8;border:1px solid #3a5080;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;}
 #elmasPopupHayir:hover{background:#1e2d47;color:#c8d8e8;}
-@keyframes _kSatisFlas{0%{background:#0a2a10;box-shadow:0 0 8px #10b981;}50%{background:#10b981;box-shadow:0 0 18px #10b981;}100%{background:transparent;box-shadow:none;}}</style>
+@keyframes _kSatisFlas{0%{background:#0a2a10;box-shadow:0 0 8px #10b981;}50%{background:#10b981;box-shadow:0 0 18px #10b981;}100%{background:transparent;box-shadow:none;}}
+.klan-mesaj-wrap:hover .klan-mesaj-kalem{opacity:1!important;}
+</style>
 
 
 
@@ -110830,7 +110832,13 @@ async function klanMesajlariYukle() {
     var _mIkon=_mBan?'🔨':_mSustur?'🔇':'';
     h+='<span '+_adClick+' style="font-size:12px;font-weight:700;color:'+(_isMe?'#10b981':'#a78bfa')+';white-space:nowrap;'+(_isYon&&!_isMe?'text-decoration:underline dotted;cursor:pointer;':'')+'">'+(_mIkon?'<span style="font-size:10px;margin-right:2px">'+_mIkon+'</span>':'')+m.oyuncu+'</span>';
     var _mBanStyle=_mBan?'text-decoration:line-through;opacity:0.6;border-color:#991b1b;':'';
-    h+='<span style="font-size:11px;background:'+(_isMe?'#0d2a1a':_mBan?'#1a0505':'#1e2d47')+';border:1px solid '+(_isMe?'#10b981':_mBan?'#991b1b':'#3a5080')+';border-radius:0 10px 10px 10px;padding:5px 10px;color:'+(_mBan?'#fca5a5':'#c8d8e8')+';display:inline-block;max-width:80%;word-break:break-word;'+_mBanStyle+'">'+m.mesaj+'</span>';
+    var _mDuzenlendi=m.duzenlendi?'<span style="font-size:9px;color:#7090b8;font-style:italic"> (düzenlendi)</span>':'';
+    h+='<div style="position:relative;display:inline-block;max-width:80%" class="klan-mesaj-wrap" data-id="'+m.id+'">';
+    h+='<span style="font-size:11px;background:'+(_isMe?'#0d2a1a':_mBan?'#1a0505':'#1e2d47')+';border:1px solid '+(_isMe?'#10b981':_mBan?'#991b1b':'#3a5080')+';border-radius:0 10px 10px 10px;padding:5px 10px;color:'+(_mBan?'#fca5a5':'#c8d8e8')+';display:block;word-break:break-word;'+_mBanStyle+'">'+m.mesaj+_mDuzenlendi+'</span>';
+    if(_isMe && !_mBan){
+      h+='<span onclick="klanMesajDuzenle(\''+m.id+'\',\''+m.mesaj.replace(/'/g,"\\'").replace(/"/g,"&quot;")+'\');" style="position:absolute;top:2px;right:2px;font-size:10px;cursor:pointer;opacity:0;transition:opacity 0.2s;background:#1a2440;border-radius:3px;padding:1px 3px" class="klan-mesaj-kalem" title="Düzenle">✏️</span>';
+    }
+    h+='</div>';
     h+='<span style="font-size:9px;color:#7090b8;white-space:nowrap;align-self:flex-end">'+ts+'</span>';
     h+='</div>';
   });
@@ -110885,6 +110893,31 @@ function klanSohbetiTemizleOnayla() {
 async function klanTekMesajSil(id) {
   if(!id)return;
   try{await supa.from('klan_mesajlar').delete().eq('id',id);klanMesajlariYukle();}catch(e){log('Mesaj silinemedi!','er');}
+}
+function klanMesajDuzenle(id, eskiMesaj) {
+  // Inline edit popup
+  var popup = document.createElement('div');
+  popup.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:99999;display:flex;align-items:center;justify-content:center;';
+  popup.innerHTML = '<div style="background:#1e2d47;border:1px solid #3a5080;border-radius:12px;padding:20px 24px;min-width:360px;max-width:500px">'
+    + '<div style="font-size:13px;font-weight:700;color:#c8d8e8;margin-bottom:12px">✏️ Mesajı Düzenle</div>'
+    + '<textarea id="_klanDuzenleInp" style="width:100%;height:80px;background:#151f35;color:#c8d8e8;border:1px solid #3a5080;border-radius:6px;padding:8px;font-size:12px;resize:vertical;box-sizing:border-box">'+eskiMesaj+'</textarea>'
+    + '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">'
+    + '<button onclick="this.closest(\'div[style*=fixed]\').remove();" style="padding:6px 16px;background:#151f35;color:#7090b8;border:1px solid #3a5080;border-radius:6px;font-size:12px;cursor:pointer">İptal</button>'
+    + '<button onclick="klanMesajDuzenleKaydet(\''+id+'\');this.closest(\'div[style*=fixed]\').remove();" style="padding:6px 16px;background:#1a2a4a;color:#6090d0;border:1px solid #3a5080;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">💾 Kaydet</button>'
+    + '</div></div>';
+  document.body.appendChild(popup);
+  setTimeout(function(){var ta=document.getElementById('_klanDuzenleInp');if(ta){ta.focus();ta.select();}},100);
+}
+async function klanMesajDuzenleKaydet(id) {
+  var ta = document.getElementById('_klanDuzenleInp');
+  if(!ta) return;
+  var yeniMesaj = kufurFiltrele(ta.value.trim());
+  if(!yeniMesaj){log('Mesaj boş olamaz!','er');return;}
+  try {
+    await supa.from('klan_mesajlar').update({mesaj: yeniMesaj, duzenlendi: true}).eq('id', id);
+    klanMesajlariYukle();
+    log('✏️ Mesaj düzenlendi.','sy');
+  } catch(e) { log('Düzenleme başarısız!','er'); }
 }
 async function klanSeciliMesajlariSil() {
   var el=document.getElementById('klanSohbetList');
