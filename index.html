@@ -55056,8 +55056,37 @@ function renderIhale(){
     var _toplamIhale=ih.miktar*_birimFiyat;
     var _magAcik2=(typeof ihaleUrunAcikMi==='function')?ihaleUrunAcikMi(ih.urun):true;
     var _magStyle=_magAcik2?'':'opacity:0.40;pointer-events:none;filter:grayscale(85%);';
-    var _magStoreName='';if(!_magAcik2&&typeof PRODUCTS!=='undefined'&&PRODUCTS[ih.urun]){var _ms=PRODUCTS[ih.urun].store||'';var _storeAdlar={'market':'Market','manav':'Manav','kasap':'Kasap','giyim':'Giyim','elektronik':'Elektronik','mobilya':'Mobilya','galeri':'Galeri','sarkuteri':'Şarküteri','beyazesya':'Beyaz Eşya','kuyumcu':'Kuyumcu'};_magStoreName=_storeAdlar[_ms]||_ms;}
-    var _magUyari=_magAcik2?'':'<div style="text-align:center;font-size:11px;color:#94a3b8;font-weight:700;margin-bottom:6px">🔒 '+(_magStoreName?_magStoreName+' mağazanız açık değil':'Bu ürün için mağazanız açık değil')+'</div>';
+    var _magStoreName='';var _magStoreKey='';var _magStoreLv=0;
+    if(typeof PRODUCTS!=='undefined'&&PRODUCTS[ih.urun]){
+      var _ms=PRODUCTS[ih.urun].store||'';
+      _magStoreKey=_ms;
+      var _storeAdlar={'market':'Market','manav':'Manav','kasap':'Kasap','giyim':'Giyim','elektronik':'Elektronik','mobilya':'Mobilya','galeri':'Galeri','sarkuteri':'Şarküteri','beyazesya':'Beyaz Eşya','kuyumcu':'Kuyumcu'};
+      _magStoreName=_storeAdlar[_ms]||_ms;
+      // Ürünün hangi lv'de açıldığını bul
+      var _urunLvData=PRODUCTS[ih.urun];
+      if(_urunLvData&&_urunLvData.minLv){_magStoreLv=_urunLvData.minLv;}
+      else if(_magStoreKey&&G.stores&&G.stores[_magStoreKey]){
+        // Ürün sıralamasından lv tahmini
+        var _storeUrunler=Object.keys(PRODUCTS).filter(function(k){return PRODUCTS[k].store===_magStoreKey;});
+        var _idx=_storeUrunler.indexOf(ih.urun);
+        if(_idx>=0)_magStoreLv=_idx+1;
+      }
+    }
+    var _magUyari='';
+    if(!_magAcik2){
+      var _stAcik=G.stores&&G.stores[_magStoreKey]&&G.stores[_magStoreKey].unlocked;
+      var _stPasif=G.stores&&G.stores[_magStoreKey]&&G.stores[_magStoreKey].pasif;
+      var _stLv=G.stores&&G.stores[_magStoreKey]?G.stores[_magStoreKey].level||0:0;
+      if(!_stAcik){
+        _magUyari='<div style="text-align:center;font-size:11px;color:#f59e0b;font-weight:700;margin-bottom:6px">🔒 '+(_magStoreName||'Mağaza')+' mağazanızı açmanız gerekmektedir</div>';
+      } else if(_stPasif){
+        _magUyari='<div style="text-align:center;font-size:11px;color:#f59e0b;font-weight:700;margin-bottom:6px">⏸️ '+(_magStoreName||'Mağaza')+' mağazanız pasif durumda</div>';
+      } else if(_magStoreLv>0&&_stLv<_magStoreLv){
+        _magUyari='<div style="text-align:center;font-size:11px;color:#f59e0b;font-weight:700;margin-bottom:6px">🏪 '+(_magStoreName||'Mağaza')+' Lv'+_magStoreLv+' ürünüdür <span style=\"color:#5a7a9e\">(Mevcut: Lv'+_stLv+')</span></div>';
+      } else {
+        _magUyari='<div style="text-align:center;font-size:11px;color:#94a3b8;font-weight:700;margin-bottom:6px">🔒 '+(_magStoreName?_magStoreName+' mağazanız açık değil':'Bu ürün için mağazanız açık değil')+'</div>';
+      }
+    }
     h+='<div style="background:#0a1628;border:1px solid #1a3050;border-radius:12px;padding:16px 20px;margin-bottom:10px;position:relative;'+_magStyle+'">';
     h+=_magUyari;
     var _tipYazi=ih.tipKisiler?ih.tipKisiler+' Kisilik':'';
@@ -55098,8 +55127,16 @@ function renderIhale(){
     var _kazanildi=ih.kazandi&&ih.gonderBitisZamani&&Date.now()<ih.gonderBitisZamani;
     var _klanYeterli=(typeof klanIhaleAlabilirMi==='function')?klanIhaleAlabilirMi(ih.tipKisiler||1):true;
     if(!_magAcik2&&!_kazanildi){
+      var _stAcik2=G.stores&&G.stores[_magStoreKey]&&G.stores[_magStoreKey].unlocked;
+      var _stPasif2=G.stores&&G.stores[_magStoreKey]&&G.stores[_magStoreKey].pasif;
+      var _stLv2=G.stores&&G.stores[_magStoreKey]?G.stores[_magStoreKey].level||0:0;
+      var _uyariMesaj='';
+      if(!_stAcik2){_uyariMesaj='🔒 '+(_magStoreName||'Mağaza')+' mağazanızı açmanız gerekmektedir';}
+      else if(_stPasif2){_uyariMesaj='⏸️ '+(_magStoreName||'Mağaza')+' mağazanız pasif durumda';}
+      else if(_magStoreLv>0&&_stLv2<_magStoreLv){_uyariMesaj='🏪 '+(_magStoreName||'Mağaza')+' Lv'+_magStoreLv+' ürünüdür (Mevcut: Lv'+_stLv2+')';}
+      else{_uyariMesaj='🔒 '+(_magStoreName?_magStoreName+' mağazanız açık değil':'Bu ürün için mağazanız açık değil');}
       h+='<div style="text-align:center;padding:10px 0">';
-      h+='<span style="font-size:13px;color:#94a3b8;font-weight:800">🔒 '+(_magStoreName?_magStoreName+' mağazanız açık değil':'Bu ürün için mağazanız açık değil')+'</span><br>';
+      h+='<span style="font-size:13px;color:#f59e0b;font-weight:800">'+_uyariMesaj+'</span><br>';
       h+='<span style="font-size:11px;color:#5a7a9e">Bu ürüne teklif veremezsiniz.</span>';
       h+='</div>';
     }else if(!_klanYeterli&&!_kazanildi){
