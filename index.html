@@ -109687,7 +109687,18 @@ function runCustBot() {
 
     G.money += rev;
     pd._sonSatisZaman = Date.now(); pd._sonSatisMiktar = sold; pd._sonSatisGelir = rev;
-    (function(_k){setTimeout(function(){var _card=document.getElementById('inv-card-'+_k);if(!_card)return;var _e=_card.querySelector('.satis-flash-el');if(!_e)return;var _c=0,_iv=setInterval(function(){_c++;_e.style.color=(_c%2===0)?'#10b981':'#f59e0b';if(_c>=8){clearInterval(_iv);_e.style.color='#10b981';}},100);},0);})(k);
+    (function(_k){setTimeout(function(){
+      var _card=document.getElementById('inv-card-'+_k);
+      if(!_card)return;
+      // Önce satis-flash-el'i dene
+      var _e=_card.querySelector('.satis-flash-el');
+      if(_e){
+        var _c=0,_iv=setInterval(function(){_c++;_e.style.color=(_c%2===0)?'#10b981':'#f59e0b';if(_c>=8){clearInterval(_iv);_e.style.color='#10b981';}},100);
+      } else {
+        // Element yoksa kart border'ını flash yap
+        var _c2=0,_iv2=setInterval(function(){_c2++;_card.style.borderColor=(_c2%2===0)?'#10b981':'#f59e0b';if(_c2>=8){clearInterval(_iv2);_card.style.borderColor='';}},100);
+      }
+    },0);})(k);
 
 
 
