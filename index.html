@@ -81520,6 +81520,20 @@ window.onload = function() {
     if (_lw) _lw.style.display = 'flex';
   }
 
+  // Beni hatirla - onceki giris bilgilerini doldur (sifre haric)
+  var _rem = localStorage.getItem('kuz_remember');
+  if(_rem) {
+    try {
+      var _rd = JSON.parse(_rem);
+      var _iu = document.getElementById('inpLoginUser');
+      var _ie = document.getElementById('inpLoginEmail');
+      if(_iu && _rd.u) _iu.value = _rd.u;
+      if(_ie && _rd.e) _ie.value = _rd.e;
+      // Sifre alanina odaklan
+      setTimeout(function(){ var _ip = document.getElementById('inpLoginPass'); if(_ip) _ip.focus(); }, 300);
+    } catch(e){}
+  }
+
   // Login formu Enter tusu
   ['inpLoginUser','inpLoginEmail','inpLoginPass'].forEach(function(id){
     var el = document.getElementById(id);
@@ -87924,6 +87938,13 @@ function doLogin() {
     }
     window._currentUser = u;
     localStorage.setItem(CURRENT_USER_KEY, u);
+    // Beni hatirla - sifre haric kullanici adi ve email kaydet
+    var _chk = document.getElementById('chkRemember');
+    if(_chk && _chk.checked) {
+      localStorage.setItem('kuz_remember', JSON.stringify({u: u, e: loginEmail}));
+    } else {
+      localStorage.removeItem('kuz_remember');
+    }
     loadUserGame(u);
   }).catch(function(e) {
     if(btnLogin) { btnLogin.disabled = false; btnLogin.textContent = 'Giriş Yap'; }
