@@ -17895,7 +17895,6 @@ button,input,select{font-family:inherit}
 
 
 
-    <button class="tab active" id="tab-btn-envanter" onclick="switchTab('envanter',this)">🏪 Mağazalar</button>
 
 
 
@@ -69878,6 +69877,15 @@ function switchTab(tab, el) {
 
   }
 
+  // Anasayfa ozel islemi
+  if (tab === 'anasayfa') {
+    document.querySelectorAll('.tab-content').forEach(function(p){p.style.display='none';});
+    var ap = document.getElementById('tab-anasayfa');
+    if(ap){ ap.style.display='block'; }
+    if(typeof anasayfaGuncelle==='function') anasayfaGuncelle();
+  } else {
+    document.querySelectorAll('.tab-content').forEach(function(p){p.style.display='none';});
+  }
   window._activeTab = tab;
   var _rp = document.querySelector('.mgrid>*:last-child'); if(_rp) _rp.scrollTop=0;
   var _gw = document.getElementById('gameWrap'); if(_gw) _gw.scrollTop=0;
