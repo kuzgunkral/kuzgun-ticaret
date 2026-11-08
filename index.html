@@ -75962,6 +75962,13 @@ function save() {
 
 
 
+  // Para ve elmas limiti
+  var MAX_VAL = 9007199254740991;
+  if (G.money > MAX_VAL) G.money = MAX_VAL;
+  if (G.elmas > MAX_VAL) G.elmas = MAX_VAL;
+  if (G.money < 0) G.money = 0;
+  if (G.elmas < 0) G.elmas = 0;
+
   var key = window._currentUser ? getSaveKey(window._currentUser) : 'parp_v7';
 
 
