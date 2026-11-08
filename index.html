@@ -76007,7 +76007,7 @@ function save() {
     if(window._supaSaveTimer) clearTimeout(window._supaSaveTimer);
     window._supaSaveTimer = setTimeout(function(){
       supaKaydet(window._currentUser, G).catch(function(e){console.warn('Supabase kayıt hatası:', e);});
-    }, 10000);
+    }, 3000);
   }
 
 
@@ -98658,6 +98658,18 @@ function fluctuate() {
 
 
 
+
+
+// Sayfa kapatilmadan/yenilemeden once Supabase'e aninda kaydet
+window.addEventListener('beforeunload', function() {
+  if(window._supaUser && window._currentUser && typeof G !== 'undefined') {
+    if(window._supaSaveTimer) { clearTimeout(window._supaSaveTimer); window._supaSaveTimer = null; }
+    // Sync kayit (fetch API ile)
+    var key = typeof getSaveKey === 'function' ? getSaveKey(window._currentUser) : 'parp_v7';
+    localStorage.setItem(key, JSON.stringify(G));
+    supaKaydet(window._currentUser, G);
+  }
+});
 
 function startMktTicker() {
 
