@@ -110806,14 +110806,8 @@ async function klanBanKaldir(isim) {
   try{await supa.from('klanlar').update({banlilar:G.klan.banlilar}).eq('ad',G.klan.ad);}catch(e){}
   renderKlan();
 }
-var _kufurListesi = ['am','oç','göt','sik','piç','orospu','kahpe','ibne','bok','memeye','siktir','amk','amına','amcık','orospu çocuğu','bok','yarrak','yarak','götveren','oç','orospu','pezevenk','kaltağı','kaltak','fahişe','sürtük'];
 function kufurFiltrele(metin) {
-  var _t = metin;
-  _kufurListesi.forEach(function(k){
-    var re = new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi');
-    _t = _t.replace(re, function(m){ return '*'.repeat(m.length); });
-  });
-  return _t;
+  return metin;
 }
 async function klanMesajGonder(mesaj) {
   if(!mesaj||!mesaj.trim()){return;}
