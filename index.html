@@ -17923,8 +17923,20 @@ button,input,select{font-family:inherit}
 
 
 
-    <button class="tab" id="tab-btn-bahce" onclick="switchTab('bahce',this)">🌿 Bahçeler</button>
-    <button class="tab" id="tab-btn-tarla" onclick="switchTab('tarla',this)">🌾 Tarlalar</button>
+    <button class="tab" onclick="toggleTarim(this)" id="tab-btn-tarim" style="background:linear-gradient(90deg,#1a3a2f,#0d2a1f);border:1px solid #22c55e;color:#22c55e;font-weight:800;">&#x1F33F; Tar&#x131;m &amp; Hayvanc&#x131;l&#x131;k &#x25BE;</button>
+    <div id="tarim-popup" style="display:none;position:fixed;z-index:99999;background:#0a1628;border:1px solid #1e3a5f;border-radius:14px;padding:14px;box-shadow:0 8px 32px rgba(0,0,0,0.7);min-width:260px;">
+      <div style="font-size:11px;color:#4a7090;font-weight:700;margin-bottom:10px;letter-spacing:1px;">TARIM &amp; HAYVANCILIK</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <button class="tab" id="tab-btn-bahce" onclick="switchTab('bahce',this);hideTarim()" style="padding:10px 8px;text-align:center;">&#x1F33F; Bah&#xe7;eler</button>
+        <button class="tab" id="tab-btn-tarla" onclick="switchTab('tarla',this);hideTarim()" style="padding:10px 8px;text-align:center;">&#x1F33E; Tarlalar</button>
+        <button class="tab" id="tab-btn-mandira" onclick="switchTab('mandira',this);hideTarim()" style="padding:10px 8px;text-align:center;">&#x1F404; Mand&#x131;ra</button>
+      </div>
+    </div>
+    <script>
+    function toggleTarim(btn){var p=document.getElementById('tarim-popup');if(p.style.display==='none'){var r=btn.getBoundingClientRect();p.style.left=r.left+'px';p.style.top=(r.bottom+4)+'px';p.style.display='block';setTimeout(function(){document.addEventListener('click',hideTarimOut);},10);}else{hideTarim();}}
+    function hideTarim(){var p=document.getElementById('tarim-popup');if(p)p.style.display='none';document.removeEventListener('click',hideTarimOut);}
+    function hideTarimOut(e){var p=document.getElementById('tarim-popup');var b=document.getElementById('tab-btn-tarim');if(p&&!p.contains(e.target)&&e.target!==b)hideTarim();}
+    </script>
 
 
 
@@ -17980,7 +17992,6 @@ button,input,select{font-family:inherit}
 
 
 
-    <button class="tab" id="tab-btn-mandira" onclick="switchTab('mandira',this)">🐄 Mandıra</button>
 
 
 
