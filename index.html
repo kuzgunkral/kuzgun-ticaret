@@ -312,8 +312,24 @@ async function supaYukle(kullaniciAdi) {
 
 // ---- OTURUM KONTROL ----
 supa.auth.onAuthStateChange(function(event, session) {
-  if(session) { window._supaUser = session.user; }
-  else { window._supaUser = null; }
+  if(session) {
+    window._supaUser = session.user;
+    // F5 / sayfa yenilemede otomatik oyunu yukle
+    if((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && !window._gameOpen) {
+      var _uname = session.user.user_metadata && session.user.user_metadata.kullanici_adi;
+      if(_uname) {
+        window._currentUser = _uname;
+        loadUserGame(_uname);
+      }
+    }
+  } else {
+    window._supaUser = null;
+    // Oturum kapandiysa login ekranini goster
+    if(!window._gameOpen) {
+      var lw = document.getElementById('loginWrap');
+      if(lw) lw.style.display = 'flex';
+    }
+  }
 });
 
 // ============================================================
@@ -99624,187 +99640,15 @@ function hideReset() { document.getElementById("cbar").classList.remove("on"); }
 
 
 function doReset() {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   var key = window._currentUser ? getSaveKey(window._currentUser) : 'parp_v7';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   localStorage.removeItem(key);
   if(window._supaUser && window.supa) {
     supa.from('oyun_kayitlari').delete().eq('kullanici_id', window._supaUser.id).then(function(){
-      window._gameOpen = false;
-      window._supaYuklendi = false;
-      var gw = document.getElementById('gameWrap'); if(gw) gw.style.display = 'none';
-      var lw = document.getElementById('loginWrap'); if(lw) lw.style.display = 'none';
-      var sw = document.getElementById('setupWrap'); if(sw) sw.style.display = 'flex';
+      location.reload();
     });
     return;
   }
-  window._gameOpen = false;
-  var gw = document.getElementById('gameWrap'); if(gw) gw.style.display = 'none';
-  var lw = document.getElementById('loginWrap'); if(lw) lw.style.display = 'none';
-  var sw = document.getElementById('setupWrap'); if(sw) sw.style.display = 'flex';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  location.reload();
 }
 
 
