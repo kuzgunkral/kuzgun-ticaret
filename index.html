@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 
 
@@ -89807,7 +89807,7 @@ function loadUserGame(username) {
       if(supaVeri && Object.keys(supaVeri).length > 0) {
         var key2 = getSaveKey(username);
         localStorage.setItem(key2, JSON.stringify(supaVeri));
-        window._supaYuklendi = false;
+        // _supaYuklendi false yapilmiyor - donguye girmesin
         loadUserGame(username);
       }
     }).catch(function(e){ console.warn('Supabase yükleme hatası:', e); });
