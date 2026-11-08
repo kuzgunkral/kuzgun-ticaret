@@ -99736,6 +99736,10 @@ function doReset() {
 
 
   localStorage.removeItem(key);
+  if(window._supaUser && window.supa) {
+    supa.from('oyun_kayitlari').delete().eq('kullanici_id', window._supaUser.id).then(function(){ location.reload(); });
+    return;
+  }
 
 
 
