@@ -54760,7 +54760,7 @@ function ihaleKatilimBeklemeSure(oran, kisiler){
   if(pct>=40)return 6*60*60*1000;      // 6 saat (Demir)
   return 12*60*60*1000;                // 12 saat (diger)
 }
-function ihaleUret(){if(!G.ihaleler)G.ihaleler=[];var now=Date.now();var aktif=G.ihaleler.filter(function(x){return !x.bitti;});if(aktif.length>=1)return;
+function ihaleUret(){if(!G.ihaleler)G.ihaleler=[];var now=Date.now();var aktif=G.ihaleler.filter(function(x){return !x.bitti||(x.kazandi&&x.gonderilen<x.miktar&&x.gonderBitisZamani&&now<x.gonderBitisZamani);});if(aktif.length>=1)return;
   // Katilim bekleme suresi kontrolu
   if(G.ihaleKatilimBitis&&now<G.ihaleKatilimBitis)return;
   // Klan kontrolu - secilen tip icin klan uye sayisi yeterli mi?
