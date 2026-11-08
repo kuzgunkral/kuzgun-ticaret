@@ -76028,7 +76028,7 @@ function save() {
     if(window._supaSaveTimer) clearTimeout(window._supaSaveTimer);
     window._supaSaveTimer = setTimeout(function(){
       supaKaydet(window._currentUser, G).catch(function(e){console.warn('Supabase kayıt hatası:', e);});
-    }, 3000);
+    }, 500);
   }
 
 
