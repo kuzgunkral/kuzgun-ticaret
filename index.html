@@ -99643,7 +99643,7 @@ function hideReset() { document.getElementById("cbar").classList.remove("on"); }
 function doReset() {
   var key = window._currentUser ? getSaveKey(window._currentUser) : 'parp_v7';
   localStorage.removeItem(key);
-  if(window._supaUser && window.supa) {
+  if(window._supaUser && typeof supa !== "undefined") {
     supa.from('oyun_kayitlari').delete().eq('kullanici_id', window._supaUser.id).then(function(){
       location.reload();
     });
