@@ -81506,6 +81506,22 @@ window.onload = function() {
       localStorage.removeItem(CURRENT_USER_KEY);
     }
   }
+  // URL hash'ten token inject (Launcher'dan gelince)
+  (function(){
+    try {
+      var h = window.location.hash;
+      if(h && h.indexOf('at=') !== -1) {
+        var params = {};
+        h.replace('#','').split('&').forEach(function(p){ var kv=p.split('='); params[kv[0]]=decodeURIComponent(kv[1]||''); });
+        if(params.at && params.rt && typeof supa !== 'undefined') {
+          supa.auth.setSession({access_token:params.at, refresh_token:params.rt}).then(function(){
+            window.history.replaceState(null,'',window.location.pathname);
+          });
+          return; // onAuthStateChange zaten devralacak
+        }
+      }
+    } catch(e){}
+  })();
   // Supabase oturumu kontrol et - aciksa loginWrap gosterme
   if(typeof supa !== 'undefined') {
     supa.auth.getSession().then(function(r){
