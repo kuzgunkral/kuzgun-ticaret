@@ -17763,18 +17763,28 @@ button,input,select{font-family:inherit}
 
 
 
-    <div style="display:flex;align-items:center;gap:3px;flex-wrap:wrap">
-      <button class="launcher-btn" id="tab-btn-borsa" onclick="switchTab('borsa',this)">📈 Borsa</button>
-      <button class="launcher-btn" id="tab-btn-kripto" onclick="switchTab('kripto',this)">&#x20BF; Kripto</button>
-      <button class="launcher-btn" id="tab-btn-ihale" onclick="switchTab('ihale',this)">&#x1F4DC; İhale</button>
-      <button class="launcher-btn" id="tab-btn-ihracat" onclick="switchTab('ihracat',this)">&#x1F4E6; İhracat</button>
-      <button class="launcher-btn" id="tab-btn-emlak" onclick="switchTab('emlak',this)">🏗️ Emlak & İnşaat</button>
-      <button class="launcher-btn" id="tab-btn-lojistik" onclick="switchTab('lojistik',this)">🚚 Lojistik</button>
-      <button class="launcher-btn" id="tab-btn-depo" onclick="switchTab('depo',this)">🏭 Depo</button>
-      <button class="launcher-btn" id="tab-btn-banka" onclick="switchTab('banka',this)">🏦 Banka</button>
-      <button class="launcher-btn" id="tab-btn-klan" onclick="switchTab('klan',this)">⚔️ Klan <span id="klan-tab-lv" style="font-size:10px;opacity:0.75"></span></button>
-      
+    <div style="display:flex;align-items:center;gap:3px;flex-wrap:wrap;position:relative">
+      <button class="launcher-btn" onclick="toggleSektorler(this)" id="tab-btn-sektorler" style="background:linear-gradient(90deg,#1a3a5f,#0d2a4f);border:1px solid #10b981;color:#10b981;font-weight:800;">&#x1F3E2; Sekt&#xF6;rler &#x25BE;</button>
+      <button class="launcher-btn" id="tab-btn-depo" onclick="switchTab('depo',this)">&#x1F3ED; Depo</button>
+      <button class="launcher-btn" id="tab-btn-banka" onclick="switchTab('banka',this)">&#x1F3E6; Banka</button>
+      <button class="launcher-btn" id="tab-btn-klan" onclick="switchTab('klan',this)">&#x2694;&#xFE0F; Klan <span id="klan-tab-lv" style="font-size:10px;opacity:0.75"></span></button>
+      <div id="sektorler-popup" style="display:none;position:fixed;z-index:99999;background:#0a1628;border:1px solid #1e3a5f;border-radius:14px;padding:14px;box-shadow:0 8px 32px rgba(0,0,0,0.7);min-width:280px;">
+        <div style="font-size:11px;color:#4a7090;font-weight:700;margin-bottom:10px;letter-spacing:1px;">SEKT&#xD6;RLER</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <button class="launcher-btn" id="tab-btn-borsa" onclick="switchTab('borsa',this);hideSektorler()" style="text-align:left;padding:10px 14px;">&#x1F4C8; Borsa</button>
+          <button class="launcher-btn" id="tab-btn-kripto" onclick="switchTab('kripto',this);hideSektorler()" style="text-align:left;padding:10px 14px;">&#x20BF; Kripto</button>
+          <button class="launcher-btn" id="tab-btn-ihale" onclick="switchTab('ihale',this);hideSektorler()" style="text-align:left;padding:10px 14px;">&#x1F4DC; &#x130;hale</button>
+          <button class="launcher-btn" id="tab-btn-ihracat" onclick="switchTab('ihracat',this);hideSektorler()" style="text-align:left;padding:10px 14px;">&#x1F4E6; &#x130;hracat</button>
+          <button class="launcher-btn" id="tab-btn-emlak" onclick="switchTab('emlak',this);hideSektorler()" style="text-align:left;padding:10px 14px;">&#x1F3D7;&#xFE0F; Emlak</button>
+          <button class="launcher-btn" id="tab-btn-lojistik" onclick="switchTab('lojistik',this);hideSektorler()" style="text-align:left;padding:10px 14px;">&#x1F69A; Lojistik</button>
+        </div>
+      </div>
     </div>
+    <script>
+    function toggleSektorler(btn){var p=document.getElementById('sektorler-popup');if(p.style.display==='none'){var r=btn.getBoundingClientRect();p.style.left=r.left+'px';p.style.top=(r.bottom+4)+'px';p.style.display='block';setTimeout(function(){document.addEventListener('click',hideSektorlerOut);},10);}else{hideSektorler();}}
+    function hideSektorler(){var p=document.getElementById('sektorler-popup');if(p)p.style.display='none';document.removeEventListener('click',hideSektorlerOut);}
+    function hideSektorlerOut(e){var p=document.getElementById('sektorler-popup');var b=document.getElementById('tab-btn-sektorler');if(p&&!p.contains(e.target)&&e.target!==b)hideSektorler();}
+    </script>
 
     <div class="tbtns">
 
