@@ -93452,14 +93452,15 @@ function logoutGame() {
   if(typeof custTimer !== 'undefined' && custTimer) { clearInterval(custTimer); custTimer = null; }
   if(typeof buyBotTimer !== 'undefined' && buyBotTimer) { clearInterval(buyBotTimer); buyBotTimer = null; }
   G.started = false;
-  // Supabase oturumu kapat
-  if(typeof supa !== 'undefined') supa.auth.signOut();
-  localStorage.removeItem(CURRENT_USER_KEY);
-  window._currentUser = null;
-  window._supaUser = null;
   window._gameOpen = false;
-  window._supaYuklendi = false;
-  location.reload();
+  window._currentUser = null;
+  localStorage.removeItem(CURRENT_USER_KEY);
+  // signOut -> onAuthStateChange tetiklenecek -> login ekrani gosterilecek
+  if(typeof supa !== 'undefined') {
+    supa.auth.signOut();
+  } else {
+    location.reload();
+  }
 }
 
 
