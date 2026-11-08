@@ -89826,6 +89826,14 @@ function loadUserGame(username) {
         localStorage.setItem(key2, JSON.stringify(supaVeri));
         // _supaYuklendi false yapilmiyor - donguye girmesin
         loadUserGame(username);
+      } else {
+        // Supabase'de kayit yok - localStorage'i da temizle, setup'a git
+        var key3 = getSaveKey(username);
+        localStorage.removeItem(key3);
+        window._gameOpen = false;
+        var gw = document.getElementById('gameWrap'); if(gw) gw.style.display = 'none';
+        var lw = document.getElementById('loginWrap'); if(lw) lw.style.display = 'none';
+        var sw = document.getElementById('setupWrap'); if(sw) sw.style.display = 'flex';
       }
     }).catch(function(e){ console.warn('Supabase yükleme hatası:', e); });
   }
