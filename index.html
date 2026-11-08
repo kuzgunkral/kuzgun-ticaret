@@ -93478,9 +93478,11 @@ function logoutGame() {
   // Topbar ve gameWrap gizle
   var _tb = document.getElementById('topbar'); if(_tb) _tb.style.display = 'none';
   var _gw = document.getElementById('gameWrap'); if(_gw) _gw.style.display = 'none';
-  // signOut -> onAuthStateChange tetiklenecek -> login ekrani gosterilecek
+  // signOut -> sonra reload ile login ekranina git
   if(typeof supa !== 'undefined') {
-    supa.auth.signOut();
+    supa.auth.signOut().then(function(){
+      location.reload();
+    });
   } else {
     location.reload();
   }
