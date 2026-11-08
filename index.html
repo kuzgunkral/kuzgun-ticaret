@@ -325,11 +325,12 @@ supa.auth.onAuthStateChange(function(event, session) {
     }
   } else {
     window._supaUser = null;
+    window._gameOpen = false;
+    window._currentUser = null;
     // Oturum kapandiysa login ekranini goster
-    if(!window._gameOpen) {
-      var lw = document.getElementById('loginWrap');
-      if(lw) lw.style.display = 'flex';
-    }
+    var gw = document.getElementById('gameWrap'); if(gw) gw.style.display = 'none';
+    var sw = document.getElementById('setupWrap'); if(sw) sw.style.display = 'none';
+    var lw = document.getElementById('loginWrap'); if(lw) lw.style.display = 'flex';
   }
 });
 
