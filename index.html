@@ -17779,9 +17779,21 @@ button,input,select{font-family:inherit}
     function hideTarim(){var p=document.getElementById('tarim-popup');if(p)p.style.display='none';document.removeEventListener('click',hideTarimOut);}
     function hideTarimOut(e){var p=document.getElementById('tarim-popup');var b=document.getElementById('tab-btn-tarim');if(p&&!p.contains(e.target)&&e.target!==b)hideTarim();}
     </script>
-      <button class="launcher-btn" id="tab-btn-depo" onclick="switchTab('depo',this)">&#x1F3ED; Depo</button>
-      <button class="launcher-btn" id="tab-btn-banka" onclick="switchTab('banka',this)">&#x1F3E6; Banka</button>
+    <button class="launcher-btn" onclick="toggleFinans(this)" id="tab-btn-finans" style="background:linear-gradient(90deg,#1a2a4f,#0d1a3f);border:1px solid #3b82f6;color:#3b82f6;font-weight:800;">&#x1F4B0; Finans &amp; Depo &#x25BE;</button>
+    <div id="finans-popup" style="display:none;position:fixed;z-index:99999;background:#0a1628;border:1px solid #1e3a5f;border-radius:14px;padding:14px;box-shadow:0 8px 32px rgba(0,0,0,0.7);min-width:220px;">
+      <div style="font-size:11px;color:#4a7090;font-weight:700;margin-bottom:10px;letter-spacing:1px;">F&#x130;NANS &amp; DEPOLAMA</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <button class="launcher-btn" id="tab-btn-depo" onclick="switchTab('depo',this);hideFinans()" style="padding:10px 14px;text-align:left;">&#x1F3ED; Depo</button>
+        <button class="launcher-btn" id="tab-btn-banka" onclick="switchTab('banka',this);hideFinans()" style="padding:10px 14px;text-align:left;">&#x1F3E6; Banka</button>
+      </div>
+    </div>
+    <script>
+    function toggleFinans(btn){var p=document.getElementById('finans-popup');if(p.style.display==='none'){var r=btn.getBoundingClientRect();p.style.left=r.left+'px';p.style.top=(r.bottom+4)+'px';p.style.display='block';setTimeout(function(){document.addEventListener('click',hideFinansOut);},10);}else{hideFinans();}}
+    function hideFinans(){var p=document.getElementById('finans-popup');if(p)p.style.display='none';document.removeEventListener('click',hideFinansOut);}
+    function hideFinansOut(e){var p=document.getElementById('finans-popup');var b=document.getElementById('tab-btn-finans');if(p&&!p.contains(e.target)&&e.target!==b)hideFinans();}
+    </script>
       <button class="launcher-btn" id="tab-btn-klan" onclick="switchTab('klan',this)">&#x2694;&#xFE0F; Klan <span id="klan-tab-lv" style="font-size:10px;opacity:0.75"></span></button>
+      <button class="launcher-btn" id="tab-btn-envanter" onclick="switchTab('envanter',this)">&#x1F6CD;&#xFE0F; Ma&#x11F;azalar</button>
       <div id="sektorler-popup" style="display:none;position:fixed;z-index:99999;background:#0a1628;border:1px solid #1e3a5f;border-radius:14px;padding:14px;box-shadow:0 8px 32px rgba(0,0,0,0.7);min-width:280px;">
         <div style="font-size:11px;color:#4a7090;font-weight:700;margin-bottom:10px;letter-spacing:1px;">SEKT&#xD6;RLER</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
@@ -95601,7 +95613,6 @@ function openGame() {
 
 
 
-  var _tbe = document.getElementById('tab-btn-envanter'); if(_tbe) _tbe.classList.add('active');
 
 
 
