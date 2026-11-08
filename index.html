@@ -93455,6 +93455,9 @@ function logoutGame() {
   window._gameOpen = false;
   window._currentUser = null;
   localStorage.removeItem(CURRENT_USER_KEY);
+  // Topbar ve gameWrap gizle
+  var _tb = document.getElementById('topbar'); if(_tb) _tb.style.display = 'none';
+  var _gw = document.getElementById('gameWrap'); if(_gw) _gw.style.display = 'none';
   // signOut -> onAuthStateChange tetiklenecek -> login ekrani gosterilecek
   if(typeof supa !== 'undefined') {
     supa.auth.signOut();
