@@ -305,7 +305,7 @@ async function supaYukle(kullaniciAdi) {
   var {data, error} = await supa.from('oyun_kayitlari')
     .select('veri')
     .eq('kullanici_id', window._supaUser.id)
-    .single();
+    .maybeSingle();
   if(error || !data) return null;
   return data.veri;
 }
