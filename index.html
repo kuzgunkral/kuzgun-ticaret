@@ -81508,6 +81508,15 @@ window.onload = function() {
   }
   var _lw = document.getElementById('loginWrap');
   if (_lw) _lw.style.display = 'flex';
+
+  // Login formu Enter tusu
+  ['inpLoginUser','inpLoginEmail','inpLoginPass'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+  });
+  // Setup formu Enter tusu
+  var _compInp = document.getElementById('inpCompany');
+  if(_compInp) _compInp.addEventListener('keydown', function(e){ if(e.key==='Enter') startGame(); });
 };
 
 
