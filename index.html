@@ -99737,65 +99737,19 @@ function doReset() {
 
   localStorage.removeItem(key);
   if(window._supaUser && window.supa) {
-    supa.from('oyun_kayitlari').delete().eq('kullanici_id', window._supaUser.id).then(function(){ location.reload(); });
+    supa.from('oyun_kayitlari').delete().eq('kullanici_id', window._supaUser.id).then(function(){
+      window._gameOpen = false;
+      window._supaYuklendi = false;
+      var gw = document.getElementById('gameWrap'); if(gw) gw.style.display = 'none';
+      var lw = document.getElementById('loginWrap'); if(lw) lw.style.display = 'none';
+      var sw = document.getElementById('setupWrap'); if(sw) sw.style.display = 'flex';
+    });
     return;
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  location.reload();
+  window._gameOpen = false;
+  var gw = document.getElementById('gameWrap'); if(gw) gw.style.display = 'none';
+  var lw = document.getElementById('loginWrap'); if(lw) lw.style.display = 'none';
+  var sw = document.getElementById('setupWrap'); if(sw) sw.style.display = 'flex';
 
 
 
