@@ -99479,13 +99479,16 @@ function doReset() {
   localStorage.removeItem(key);
   if(window._supaUser && typeof supa !== "undefined") {
     var _klanAdReset = G.klan && G.klan.ad;
-    supa.from('oyun_kayitlari').delete().eq('kullanici_id', window._supaUser.id).then(function(){
-      if(_klanAdReset) {
-        supa.from('klan_mesajlar').delete().eq('oyuncu', window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi || '');
-        supa.from('klanlar').delete().eq('lider_id', window._supaUser.id);
-      }
-      location.reload();
-    });
+    var _liderMi = G.klan && G.klan.kuruldu;
+    var _oyAdiReset = window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi || '';
+    // Once klan ve mesajlari temizle, sonra oyun kaydini sil
+    var _sil = [];
+    if(_klanAdReset) {
+      _sil.push(supa.from('klan_mesajlar').delete().eq('klan_ad', _klanAdReset));
+      if(_liderMi) _sil.push(supa.from('klanlar').delete().eq('ad', _klanAdReset));
+    }
+    _sil.push(supa.from('oyun_kayitlari').delete().eq('kullanici_id', window._supaUser.id));
+    Promise.all(_sil).then(function(){ location.reload(); });
     return;
   }
   location.reload();
