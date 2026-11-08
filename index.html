@@ -99653,6 +99653,12 @@ function hideReset() { document.getElementById("cbar").classList.remove("on"); }
 
 
 function doReset() {
+  // Once tum timerlari durdur - save() tekrar kayit etmesin
+  if(window._supaSaveTimer) { clearTimeout(window._supaSaveTimer); window._supaSaveTimer = null; }
+  if(typeof mktTimer !== 'undefined' && mktTimer) { clearInterval(mktTimer); mktTimer = null; }
+  if(typeof custTimer !== 'undefined' && custTimer) { clearInterval(custTimer); custTimer = null; }
+  if(typeof buyBotTimer !== 'undefined' && buyBotTimer) { clearInterval(buyBotTimer); buyBotTimer = null; }
+  G.started = false;
   var key = window._currentUser ? getSaveKey(window._currentUser) : 'parp_v7';
   localStorage.removeItem(key);
   if(window._supaUser && typeof supa !== "undefined") {
