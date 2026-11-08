@@ -9334,7 +9334,7 @@ button,input,select{font-family:inherit}
 
 
 
-.launcher-btn{padding:5px 12px;border-radius:7px;border:1px solid #283858;background:#202a42;color:#d8e8f8;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s}
+.launcher-btn{padding:5px 12px;height:30px;line-height:20px;border-radius:7px;border:1px solid #283858;background:#202a42;color:#d8e8f8;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s;vertical-align:middle;box-sizing:border-box;white-space:nowrap}
 
 
 
@@ -17764,6 +17764,7 @@ button,input,select{font-family:inherit}
 
 
     <div style="display:flex;align-items:center;gap:3px;flex-wrap:wrap;position:relative">
+      <button class="launcher-btn" id="tab-btn-envanter" onclick="switchTab('envanter',this)">&#x1F6CD;&#xFE0F; Ma&#x11F;azalar</button>
       <button class="launcher-btn" onclick="toggleSektorler(this)" id="tab-btn-sektorler" style="background:linear-gradient(90deg,#1a3a5f,#0d2a4f);border:1px solid #10b981;color:#10b981;font-weight:800;">&#x1F3E2; Sekt&#xF6;rler &#x25BE;</button>
     <button class="tab" onclick="toggleTarim(this)" id="tab-btn-tarim" style="background:linear-gradient(90deg,#1a3a2f,#0d2a1f);border:1px solid #22c55e;color:#22c55e;font-weight:800;">&#x1F33F; Tar&#x131;m &amp; Hayvanc&#x131;l&#x131;k &#x25BE;</button>
     <div id="tarim-popup" style="display:none;position:fixed;z-index:99999;background:#0a1628;border:1px solid #1e3a5f;border-radius:14px;padding:14px;box-shadow:0 8px 32px rgba(0,0,0,0.7);min-width:260px;">
@@ -17793,7 +17794,6 @@ button,input,select{font-family:inherit}
     function hideFinansOut(e){var p=document.getElementById('finans-popup');var b=document.getElementById('tab-btn-finans');if(p&&!p.contains(e.target)&&e.target!==b)hideFinans();}
     </script>
       <button class="launcher-btn" id="tab-btn-klan" onclick="switchTab('klan',this)">&#x2694;&#xFE0F; Klan <span id="klan-tab-lv" style="font-size:10px;opacity:0.75"></span></button>
-      <button class="launcher-btn" id="tab-btn-envanter" onclick="switchTab('envanter',this)">&#x1F6CD;&#xFE0F; Ma&#x11F;azalar</button>
       <div id="sektorler-popup" style="display:none;position:fixed;z-index:99999;background:#0a1628;border:1px solid #1e3a5f;border-radius:14px;padding:14px;box-shadow:0 8px 32px rgba(0,0,0,0.7);min-width:280px;">
         <div style="font-size:11px;color:#4a7090;font-weight:700;margin-bottom:10px;letter-spacing:1px;">SEKT&#xD6;RLER</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
