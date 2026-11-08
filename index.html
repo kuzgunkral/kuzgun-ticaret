@@ -319,7 +319,8 @@ supa.auth.onAuthStateChange(function(event, session) {
       var _uname = session.user.user_metadata && session.user.user_metadata.kullanici_adi;
       if(_uname) {
         window._currentUser = _uname;
-        loadUserGame(_uname);
+        // setTimeout: loadUserGame henuz tanimlanmamis olabilir
+        setTimeout(function(){ loadUserGame(_uname); }, 100);
       }
     }
   } else {
@@ -110518,7 +110519,7 @@ function klanBankaYatir(miktar){
   // Klan XP: her 1 milyar = 1 XP
   if(typeof klanBankaXpHesapla==='function') klanBankaXpHesapla(miktar);
   // Supabase banka guncelle
-  if(window.supa&&G.klan.ad) supa.from('klanlar').update({banka:G.klan.banka}).eq('ad',G.klan.ad);
+  if(typeof supa !== 'undefined' &&G.klan.ad) supa.from('klanlar').update({banka:G.klan.banka}).eq('ad',G.klan.ad);
   save();renderKlan();renderHeader();
 }
 
@@ -110779,7 +110780,7 @@ function klanElmasLvAtla(){
     log('Klan Lv'+G.klan.seviye+"'e yukseldi! ⚔️",'ok');
     klanLog('💎 Elmas ile Klan Lv'+G.klan.seviye+"'e yükseldi!",'ok');
     // Supabase guncelle
-    if(window.supa&&G.klan.ad){
+    if(typeof supa !== 'undefined' &&G.klan.ad){
       await supa.from('klanlar').update({seviye: G.klan.seviye, xp: 0}).eq('ad', G.klan.ad);
     }
     save(); renderKlan();
@@ -110823,7 +110824,7 @@ function klanIhaleKazandi(urun,tipKisiler,kazanilanTL,madalya) {
 
 // Supabase klan XP ekle + lv kontrol (ortak)
 async function klanSupaXpEkle(xp) {
-  if(!G.klan||!G.klan.ad||!window.supa) return;
+  if(!G.klan||!G.klan.ad||typeof supa === 'undefined') return;
   var {data, error} = await supa.from('klanlar').select('xp,seviye').eq('ad', G.klan.ad).single();
   if(error||!data) return;
   var yeniXp = (data.xp||0) + xp;
@@ -110849,7 +110850,7 @@ function klanBankaXpHesapla(tlMiktar) {
 
 // Supabase'den klan bilgilerini yukle (her acilista)
 async function klanSupaYukle() {
-  if(!G.klan||!G.klan.ad||!window.supa) return;
+  if(!G.klan||!G.klan.ad||typeof supa === 'undefined') return;
   var {data, error} = await supa.from('klanlar').select('xp,seviye,uye_sayisi').eq('ad', G.klan.ad).single();
   if(error||!data) return;
   G.klan.xp = data.xp||0; G.klan.seviye = data.seviye||0;
