@@ -99478,7 +99478,12 @@ function doReset() {
   var key = window._currentUser ? getSaveKey(window._currentUser) : 'parp_v7';
   localStorage.removeItem(key);
   if(window._supaUser && typeof supa !== "undefined") {
+    var _klanAdReset = G.klan && G.klan.ad;
     supa.from('oyun_kayitlari').delete().eq('kullanici_id', window._supaUser.id).then(function(){
+      if(_klanAdReset) {
+        supa.from('klan_mesajlar').delete().eq('oyuncu', window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi || '');
+        supa.from('klanlar').delete().eq('lider_id', window._supaUser.id);
+      }
       location.reload();
     });
     return;
@@ -110195,7 +110200,7 @@ function klanKur(ad) {
   var _oyAdi = G._oyuncuAdi || (window._supaUser&&window._supaUser.user_metadata&&window._supaUser.user_metadata.kullanici_adi) || 'Lider';
   G.klan.ad = ad.trim(); G.klan.kuruldu = true; G.klan.lider = _oyAdi; G.klan.uyeler = []; G.klan.yardimci = null;
   // Supabase'e kaydet
-  if(window.supa && window._supaUser) {
+  if(typeof supa !== 'undefined' && window._supaUser) {
     supa.from('klanlar').upsert({
       ad: G.klan.ad,
       lider: _oyAdi,
@@ -110257,7 +110262,7 @@ function klanKatilSupa(klanAd) {
   var _oyAdi = G._oyuncuAdi || 'Oyuncu';
   G.klan.lider = _oyAdi;
   G.klan.uyeler = [];
-  if(window.supa) {
+  if(typeof supa !== 'undefined') {
     supa.from('klanlar').select('uye_sayisi').eq('ad', klanAd).single().then(function(r) {
       if(r.data) supa.from('klanlar').update({uye_sayisi: (r.data.uye_sayisi||1)+1}).eq('ad', klanAd);
     });
@@ -110317,6 +110322,8 @@ async function klandanCikOnayla() {
       await supa.from('klanlar').update({uye_sayisi: Math.max(0,(G.klan.uyeler.length))}).eq('ad', _klanAd);
     } catch(e){}
   }
+  // Kullanicinin mesajlarini sil
+  try { await supa.from('klan_mesajlar').delete().eq('klan_ad', _klanAd).eq('oyuncu', G._oyuncuAdi||'Ben'); } catch(e){}
 
   G._klanCezaBitis = Date.now() + (72 * 60 * 60 * 1000);
   G.klan = {ad:null, kuruldu:false, lider:'Sen', yardimci:null, uyeler:[], seviye:1, xp:0, ihaleler:[], kasaTL:0, banka:0, log:[]};
