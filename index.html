@@ -76019,7 +76019,11 @@ function save() {
 
   
   localStorage.setItem(key, JSON.stringify(G));
-  // Supabase'e de kaydet (debounce: 10sn'de bir)
+  // Supabase'e de kaydet (debounce: 3sn'de bir)
+  // _currentUser null ise supaUser'dan al
+  if(!window._currentUser && window._supaUser && window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi) {
+    window._currentUser = window._supaUser.user_metadata.kullanici_adi;
+  }
   if(window._supaUser && window._currentUser){
     if(window._supaSaveTimer) clearTimeout(window._supaSaveTimer);
     window._supaSaveTimer = setTimeout(function(){
