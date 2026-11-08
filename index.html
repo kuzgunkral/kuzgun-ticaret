@@ -81506,8 +81506,19 @@ window.onload = function() {
       localStorage.removeItem(CURRENT_USER_KEY);
     }
   }
-  var _lw = document.getElementById('loginWrap');
-  if (_lw) _lw.style.display = 'flex';
+  // Supabase oturumu kontrol et - aciksa loginWrap gosterme
+  if(typeof supa !== 'undefined') {
+    supa.auth.getSession().then(function(r){
+      if(!r.data || !r.data.session) {
+        var _lw = document.getElementById('loginWrap');
+        if (_lw) _lw.style.display = 'flex';
+      }
+      // Oturum aciksa onAuthStateChange zaten loadUserGame cagiracak
+    });
+  } else {
+    var _lw = document.getElementById('loginWrap');
+    if (_lw) _lw.style.display = 'flex';
+  }
 
   // Login formu Enter tusu
   ['inpLoginUser','inpLoginEmail','inpLoginPass'].forEach(function(id){
