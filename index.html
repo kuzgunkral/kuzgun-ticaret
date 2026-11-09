@@ -288,8 +288,28 @@ async function supaGirisYapCikis() {
 // ---- OYUN KAYDET ----
 async function supaKaydet(kullaniciAdi, veri) {
   if(!window._supaUser) return;
-  var _saveData = veri || (typeof G !== 'undefined' ? G : null);
-  if(!_saveData) return;
+  var _g = veri || (typeof G !== 'undefined' ? G : null);
+  if(!_g) return;
+  // Sadece kritik alanlari kaydet - 408KB yerine ~5-10KB
+  var _saveData = {
+    day: _g.day, city: _g.city, company: _g.company,
+    money: _g.money, elmas: _g.elmas, anaLv: _g.anaLv, anaXp: _g.anaXp,
+    totalEarned: _g.totalEarned, todayEarned: _g.todayEarned,
+    depo: _g.depo, klan: _g.klan, stores: _g.stores,
+    banka: _g.banka, krediler: _g.krediler,
+    borsa: _g.borsa, kripto: _g.kripto,
+    ihale: _g.ihale, ihaleLevel: _g.ihaleLevel, ihaleler: _g.ihaleler,
+    ihracat: _g.ihracat, ihracatlar: _g.ihracatlar,
+    emlak: _g.emlak, lojistik: _g.lojistik,
+    maden: _g.maden, fabrika: _g.fabrika,
+    bahce: _g.bahce, tarla: _g.tarla, mandira: _g.mandira,
+    pdata: _g.pdata, botSettings: _g.botSettings,
+    buyBotActive: _g.buyBotActive, buyBotSettings: _g.buyBotSettings,
+    madalyalar: _g.madalyalar, started: _g.started,
+    _oyuncuAdi: _g._oyuncuAdi, _klanCezaBitis: _g._klanCezaBitis,
+    kredilerSaniye: _g.kredilerSaniye, lastDay: _g.lastDay,
+    gunlukBonus: _g.gunlukBonus
+  };
   await supa.from('oyun_kayitlari')
     .upsert({
       kullanici_id: window._supaUser.id,
