@@ -287,15 +287,23 @@ async function supaYukle() {
 (async function() {
   var savedToken=localStorage.getItem('kuz_cf_token');
   var savedUser=localStorage.getItem('kuz_cf_user');
-  if(!savedToken||!savedUser) return;
+  if(!savedToken||!savedUser) {
+    var lw=document.getElementById('loginWrap'); if(lw) lw.style.display='flex';
+    return;
+  }
   try {
     var r=await fetch(CF_API+'/load',{headers:{'Authorization':'Bearer '+savedToken}});
     if(r.ok) {
       window._cfToken=savedToken; window._currentUser=savedUser;
       window._supaUser={id:'cf_user',user_metadata:{kullanici_adi:savedUser}};
       setTimeout(function(){ loadUserGame(savedUser); },200);
-    } else { localStorage.removeItem('kuz_cf_token'); localStorage.removeItem('kuz_cf_user'); }
-  } catch(e) {}
+    } else {
+      localStorage.removeItem('kuz_cf_token'); localStorage.removeItem('kuz_cf_user');
+      var lw=document.getElementById('loginWrap'); if(lw) lw.style.display='flex';
+    }
+  } catch(e) {
+    var lw=document.getElementById('loginWrap'); if(lw) lw.style.display='flex';
+  }
 })();
 
 function startOturumKanal(userId) {}
