@@ -286,27 +286,19 @@ async function supaGirisYapCikis() {
 }
 
 // ---- OYUN KAYDET ----
-// Delta save - Supabase SQL function ile server-side merge
+// ---- CLOUDFLARE API ----
+var CF_API = 'https://kapitalist-api.gitbaskabul.workers.dev';
 window._G_dirty = new Set();
-window._G_cache = null;
-async function supaKaydetDelta(kullaniciAdi, delta) {
-  if(!window._supaUser) return;
-  if(!delta || Object.keys(delta).length === 0) return;
-  var kadi = window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi || kullaniciAdi || '';
-  await supa.rpc('merge_oyun_veri', {
-    p_kullanici_id: window._supaUser.id,
-    p_kullanici_adi: kadi,
-    p_delta: delta
-  });
+window._cfToken = null; // Supabase JWT token
+
+function getCFToken() {
+  return window._cfToken || '';
 }
 
 async function supaKaydet(kullaniciAdi, veri) {
-  if(!window._supaUser) return;
+  if(!window._supaUser || !getCFToken()) return;
   var _g = veri || (typeof G !== 'undefined' ? G : null);
   if(!_g) return;
-  // Cache'i guncelle
-  window._G_cache = window._G_cache || {};
-  // Sadece kritik alanlari kaydet - 408KB yerine ~5-10KB
   var _saveData = {
     day: _g.day, city: _g.city, company: _g.company,
     money: _g.money, elmas: _g.elmas, anaLv: _g.anaLv, anaXp: _g.anaXp,
@@ -326,30 +318,37 @@ async function supaKaydet(kullaniciAdi, veri) {
     kredilerSaniye: _g.kredilerSaniye, lastDay: _g.lastDay,
     gunlukBonus: _g.gunlukBonus
   };
-  await supa.from('oyun_kayitlari')
-    .upsert({
-      kullanici_id: window._supaUser.id,
-      kullanici_adi: window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi || (kullaniciAdi||''),
-      veri: _saveData,
-      updated_at: new Date().toISOString()
-    }, {onConflict: 'kullanici_id'});
+  var kadi = window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi || kullaniciAdi || '';
+  await fetch(CF_API+'/save', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json', 'Authorization':'Bearer '+getCFToken()},
+    body: JSON.stringify({kullanici_adi: kadi, veri: _saveData})
+  });
 }
 
 // ---- OYUN YUKLE ----
 async function supaYukle(kullaniciAdi) {
-  if(!window._supaUser) return null;
-  var {data, error} = await supa.from('oyun_kayitlari')
-    .select('veri')
-    .eq('kullanici_id', window._supaUser.id)
-    .maybeSingle();
-  if(error || !data) return null;
-  return data.veri;
+  if(!window._supaUser || !getCFToken()) return null;
+  var r = await fetch(CF_API+'/load', {
+    headers: {'Authorization':'Bearer '+getCFToken()}
+  });
+  if(!r.ok) return null;
+  var d = await r.json();
+  return d.veri || null;
+}
+
+// ---- OYUN SIL ----
+async function supaKaydetDelta(kullaniciAdi, delta) {
+  // Delta artık tam save ile yapılıyor
+  await supaKaydet(kullaniciAdi, G);
 }
 
 // ---- OTURUM KONTROL ----
 supa.auth.onAuthStateChange(function(event, session) {
   if(session) {
     window._supaUser = session.user;
+    // JWT token'i Cloudflare API icin sakla
+    window._cfToken = session.access_token || '';
     // F5 / sayfa yenilemede otomatik oyunu yukle
     if((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && !window._gameOpen) {
       var _uname = session.user.user_metadata && session.user.user_metadata.kullanici_adi;
