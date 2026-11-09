@@ -87615,6 +87615,16 @@ function loginTab(tab) {
 
 
 function doLogin() {
+  var u = (document.getElementById('inpLoginUser').value || '').trim().toLowerCase();
+  var p = document.getElementById('inpLoginPass').value;
+  var errEl = document.getElementById('loginErr');
+  if (!u || !p) { if(errEl) errEl.textContent = 'Kullanici adi ve sifre giriniz!'; return; }
+  if(errEl) errEl.textContent = '';
+  supaGirisYap(u, p).then(function(res) {
+    if (res && res.hata) { if(errEl) errEl.textContent = res.hata; return; }
+    if (res && res.basari) { loadUserGame(u); }
+  }).catch(function(e) { if(errEl) errEl.textContent = 'Baglanti hatasi!'; });
+}
 
 
 
@@ -88649,6 +88659,23 @@ function doLogin() {
 
 
 function doRegister() {
+  var u = (document.getElementById('inpRegUser').value || '').trim().toLowerCase();
+  var p = document.getElementById('inpRegPass').value;
+  var p2 = document.getElementById('inpRegPass2').value;
+  var email = (document.getElementById('inpRegEmail') ? document.getElementById('inpRegEmail').value : '').trim();
+  var errEl = document.getElementById('registerErr');
+  if (!u) { if(errEl) errEl.textContent = 'Kullanici adi giriniz!'; return; }
+  if (/[^a-zA-Z0-9_\-\.]/.test(u)) { if(errEl) errEl.textContent = 'Kullanici adinda sadece Ingilizce harf, rakam, _ - . kullanilabilir!'; return; }
+  if (u.length < 4 || u.length > 20) { if(errEl) errEl.textContent = 'Kullanici adi 4-20 karakter olmali!'; return; }
+  if (!p || p.length < 6) { if(errEl) errEl.textContent = 'Sifre en az 6 karakter olmali!'; return; }
+  if (p !== p2) { if(errEl) errEl.textContent = 'Sifreler uyusmuyor!'; return; }
+  if (!email || !email.includes('@')) { if(errEl) errEl.textContent = 'Gecerli bir e-posta giriniz!'; return; }
+  if(errEl) errEl.textContent = '';
+  supaKayitOl(u, p, email).then(function(res) {
+    if (res && res.hata) { if(errEl) errEl.textContent = res.hata; return; }
+    if (res && res.basari) { loadUserGame(u); }
+  }).catch(function(e) { if(errEl) errEl.textContent = 'Baglanti hatasi! Tekrar dene.'; });
+}
 
 
 
