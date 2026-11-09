@@ -319,10 +319,22 @@ async function supaKaydet(kullaniciAdi, veri) {
     gunlukBonus: _g.gunlukBonus
   };
   var kadi = window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi || kullaniciAdi || '';
-  await fetch(CF_API+'/save', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json', 'Authorization':'Bearer '+getCFToken()},
-    body: JSON.stringify({kullanici_adi: kadi, veri: _saveData})
+  var token = getCFToken();
+  var headers = {'Content-Type':'application/json', 'Authorization':'Bearer '+token};
+  // Oyun verisini kaydet
+  fetch(CF_API+'/save', {
+    method: 'POST', headers: headers,
+    body: JSON.stringify({kullanici_adi: kadi, surum: 'v1', veri: _saveData})
+  });
+  // Kullanici verisini ayri tabloya kaydet
+  fetch(CF_API+'/user/save', {
+    method: 'POST', headers: headers,
+    body: JSON.stringify({
+      kullanici_adi: kadi,
+      elmas: _g.elmas || 0,
+      para: _g.money || 0,
+      toplam_kazanc: _g.totalEarned || 0
+    })
   });
 }
 
@@ -76160,19 +76172,8 @@ function save() {
   if(window._supaUser && window._currentUser){
     if(window._supaSaveTimer) clearTimeout(window._supaSaveTimer);
     window._supaSaveTimer = setTimeout(function(){
-      // Dirty alanlari gonder, sonra temizle
-      if(!window._G_dirty || window._G_dirty.size === 0) {
-        // Hic degisiklik yoksa sadece para/elmas gonder (tick icin)
-        var _mini = {money: G.money, elmas: G.elmas, day: G.day, totalEarned: G.totalEarned, todayEarned: G.todayEarned};
-        supaKaydetDelta(window._currentUser, _mini);
-      } else {
-        // Dirty alanlari topla
-        var _delta = {money: G.money, elmas: G.elmas, day: G.day};
-        window._G_dirty.forEach(function(k){ if(G[k] !== undefined) _delta[k] = G[k]; });
-        window._G_dirty.clear();
-        supaKaydetDelta(window._currentUser, _delta);
-      }
-    }, 500);
+      supaKaydet(window._currentUser, G);
+    }, 1000);
   }
 
 
