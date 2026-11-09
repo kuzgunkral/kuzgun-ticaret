@@ -286,10 +286,26 @@ async function supaGirisYapCikis() {
 }
 
 // ---- OYUN KAYDET ----
+// Delta save - Supabase SQL function ile server-side merge
+window._G_dirty = new Set();
+window._G_cache = null;
+async function supaKaydetDelta(kullaniciAdi, delta) {
+  if(!window._supaUser) return;
+  if(!delta || Object.keys(delta).length === 0) return;
+  var kadi = window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi || kullaniciAdi || '';
+  await supa.rpc('merge_oyun_veri', {
+    p_kullanici_id: window._supaUser.id,
+    p_kullanici_adi: kadi,
+    p_delta: delta
+  });
+}
+
 async function supaKaydet(kullaniciAdi, veri) {
   if(!window._supaUser) return;
   var _g = veri || (typeof G !== 'undefined' ? G : null);
   if(!_g) return;
+  // Cache'i guncelle
+  window._G_cache = window._G_cache || {};
   // Sadece kritik alanlari kaydet - 408KB yerine ~5-10KB
   var _saveData = {
     day: _g.day, city: _g.city, company: _g.company,
@@ -76138,15 +76154,25 @@ function save() {
 
   
   localStorage.setItem(key, JSON.stringify(G));
-  // Supabase'e de kaydet (debounce: 3sn'de bir)
-  // _currentUser null ise supaUser'dan al
+  // Supabase'e kaydet - dirty tracking ile sadece degisen alanlar
   if(!window._currentUser && window._supaUser && window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi) {
     window._currentUser = window._supaUser.user_metadata.kullanici_adi;
   }
   if(window._supaUser && window._currentUser){
     if(window._supaSaveTimer) clearTimeout(window._supaSaveTimer);
     window._supaSaveTimer = setTimeout(function(){
-      supaKaydet(window._currentUser, G).catch(function(e){console.warn('Supabase kayıt hatası:', e);});
+      // Dirty alanlari gonder, sonra temizle
+      if(!window._G_dirty || window._G_dirty.size === 0) {
+        // Hic degisiklik yoksa sadece para/elmas gonder (tick icin)
+        var _mini = {money: G.money, elmas: G.elmas, day: G.day, totalEarned: G.totalEarned, todayEarned: G.todayEarned};
+        supaKaydetDelta(window._currentUser, _mini);
+      } else {
+        // Dirty alanlari topla
+        var _delta = {money: G.money, elmas: G.elmas, day: G.day};
+        window._G_dirty.forEach(function(k){ if(G[k] !== undefined) _delta[k] = G[k]; });
+        window._G_dirty.clear();
+        supaKaydetDelta(window._currentUser, _delta);
+      }
     }, 500);
   }
 
