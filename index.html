@@ -225,213 +225,81 @@
 
 <title>KuZGuN Ticaret Oyunu</title><!-- v20261104b -->
 <script>
-// ============================================================
-// CLOUDFLARE AUTH SISTEMI (Supabase yok)
-// ============================================================
-
-// Mevcut giriş yapmış kullanıcı
-window._supaUser = null;
-
-// ---- KAYIT OL ----
-async function supaKayitOl(kullaniciAdi, sifre, gercekEmail) {
-  // 1) Turkce karakter ve gecersiz karakter kontrolu
-  if (/[^a-zA-Z0-9_\-\.]/.test(kullaniciAdi)) {
-    return {hata: "Kullanıcı adında sadece İngilizce harf, rakam, _ - . kullanılabilir!"};
-  }
-  if (kullaniciAdi.length < 3 || kullaniciAdi.length > 20) {
-    return {hata: "Kullanıcı adı 3-20 karakter arasında olmalıdır!"};
-  }
-  // 2) Kullanici adi benzersizlik kontrolu
-  var {data: _kaditKontrol, error: _kaditHata} = await supa.from("oyun_kayitlari")
-    .select("kullanici_id")
-    .ilike("kullanici_adi", kullaniciAdi)
-    .maybeSingle();
-  if (_kaditKontrol) return {hata: "Bu kullanıcı adı zaten alınmış!"};
-  // Email varsa gerçek email kullan, yoksa sahte email oluştur
-  var email = gercekEmail && gercekEmail.length > 0 ? gercekEmail : kullaniciAdi.toLowerCase().replace(/[^a-z0-9]/g,'') + '@kuzgun.game';
-  var {data, error} = await supa.auth.signUp({email: email, password: sifre, options:{emailRedirectTo: 'https://kuzgunkral.github.io/kuzgun-ticaret/', data:{kullanici_adi: kullaniciAdi}}});
-  if(error) return {hata: error.message};
-  window._supaUser = data.user;
-  // Oyun kaydı oluştur
-  if(data.user) {
-    await supa.from('oyun_kayitlari').insert({kullanici_id: data.user.id, kullanici_adi: kullaniciAdi, veri: {}});
-  }
-  var onayGerekli = data.user && !data.user.confirmed_at && gercekEmail && gercekEmail.length > 0;
-  return {basari: true, user: data.user, onayGerekli: onayGerekli};
-}
-
-// ---- GİRİŞ YAP ----
-async function supaGirisYap(kullaniciAdi, sifre, gercekEmail) {
-  var email = (gercekEmail && gercekEmail.length > 0) ? gercekEmail : kullaniciAdi.toLowerCase().replace(/[^a-z0-9]/g,'') + '@kuzgun.game';
-  var {data, error} = await supa.auth.signInWithPassword({email: email, password: sifre});
-  if(error) return {hata: 'Kullanıcı adı veya şifre yanlış!'};
-  window._supaUser = data.user;
-  if(data.user && data.user.user_metadata && data.user.user_metadata.kullanici_adi) {
-    if(typeof G !== 'undefined') G._oyuncuAdi = data.user.user_metadata.kullanici_adi;
-  }
-  if(data.user) startOturumKanal(data.user.id); return {basari: true, user: data.user};
-}
-
-// ---- ÇIKIŞ YAP ----
-async function supaGirisYapCikis() {
-  // Cikis oncesi son kaydi yap
-  try { if(typeof save === 'function') save(); } catch(e) {}
-  try { if(window._supaUser && typeof supaKaydet === 'function' && typeof G !== 'undefined') { await supaKaydet(window._currentUser, G); } } catch(e) {}
-  await supa.auth.signOut();
-  stopOturumKanal(); window._supaUser = null;
-}
-
-// ---- OYUN KAYDET ----
-// ---- CLOUDFLARE API ----
 var CF_API = 'https://kapitalist-api.gitbaskabul.workers.dev';
-window._G_dirty = new Set();
-window._cfToken = null; // Supabase JWT token
+window._cfToken = null;
+window._supaUser = null;
+window._currentUser = null;
+window._gameOpen = false;
+window._sessionId = Math.random().toString(36).substr(2,9) + Date.now();
+function getCFToken() { return window._cfToken || ''; }
 
-function getCFToken() {
-  return window._cfToken || '';
+async function supaKayitOl(kullaniciAdi, sifre, gercekEmail) {
+  if (/[^a-zA-Z0-9_\-\.]/.test(kullaniciAdi)) return {hata:"Kullanici adinda sadece Ingilizce harf, rakam, _ - . kullanilabilir!"};
+  if (kullaniciAdi.length < 3 || kullaniciAdi.length > 20) return {hata:"Kullanici adi 3-20 karakter arasinda olmalidir!"};
+  try {
+    var r = await fetch(CF_API+'/kayit', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kullanici_adi:kullaniciAdi,sifre:sifre,email:gercekEmail||''})});
+    var d = await r.json();
+    if (d.hata) return {hata:d.hata};
+    window._cfToken = d.token; window._supaUser = {id:d.uid,user_metadata:{kullanici_adi:kullaniciAdi}}; window._currentUser = kullaniciAdi;
+    localStorage.setItem('kuz_cf_token',d.token); localStorage.setItem('kuz_cf_user',kullaniciAdi);
+    return {basari:true,user:window._supaUser};
+  } catch(e) { return {hata:'Baglanti hatasi: '+e.message}; }
+}
+
+async function supaGirisYap(kullaniciAdi, sifre, gercekEmail) {
+  try {
+    var r = await fetch(CF_API+'/giris', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kullanici_adi:kullaniciAdi,sifre:sifre})});
+    var d = await r.json();
+    if (d.hata) return {hata:d.hata};
+    window._cfToken = d.token; window._supaUser = {id:d.uid,user_metadata:{kullanici_adi:kullaniciAdi}}; window._currentUser = kullaniciAdi;
+    localStorage.setItem('kuz_cf_token',d.token); localStorage.setItem('kuz_cf_user',kullaniciAdi);
+    return {basari:true,user:window._supaUser};
+  } catch(e) { return {hata:'Baglanti hatasi: '+e.message}; }
+}
+
+async function supaGirisYapCikis() {
+  try { if(typeof save==='function') save(); } catch(e) {}
+  try { if(window._currentUser&&typeof supaKaydet==='function'&&typeof G!=='undefined') await supaKaydet(window._currentUser,G); } catch(e) {}
+  window._cfToken=null; window._supaUser=null; window._currentUser=null; window._gameOpen=false;
+  localStorage.removeItem('kuz_cf_token'); localStorage.removeItem('kuz_cf_user'); localStorage.removeItem('kuz_remember');
+  var gw=document.getElementById('gameWrap'); if(gw) gw.style.display='none';
+  var sw=document.getElementById('setupWrap'); if(sw) sw.style.display='none';
+  var lw=document.getElementById('loginWrap'); if(lw) lw.style.display='flex';
 }
 
 async function supaKaydet(kullaniciAdi, veri) {
-  if(!window._supaUser || !getCFToken()) return;
-  var _g = veri || (typeof G !== 'undefined' ? G : null);
-  if(!_g) return;
-  var _saveData = {
-    day: _g.day, city: _g.city, company: _g.company,
-    money: _g.money, elmas: _g.elmas, anaLv: _g.anaLv, anaXp: _g.anaXp,
-    totalEarned: _g.totalEarned, todayEarned: _g.todayEarned,
-    depo: _g.depo, klan: _g.klan, stores: _g.stores,
-    banka: _g.banka, krediler: _g.krediler,
-    borsa: _g.borsa, kripto: _g.kripto,
-    ihale: _g.ihale, ihaleLevel: _g.ihaleLevel, ihaleler: _g.ihaleler,
-    ihracat: _g.ihracat, ihracatlar: _g.ihracatlar,
-    emlak: _g.emlak, lojistik: _g.lojistik,
-    maden: _g.maden, fabrika: _g.fabrika,
-    bahce: _g.bahce, tarla: _g.tarla, mandira: _g.mandira,
-    pdata: _g.pdata, botSettings: _g.botSettings,
-    buyBotActive: _g.buyBotActive, buyBotSettings: _g.buyBotSettings,
-    madalyalar: _g.madalyalar, started: _g.started,
-    _oyuncuAdi: _g._oyuncuAdi, _klanCezaBitis: _g._klanCezaBitis,
-    kredilerSaniye: _g.kredilerSaniye, lastDay: _g.lastDay,
-    gunlukBonus: _g.gunlukBonus
-  };
-  var kadi = window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi || kullaniciAdi || '';
-  var token = getCFToken();
-  var headers = {'Content-Type':'application/json', 'Authorization':'Bearer '+token};
-  // Oyun verisini kaydet
-  fetch(CF_API+'/save', {
-    method: 'POST', headers: headers,
-    body: JSON.stringify({kullanici_adi: kadi, surum: 'v1', veri: _saveData})
-  });
-  // Kullanici verisini ayri tabloya kaydet
-  fetch(CF_API+'/user/save', {
-    method: 'POST', headers: headers,
-    body: JSON.stringify({
-      kullanici_adi: kadi,
-      elmas: _g.elmas || 0,
-      para: _g.money || 0,
-      toplam_kazanc: _g.totalEarned || 0
-    })
-  });
+  if (!window._cfToken) return;
+  var _g = veri||(typeof G!=='undefined'?G:null); if(!_g) return;
+  var _s={day:_g.day,city:_g.city,company:_g.company,money:_g.money,elmas:_g.elmas,anaLv:_g.anaLv,anaXp:_g.anaXp,totalEarned:_g.totalEarned,todayEarned:_g.todayEarned,_oyuncuAdi:_g._oyuncuAdi,started:_g.started,stores:_g.stores,depo:_g.depo,banka:_g.banka,klan:_g.klan,krediler:_g.krediler,kredilerSaniye:_g.kredilerSaniye,ihaleler:_g.ihaleler,ihaleLevel:_g.ihaleLevel,ihracatlar:_g.ihracatlar,kripto:_g.kripto,borsa:_g.borsa,emlak:_g.emlak,fabrika:_g.fabrika,tarim:_g.tarim,lojistik:_g.lojistik,pdata:_g.pdata};
+  try { await fetch(CF_API+'/save',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+getCFToken()},body:JSON.stringify({kullanici_adi:kullaniciAdi,surum:'v1',veri:_s})}); } catch(e) {}
 }
 
-// ---- OYUN YUKLE ----
-async function supaYukle(kullaniciAdi) {
-  if(!window._supaUser || !getCFToken()) return null;
-  var r = await fetch(CF_API+'/load', {
-    headers: {'Authorization':'Bearer '+getCFToken()}
-  });
-  if(!r.ok) return null;
-  var d = await r.json();
-  return d.veri || null;
+async function supaKaydetDelta(kullaniciAdi, delta) { await supaKaydet(kullaniciAdi, G); }
+
+async function supaYukle() {
+  if (!window._cfToken) return null;
+  try {
+    var r = await fetch(CF_API+'/load',{headers:{'Authorization':'Bearer '+getCFToken()}});
+    if(!r.ok) return null; var d=await r.json(); return d.veri||null;
+  } catch(e) { return null; }
 }
 
-// ---- OYUN SIL ----
-async function supaKaydetDelta(kullaniciAdi, delta) {
-  // Delta artık tam save ile yapılıyor
-  await supaKaydet(kullaniciAdi, G);
-}
+(async function() {
+  var savedToken=localStorage.getItem('kuz_cf_token');
+  var savedUser=localStorage.getItem('kuz_cf_user');
+  if(!savedToken||!savedUser) return;
+  try {
+    var r=await fetch(CF_API+'/load',{headers:{'Authorization':'Bearer '+savedToken}});
+    if(r.ok) {
+      window._cfToken=savedToken; window._currentUser=savedUser;
+      window._supaUser={id:'cf_user',user_metadata:{kullanici_adi:savedUser}};
+      setTimeout(function(){ loadUserGame(savedUser); },200);
+    } else { localStorage.removeItem('kuz_cf_token'); localStorage.removeItem('kuz_cf_user'); }
+  } catch(e) {}
+})();
 
-// ---- OTURUM KONTROL ----
-supa.auth.onAuthStateChange(function(event, session) {
-  if(session) {
-    window._supaUser = session.user;
-    // JWT token'i Cloudflare API icin sakla
-    window._cfToken = session.access_token || '';
-    // F5 / sayfa yenilemede otomatik oyunu yukle
-    if((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && !window._gameOpen) {
-      var _uname = session.user.user_metadata && session.user.user_metadata.kullanici_adi;
-      if(_uname) {
-        window._currentUser = _uname;
-        // setTimeout: loadUserGame henuz tanimlanmamis olabilir
-        setTimeout(function(){ loadUserGame(_uname); }, 100);
-      }
-    }
-  } else {
-    window._supaUser = null;
-    window._gameOpen = false;
-    window._currentUser = null;
-    // Oturum kapandiysa login ekranini goster
-    var gw = document.getElementById('gameWrap'); if(gw) gw.style.display = 'none';
-    var sw = document.getElementById('setupWrap'); if(sw) sw.style.display = 'none';
-    var lw = document.getElementById('loginWrap'); if(lw) lw.style.display = 'flex';
-  }
-});
-
-// ============================================================
-// DC SISTEMI - Ayni hesapla cift giris engeli
-// ============================================================
-window._sessionId = Math.random().toString(36).substr(2,9) + Date.now();
-window._oturumKanal = null;
-
-function startOturumKanal(userId) {
-  if (window._oturumKanal) {
-    window._oturumKanal.unsubscribe();
-    window._oturumKanal = null;
-  }
-  var kanal = supa.channel("oturum_" + userId, {
-    config: { broadcast: { self: false } }
-  });
-  kanal.on("broadcast", { event: "yeni_giris" }, function(payload) {
-    // Baska bir session ayni hesapla girdi - bizi DC et
-    if (payload.payload && payload.payload.session_id !== window._sessionId) {
-      window._oturumKanal.unsubscribe();
-      window._oturumKanal = null;
-      // Oyunu durdur
-      G.started = false;
-      if (typeof custTimer !== "undefined" && custTimer) clearInterval(custTimer);
-      if (typeof mktTimer !== "undefined" && mktTimer) clearInterval(mktTimer);
-      if (typeof buyBotTimer !== "undefined" && buyBotTimer) clearInterval(buyBotTimer);
-      // Ekrani kilitle
-      var gw = document.getElementById("gameWrap");
-      if (gw) {
-        gw.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:20px;background:#07111f">' +
-          '<div style="font-size:48px">🔒</div>' +
-          '<div style="color:#ef4444;font-size:20px;font-weight:700">Başka bir cihazdan giriş yapıldı!</div>' +
-          '<div style="color:#6080a0;font-size:14px">Bu oturum sonlandırıldı.</div>' +
-          '<button onclick="supa.auth.signOut().then(function(){var gw=document.getElementById(\'gameWrap\');if(gw)gw.style.display=\'none\';var lw=document.getElementById(\'loginWrap\');if(lw)lw.style.display=\'\';})" style="padding:10px 24px;background:#283858;color:#d8e8f8;border:none;border-radius:8px;cursor:pointer;font-size:14px">Yeniden Giriş Yap</button>' +
-          '</div>';
-      }
-    }
-  });
-  kanal.subscribe(function(status) {
-    if (status === "SUBSCRIBED") {
-      // Kanala katildigimi duyur - diger sessionlari DC et
-      kanal.send({
-        type: "broadcast",
-        event: "yeni_giris",
-        payload: { session_id: window._sessionId, zaman: Date.now() }
-      });
-    }
-  });
-  window._oturumKanal = kanal;
-}
-
-function stopOturumKanal() {
-  if (window._oturumKanal) {
-    window._oturumKanal.unsubscribe();
-    window._oturumKanal = null;
-  }
-}
+function startOturumKanal(userId) {}
+function stopOturumKanal() {}
 </script>
 
 
