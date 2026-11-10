@@ -81635,47 +81635,32 @@ window._satCdTimer = setInterval(function(){
 },1000);
 
 window.onload = function() {
-  var savedUser = localStorage.getItem(CURRENT_USER_KEY);
-  if (savedUser) {
-    var users = getUsers();
-    if (users[savedUser]) {
-      window._currentUser = savedUser;
-      loadUserGame(savedUser);
-      return;
-    } else {
-      localStorage.removeItem(CURRENT_USER_KEY);
-    }
-  }
-  // URL hash'ten token inject (Launcher'dan gelince)
-  (function(){
-    try {
-      var h = window.location.hash;
-      if(h && h.indexOf('at=') !== -1) {
-        var params = {};
-        h.replace('#','').split('&').forEach(function(p){ var kv=p.split('='); params[kv[0]]=decodeURIComponent(kv[1]||''); });
-        if(params.at && params.rt && typeof supa !== 'undefined') {
-          supa.auth.setSession({access_token:params.at, refresh_token:params.rt}).then(function(){
-            window.history.replaceState(null,'',window.location.pathname);
-          });
-          return; // onAuthStateChange zaten devralacak
-        }
-      }
-    } catch(e){}
-  })();
-  // Supabase oturumu kontrol et - aciksa loginWrap gosterme
-  if(typeof supa !== 'undefined') {
-    supa.auth.getSession().then(function(r){
-      if(!r.data || !r.data.session) {
+  // Cloudflare token kontrolu
+  var cfToken = localStorage.getItem('cf_token');
+  var cfUser = localStorage.getItem('cf_user');
+  if (cfToken && cfUser) {
+    fetch(CF_API + '/me', {
+      headers: { 'Authorization': 'Bearer ' + cfToken }
+    }).then(function(r){ return r.json(); }).then(function(d){
+      if (d && d.kullanici_adi) {
+        window._cfToken = cfToken;
+        window._currentUser = d.kullanici_adi;
+        window._supaUser = { id: d.id };
+        loadUserGame(d.kullanici_adi);
+      } else {
+        localStorage.removeItem('cf_token');
+        localStorage.removeItem('cf_user');
         var _lw = document.getElementById('loginWrap');
         if (_lw) _lw.style.display = 'flex';
       }
-      // Oturum aciksa onAuthStateChange zaten loadUserGame cagiracak
+    }).catch(function(){
+      var _lw = document.getElementById('loginWrap');
+      if (_lw) _lw.style.display = 'flex';
     });
   } else {
     var _lw = document.getElementById('loginWrap');
     if (_lw) _lw.style.display = 'flex';
   }
-
   // Beni hatirla - onceki giris bilgilerini doldur (sifre haric)
   var _rem = localStorage.getItem('kuz_remember');
   if(_rem) {
@@ -87410,7 +87395,6 @@ function loginTab(tab) {
 
 
 
-  document.getElementById('ltab-kayit').classList.toggle('active', tab === 'kayit');
 
 
 
@@ -87466,7 +87450,6 @@ function loginTab(tab) {
 
 
 
-  document.getElementById('loginForm').style.display = tab === 'giris' ? '' : 'none';
 
 
 
@@ -87522,7 +87505,9 @@ function loginTab(tab) {
 
 
 
-  document.getElementById('registerForm').style.display = tab === 'kayit' ? '' : 'none';
+
+
+
 
 
 
