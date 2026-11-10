@@ -17743,9 +17743,9 @@ button,input,select{font-family:inherit}
     <div style="display:flex;align-items:center;gap:3px;flex-wrap:wrap;position:relative">
       <button class="launcher-btn" id="tab-btn-envanter" onclick="switchTab('envanter',this)">&#x1F6CD;&#xFE0F; Ma&#x11F;azalar</button>
       <button class="launcher-btn" onclick="toggleSektorler(this)" id="tab-btn-sektorler" style="background:linear-gradient(90deg,#1a3a5f,#0d2a4f);border:1px solid #10b981;color:#10b981;font-weight:800;">&#x1F3E2; Sekt&#xF6;rler &#x25BE;</button>
-    <button class="launcher-btn" onclick="toggleTarim(this)" id="tab-btn-tarim" style="background:linear-gradient(90deg,#1a3a2f,#0d2a1f);border:1px solid #22c55e;color:#22c55e;font-weight:800;">&#x1F33F; Tar&#x131;m &amp; Hayvanc&#x131;l&#x131;k &#x25BE;</button>
+    <button class="launcher-btn" onclick="toggleTarim(this)" id="tab-btn-tarim" style="background:linear-gradient(90deg,#1a3a2f,#0d2a1f);border:1px solid #22c55e;color:#22c55e;font-weight:800;">&#x1F33F; Tar&#x131;m & Hayvanc&#x131;l&#x131;k &#x25BE;</button>
     <div id="tarim-popup" style="display:none;position:fixed;z-index:99999;background:#0a1628;border:1px solid #1e3a5f;border-radius:14px;padding:14px;box-shadow:0 8px 32px rgba(0,0,0,0.7);min-width:260px;">
-      <div style="font-size:11px;color:#4a7090;font-weight:700;margin-bottom:10px;letter-spacing:1px;">TARIM &amp; HAYVANCILIK</div>
+      <div style="font-size:11px;color:#4a7090;font-weight:700;margin-bottom:10px;letter-spacing:1px;">TARIM & HAYVANCILIK</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
         <button class="tab" id="tab-btn-bahce" onclick="switchTab('bahce',this);hideTarim()" style="padding:10px 8px;text-align:center;">&#x1F33F; Bah&#xe7;eler</button>
         <button class="tab" id="tab-btn-tarla" onclick="switchTab('tarla',this);hideTarim()" style="padding:10px 8px;text-align:center;">&#x1F33E; Tarlalar</button>
@@ -17757,9 +17757,9 @@ button,input,select{font-family:inherit}
     function hideTarim(){var p=document.getElementById('tarim-popup');if(p)p.style.display='none';document.removeEventListener('click',hideTarimOut);}
     function hideTarimOut(e){var p=document.getElementById('tarim-popup');var b=document.getElementById('tab-btn-tarim');if(p&&!p.contains(e.target)&&e.target!==b)hideTarim();}
     </script>
-    <button class="launcher-btn" onclick="toggleFinans(this)" id="tab-btn-finans" style="background:linear-gradient(90deg,#1a2a4f,#0d1a3f);border:1px solid #3b82f6;color:#3b82f6;font-weight:800;">&#x1F4B0; Finans &amp; Depo &#x25BE;</button>
+    <button class="launcher-btn" onclick="toggleFinans(this)" id="tab-btn-finans" style="background:linear-gradient(90deg,#1a2a4f,#0d1a3f);border:1px solid #3b82f6;color:#3b82f6;font-weight:800;">&#x1F4B0; Finans & Depo &#x25BE;</button>
     <div id="finans-popup" style="display:none;position:fixed;z-index:99999;background:#0a1628;border:1px solid #1e3a5f;border-radius:14px;padding:14px;box-shadow:0 8px 32px rgba(0,0,0,0.7);min-width:220px;">
-      <div style="font-size:11px;color:#4a7090;font-weight:700;margin-bottom:10px;letter-spacing:1px;">F&#x130;NANS &amp; DEPOLAMA</div>
+      <div style="font-size:11px;color:#4a7090;font-weight:700;margin-bottom:10px;letter-spacing:1px;">F&#x130;NANS & DEPOLAMA</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
         <button class="tab" id="tab-btn-depo" onclick="switchTab('depo',this);hideFinans()" style="padding:10px 8px;text-align:center;">&#x1F3ED; Depo</button>
         <button class="tab" id="tab-btn-banka" onclick="switchTab('banka',this);hideFinans()" style="padding:10px 8px;text-align:center;">&#x1F3E6; Banka</button>
@@ -17780,7 +17780,7 @@ button,input,select{font-family:inherit}
           <button class="tab" id="tab-btn-kripto" onclick="switchTab('kripto',this);hideSektorler()" style="text-align:left;padding:10px 14px;">&#x20BF; Kripto</button>
           <button class="tab" id="tab-btn-ihale" onclick="switchTab('ihale',this);hideSektorler()" style="text-align:left;padding:10px 14px;">&#x1F4DC; &#x130;hale</button>
           <button class="tab" id="tab-btn-ihracat" onclick="switchTab('ihracat',this);hideSektorler()" style="text-align:left;padding:10px 14px;">&#x1F4E6; &#x130;hracat</button>
-          <button class="tab" id="tab-btn-emlak" onclick="switchTab('emlak',this);hideSektorler()" style="text-align:left;padding:10px 14px;font-size:11px;">&#x1F3D7;&#xFE0F; Emlak &amp; &#x130;n&#x15F;aat</button>
+          <button class="tab" id="tab-btn-emlak" onclick="switchTab('emlak',this);hideSektorler()" style="text-align:left;padding:10px 14px;font-size:11px;">&#x1F3D7;&#xFE0F; Emlak & &#x130;n&#x15F;aat</button>
           <button class="tab" id="tab-btn-lojistik" onclick="switchTab('lojistik',this);hideSektorler()" style="text-align:left;padding:10px 14px;">&#x1F69A; Lojistik</button>
         </div>
       </div>
