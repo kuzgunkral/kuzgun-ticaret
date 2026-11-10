@@ -341,7 +341,7 @@ async function supaKaydetDelta(kullaniciAdi, delta) {
 // ---- OTURUM KONTROL (Cloudflare) ----
 (function() {
   var token = localStorage.getItem('cf_token');
-  var uname = localStorage.getItem('cf_user');
+  var uname = localStorage.getItem('cf_kullanici');
   if(token && uname) {
     window._cfToken = token;
     window._currentUser = uname;
