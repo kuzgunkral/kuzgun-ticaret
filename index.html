@@ -81511,47 +81511,29 @@ window._satCdTimer = setInterval(function(){
 },1000);
 
 window.onload = function() {
-  var savedUser = localStorage.getItem(CURRENT_USER_KEY);
-  if (savedUser) {
-    var users = getUsers();
-    if (users[savedUser]) {
-      window._currentUser = savedUser;
-      loadUserGame(savedUser);
-      return;
-    } else {
-      localStorage.removeItem(CURRENT_USER_KEY);
-    }
-  }
-  // URL hash'ten token inject (Launcher'dan gelince)
-  (function(){
-    try {
-      var h = window.location.hash;
-      if(h && h.indexOf('at=') !== -1) {
-        var params = {};
-        h.replace('#','').split('&').forEach(function(p){ var kv=p.split('='); params[kv[0]]=decodeURIComponent(kv[1]||''); });
-        if(params.at && params.rt && typeof supa !== 'undefined') {
-          supa.auth.setSession({access_token:params.at, refresh_token:params.rt}).then(function(){
-            window.history.replaceState(null,'',window.location.pathname);
-          });
-          return; // onAuthStateChange zaten devralacak
-        }
+  // Cloudflare token kontrolu
+  var cfToken = localStorage.getItem('cf_token');
+  if (cfToken) {
+    fetch(CF_API + '/me', {
+      headers: {'Authorization': 'Bearer ' + cfToken}
+    }).then(function(r){ return r.json(); }).then(function(d){
+      if (d.kullanici_adi) {
+        window._cfToken = cfToken;
+        window._currentUser = d.kullanici_adi;
+        loadUserGame(d.kullanici_adi);
+      } else {
+        localStorage.removeItem('cf_token');
+        var lw = document.getElementById('loginWrap');
+        if (lw) lw.style.display = 'flex';
       }
-    } catch(e){}
-  })();
-  // Supabase oturumu kontrol et - aciksa loginWrap gosterme
-  if(typeof supa !== 'undefined') {
-    supa.auth.getSession().then(function(r){
-      if(!r.data || !r.data.session) {
-        var _lw = document.getElementById('loginWrap');
-        if (_lw) _lw.style.display = 'flex';
-      }
-      // Oturum aciksa onAuthStateChange zaten loadUserGame cagiracak
+    }).catch(function(){
+      var lw = document.getElementById('loginWrap');
+      if (lw) lw.style.display = 'flex';
     });
   } else {
-    var _lw = document.getElementById('loginWrap');
-    if (_lw) _lw.style.display = 'flex';
+    var lw = document.getElementById('loginWrap');
+    if (lw) lw.style.display = 'flex';
   }
-
   // Beni hatirla - onceki giris bilgilerini doldur (sifre haric)
   var _rem = localStorage.getItem('kuz_remember');
   if(_rem) {
@@ -87174,62 +87156,6 @@ function saveUsers(users) {
 
 
 
-function loginTab(tab) {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   function loginTab(tab) {
   document.getElementById('ltab-giris').classList.toggle('active', tab === 'giris');
 
@@ -87344,6 +87270,9 @@ function loginTab(tab) {
 
 
   document.getElementById('loginForm').style.display = tab === 'giris' ? '' : 'none';
+  document.getElementById('registerForm').style.display = tab === 'kayit' ? '' : 'none';
+  document.getElementById('ltab-giris').classList.toggle('active', tab === 'giris');
+  document.getElementById('ltab-kayit').classList.toggle('active', tab === 'kayit');
 
 
 
@@ -87629,10 +87558,23 @@ function doLogin() {
   var p = document.getElementById('inpLoginPass').value;
   var errEl = document.getElementById('loginErr');
   if (!u || !p) { if(errEl) errEl.textContent = 'Kullanici adi ve sifre giriniz!'; return; }
-  if(errEl) errEl.textContent = '';
-  supaGirisYap(u, p).then(function(res) {
-    if (res && res.hata) { if(errEl) errEl.textContent = res.hata; return; }
-    if (res && res.basari) { loadUserGame(u); }
+  if(errEl) errEl.textContent = 'Giris yapiliyor...';
+  fetch(CF_API + '/giris', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({kullanici_adi: u, sifre: p})
+  }).then(function(r){ return r.json(); }).then(function(res) {
+    if (res.hata) { if(errEl) errEl.textContent = res.hata; return; }
+    if (res.token) {
+      window._cfToken = res.token;
+      window._currentUser = u;
+      window._currentUserId = res.uid;
+      localStorage.setItem('cf_token', res.token);
+      localStorage.setItem('cf_user', u);
+      localStorage.setItem('cf_uid', res.uid);
+      if(errEl) errEl.textContent = '';
+      loadUserGame(u);
+    }
   }).catch(function(e) { if(errEl) errEl.textContent = 'Baglanti hatasi!'; });
 }
 
@@ -87994,9 +87936,9 @@ function doLogin() {
     if(btnLogin) { btnLogin.disabled = false; btnLogin.textContent = 'Giriş Yap'; }
     errEl.textContent = 'Bağlantı hatası! Tekrar dene.';
   });
-  return;
 
-  var users = getUsers();
+
+
 
 
 
@@ -88680,10 +88622,21 @@ function doRegister() {
   if (!p || p.length < 6) { if(errEl) errEl.textContent = 'Sifre en az 6 karakter olmali!'; return; }
   if (p !== p2) { if(errEl) errEl.textContent = 'Sifreler uyusmuyor!'; return; }
   if (!email || !email.includes('@')) { if(errEl) errEl.textContent = 'Gecerli bir e-posta giriniz!'; return; }
-  if(errEl) errEl.textContent = '';
-  supaKayitOl(u, p, email).then(function(res) {
-    if (res && res.hata) { if(errEl) errEl.textContent = res.hata; return; }
-    if (res && res.basari) { loadUserGame(u); }
+  if(errEl) errEl.textContent = 'Kayit yapiliyor...';
+  fetch('https://kapitalist-api.gitbaskabul.workers.dev/kayit', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({kullanici_adi: u, sifre: p, email: email})
+  }).then(function(r){ return r.json(); }).then(function(res) {
+    if (res.hata) { if(errEl) errEl.textContent = res.hata; return; }
+    if (res.basari && res.token) {
+      localStorage.setItem('cf_token', res.token);
+      localStorage.setItem('cf_kullanici', u);
+      window._cfToken = res.token;
+      window._currentUser = u;
+      if(errEl) errEl.textContent = '';
+      loadUserGame(u);
+    }
   }).catch(function(e) { if(errEl) errEl.textContent = 'Baglanti hatasi! Tekrar dene.'; });
 }
 
@@ -99561,21 +99514,17 @@ function doReset() {
   G.started = false;
   var key = window._currentUser ? getSaveKey(window._currentUser) : 'parp_v7';
   localStorage.removeItem(key);
-  if(window._supaUser && typeof supa !== "undefined") {
-    var _klanAdReset = G.klan && G.klan.ad;
-    var _liderMi = G.klan && G.klan.kuruldu;
-    var _oyAdiReset = window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi || '';
-    // Once klan ve mesajlari temizle, sonra oyun kaydini sil
-    var _sil = [];
-    if(_klanAdReset) {
-      _sil.push(supa.from('klan_mesajlar').delete().eq('klan_ad', _klanAdReset));
-      if(_liderMi) _sil.push(supa.from('klanlar').delete().eq('ad', _klanAdReset));
-    }
-    _sil.push(supa.from('oyun_kayitlari').delete().eq('kullanici_id', window._supaUser.id));
-    Promise.all(_sil).then(function(){ location.reload(); });
-    return;
+  // Cloudflare'de oyun kaydi sil
+  var _cfTok = getCFToken ? getCFToken() : null;
+  if(_cfTok && window._currentUser) {
+    fetch(CF_API + '/reset', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Authorization':'Bearer '+_cfTok},
+      body: JSON.stringify({kullanici_adi: window._currentUser})
+    }).finally(function(){ location.reload(); });
+  } else {
+    location.reload();
   }
-  location.reload();
 }
 
 
@@ -99969,7 +99918,7 @@ function toggleBot() {
 
 
 
-    return;
+
 
 
 
