@@ -110340,16 +110340,7 @@ function klanKur(ad) {
   G.klan.ad = ad.trim(); G.klan.kuruldu = true; G.klan.lider = _oyAdi; G.klan.uyeler = []; G.klan.yardimci = null;
   // Supabase'e kaydet
   if(window._cfUser) {
-// SUPA_DISABLED:     supa.from('klanlar').upsert({
-      ad: G.klan.ad,
-      lider: _oyAdi,
-      lider_id: window._cfUser.id,
-      uye_sayisi: 1,
-      banka: G.klan.banka||0,
-      seviye: G.klan.seviye||1,
-      aciklama: '',
-      acik: true
-    }, {onConflict:'ad'}).then(function(r){ if(r.error) console.warn('Klan supabase hata:',r.error); });
+// SUPA_DISABLED: klan supabase kodu kaldırıldı
   }
   save(); renderKlan(); log('Klan kuruldu: '+G.klan.ad+' ⚔️','ok');
   if(typeof renderIhracat==='function') renderIhracat();
