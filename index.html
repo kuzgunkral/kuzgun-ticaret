@@ -87284,6 +87284,11 @@ function saveUsers(users) {
 
 
 function loginTab(tab) {
+  document.getElementById('loginFormGiris').style.display = tab === 'giris' ? 'block' : 'none';
+  document.getElementById('loginFormKayit').style.display = tab === 'kayit' ? 'block' : 'none';
+  document.getElementById('ltab-giris').classList.toggle('active', tab === 'giris');
+  document.getElementById('ltab-kayit').classList.toggle('active', tab === 'kayit');
+}
 
 
 
