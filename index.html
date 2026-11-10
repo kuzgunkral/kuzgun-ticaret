@@ -110393,9 +110393,7 @@ function klanKatilSupa(klanAd) {
   G.klan.lider = _oyAdi;
   G.klan.uyeler = [];
   if(window._cfUser) {
-// SUPA_DISABLED:     supa.from('klanlar').select('uye_sayisi').eq('ad', klanAd).single().then(function(r) {
-// SUPA_DISABLED:       if(r.data) supa.from('klanlar').update({uye_sayisi: (r.data.uye_sayisi||1)+1}).eq('ad', klanAd);
-    });
+    // klan uye sayisi CF API ile guncellenir
   }
   save(); renderKlan();
   if(typeof renderIhracat==='function') renderIhracat();
