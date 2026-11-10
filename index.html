@@ -233,52 +233,39 @@
 window._supaUser = null;
 
 // ---- KAYIT OL ----
+// ---- KAYIT OL ----
 async function supaKayitOl(kullaniciAdi, sifre, gercekEmail) {
-  // 1) Turkce karakter ve gecersiz karakter kontrolu
-  if (/[^a-zA-Z0-9_\-\.]/.test(kullaniciAdi)) {
-    return {hata: "Kullanıcı adında sadece İngilizce harf, rakam, _ - . kullanılabilir!"};
-  }
-  if (kullaniciAdi.length < 3 || kullaniciAdi.length > 20) {
-    return {hata: "Kullanıcı adı 3-20 karakter arasında olmalıdır!"};
-  }
-  // 2) Kullanici adi benzersizlik kontrolu
-  var {data: _kaditKontrol, error: _kaditHata} = await supa.from("oyun_kayitlari")
-    .select("kullanici_id")
-    .ilike("kullanici_adi", kullaniciAdi)
-    .maybeSingle();
-  if (_kaditKontrol) return {hata: "Bu kullanıcı adı zaten alınmış!"};
-  // Email varsa gerçek email kullan, yoksa sahte email oluştur
-  var email = gercekEmail && gercekEmail.length > 0 ? gercekEmail : kullaniciAdi.toLowerCase().replace(/[^a-z0-9]/g,'') + '@kuzgun.game';
-  var {data, error} = await supa.auth.signUp({email: email, password: sifre, options:{emailRedirectTo: 'https://kuzgunkral.github.io/kuzgun-ticaret/', data:{kullanici_adi: kullaniciAdi}}});
-  if(error) return {hata: error.message};
-  window._supaUser = data.user;
-  // Oyun kaydı oluştur
-  if(data.user) {
-    await supa.from('oyun_kayitlari').insert({kullanici_id: data.user.id, kullanici_adi: kullaniciAdi, veri: {}});
-  }
-  var onayGerekli = data.user && !data.user.confirmed_at && gercekEmail && gercekEmail.length > 0;
-  return {basari: true, user: data.user, onayGerekli: onayGerekli};
+  if (/[^a-zA-Z0-9_\-\.]/. test(kullaniciAdi)) return {hata: 'Sadece Ingilizce harf, rakam, _ - . kullanilabilir!'};
+  if (kullaniciAdi.length < 4 || kullaniciAdi.length > 20) return {hata: 'Kullanici adi 4-20 karakter olmali!'};
+  try {
+    var r = await fetch(CF_API + '/kayit', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({kullanici_adi:kullaniciAdi, sifre:sifre, email:gercekEmail||''})});
+    var d = await r.json();
+    if(d.hata) return {hata: d.hata};
+    return {basari: true, onayGerekli: true};
+  } catch(e) { return {hata: 'Baglanti hatasi! Tekrar dene.'}; }
 }
 
-// ---- GİRİŞ YAP ----
-async function supaGirisYap(kullaniciAdi, sifre, gercekEmail) {
-  var email = (gercekEmail && gercekEmail.length > 0) ? gercekEmail : kullaniciAdi.toLowerCase().replace(/[^a-z0-9]/g,'') + '@kuzgun.game';
-  var {data, error} = await supa.auth.signInWithPassword({email: email, password: sifre});
-  if(error) return {hata: 'Kullanıcı adı veya şifre yanlış!'};
-  window._supaUser = data.user;
-  if(data.user && data.user.user_metadata && data.user.user_metadata.kullanici_adi) {
-    if(typeof G !== 'undefined') G._oyuncuAdi = data.user.user_metadata.kullanici_adi;
-  }
-  if(data.user) startOturumKanal(data.user.id); return {basari: true, user: data.user};
+// ---- GIRIS YAP ----
+async function supaGirisYap(kullaniciAdi, sifre) {
+  try {
+    var r = await fetch(CF_API + '/giris', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({kullanici_adi:kullaniciAdi, sifre:sifre})});
+    var d = await r.json();
+    if(d.hata) return {hata: d.hata};
+    window._cfToken = d.token;
+    window._currentUser = kullaniciAdi;
+    window._supaUser = {id: d.uid, kullanici_adi: kullaniciAdi};
+    localStorage.setItem('cf_token', d.token);
+    localStorage.setItem('cf_user', kullaniciAdi);
+    return {basari: true, user: window._supaUser};
+  } catch(e) { return {hata: 'Baglanti hatasi! Tekrar dene.'}; }
 }
 
-// ---- ÇIKIŞ YAP ----
+// ---- CIKIS YAP ----
 async function supaGirisYapCikis() {
-  // Cikis oncesi son kaydi yap
   try { if(typeof save === 'function') save(); } catch(e) {}
   try { if(window._supaUser && typeof supaKaydet === 'function' && typeof G !== 'undefined') { await supaKaydet(window._currentUser, G); } } catch(e) {}
-  await supa.auth.signOut();
-  stopOturumKanal(); window._supaUser = null;
+  localStorage.removeItem('cf_token'); localStorage.removeItem('cf_user');
+  stopOturumKanal(); window._supaUser = null; window._cfToken = null; window._currentUser = null;
 }
 
 // ---- OYUN KAYDET ----
@@ -379,7 +366,6 @@ window._oturumKanal = null;
 function startOturumKanal(userId) { window._oturumKanal = null; }
 
 function stopOturumKanal() { window._oturumKanal = null; }
-}
 </script>
 
 
