@@ -81569,16 +81569,12 @@ window._satCdTimer = setInterval(function(){
 },1000);
 
 window.onload = function() {
-  var savedUser = localStorage.getItem(CURRENT_USER_KEY);
-  if (savedUser) {
-    var users = getUsers();
-    if (users[savedUser]) {
-      window._currentUser = savedUser;
-      loadUserGame(savedUser);
-      return;
-    } else {
-      localStorage.removeItem(CURRENT_USER_KEY);
-    }
+  var cfToken = localStorage.getItem('cf_token');
+  var cfUser = localStorage.getItem('cf_user');
+  if (cfToken && cfUser) {
+    window._currentUser = cfUser;
+    loadUserGame(cfUser);
+    return;
   }
   // URL hash'ten token inject (Launcher'dan gelince)
   (function(){
