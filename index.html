@@ -87681,8 +87681,8 @@ function loginTab(tab) {
 
 
 function doLogin() {
-  var u = (document.getElementById('inpUser').value || '').trim().toLowerCase();
-  var p = document.getElementById('inpPass').value;
+  var u = (document.getElementById('inpLoginUser').value || '').trim().toLowerCase();
+  var p = document.getElementById('inpLoginPass').value;
   var errEl = document.getElementById('loginErr');
   if (!errEl) return;
   errEl.style.color = '#ef4444';
