@@ -81582,8 +81582,8 @@ window.onload = function() {
       if(h && h.indexOf('at=') !== -1) {
         var params = {};
         h.replace('#','').split('&').forEach(function(p){ var kv=p.split('='); params[kv[0]]=decodeURIComponent(kv[1]||''); });
-        if(params.at && params.rt && typeof supa !== 'undefined') {
-          supa.auth.setSession({access_token:params.at, refresh_token:params.rt}).then(function(){
+        if(params.at && params.rt && false) {
+// SUPA_KALDIRILDI: supa.auth.setSession({access_token:params.at, refresh_token:params.rt}).then(function(){
             window.history.replaceState(null,'',window.location.pathname);
           });
           return; // onAuthStateChange zaten devralacak
@@ -81592,8 +81592,8 @@ window.onload = function() {
     } catch(e){}
   })();
   // Supabase oturumu kontrol et - aciksa loginWrap gosterme
-  if(typeof supa !== 'undefined') {
-    supa.auth.getSession().then(function(r){
+  if(false) {
+// SUPA_KALDIRILDI: supa.auth.getSession().then(function(r){
       if(!r.data || !r.data.session) {
         var _lw = document.getElementById('loginWrap');
         if (_lw) _lw.style.display = 'flex';
@@ -97508,17 +97508,17 @@ function doReset() {
   G.started = false;
   var key = window._currentUser ? getSaveKey(window._currentUser) : 'parp_v7';
   localStorage.removeItem(key);
-  if(window._supaUser && typeof supa !== "undefined") {
+  if(window._supaUser && false) {
     var _klanAdReset = G.klan && G.klan.ad;
     var _liderMi = G.klan && G.klan.kuruldu;
     var _oyAdiReset = window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi || '';
     // Once klan ve mesajlari temizle, sonra oyun kaydini sil
     var _sil = [];
     if(_klanAdReset) {
-      _sil.push(supa.from('klan_mesajlar').delete().eq('klan_ad', _klanAdReset));
-      if(_liderMi) _sil.push(supa.from('klanlar').delete().eq('ad', _klanAdReset));
+// SUPA_KALDIRILDI: _sil.push(supa.from('klan_mesajlar').delete().eq('klan_ad', _klanAdReset));
+// SUPA_KALDIRILDI: if(_liderMi) _sil.push(supa.from('klanlar').delete().eq('ad', _klanAdReset));
     }
-    _sil.push(supa.from('oyun_kayitlari').delete().eq('kullanici_id', window._supaUser.id));
+// SUPA_KALDIRILDI: _sil.push(supa.from('oyun_kayitlari').delete().eq('kullanici_id', window._supaUser.id));
     Promise.all(_sil).then(function(){ location.reload(); });
     return;
   }
@@ -108234,8 +108234,8 @@ function klanKur(ad) {
   var _oyAdi = G._oyuncuAdi || (window._supaUser&&window._supaUser.user_metadata&&window._supaUser.user_metadata.kullanici_adi) || 'Lider';
   G.klan.ad = ad.trim(); G.klan.kuruldu = true; G.klan.lider = _oyAdi; G.klan.uyeler = []; G.klan.yardimci = null;
   // Supabase'e kaydet
-  if(typeof supa !== 'undefined' && window._supaUser) {
-    supa.from('klanlar').upsert({
+  if(false && window._supaUser) {
+// SUPA_KALDIRILDI: supa.from('klanlar').upsert({
       ad: G.klan.ad,
       lider: _oyAdi,
       lider_id: window._supaUser.id,
@@ -108262,7 +108262,7 @@ async function klanListesiGoster() {
   _modal.innerHTML = '<div style="background:#202a42;border:1px solid #283858;border-radius:12px;padding:24px;min-width:400px;max-width:600px;max-height:80vh;overflow-y:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><span style="font-size:18px;font-weight:800;color:#f59e0b">⚔️ Klan Listesi</span><button onclick="document.getElementById(\'klanListesiModal\').remove()" style="background:none;border:none;color:#ef4444;font-size:18px;cursor:pointer">✕</button></div><div id="klanListesiIcerik" style="color:#6080a0">Yükleniyor...</div></div>';
   document.body.appendChild(_modal);
   // Supabase'den klanları çek
-  var {data, error} = await supa.from('klanlar').select('*').eq('acik', true).order('seviye', {ascending:false}).limit(20);
+// SUPA_KALDIRILDI: var {data, error} = await supa.from('klanlar').select('*').eq('acik', true).order('seviye', {ascending:false}).limit(20);
   var _ic = document.getElementById('klanListesiIcerik');
   if(!_ic) return;
   if(error || !data || data.length===0) {
@@ -108296,9 +108296,9 @@ function klanKatilSupa(klanAd) {
   var _oyAdi = G._oyuncuAdi || 'Oyuncu';
   G.klan.lider = _oyAdi;
   G.klan.uyeler = [];
-  if(typeof supa !== 'undefined') {
-    supa.from('klanlar').select('uye_sayisi').eq('ad', klanAd).single().then(function(r) {
-      if(r.data) supa.from('klanlar').update({uye_sayisi: (r.data.uye_sayisi||1)+1}).eq('ad', klanAd);
+  if(false) {
+// SUPA_KALDIRILDI: supa.from('klanlar').select('uye_sayisi').eq('ad', klanAd).single().then(function(r) {
+// SUPA_KALDIRILDI: if(r.data) supa.from('klanlar').update({uye_sayisi: (r.data.uye_sayisi||1)+1}).eq('ad', klanAd);
     });
   }
   save(); renderKlan();
@@ -108340,24 +108340,24 @@ async function klandanCikOnayla() {
   if(_lider && _yardimci) {
     // Asist var → asist lider olur
     try {
-      await supa.from('klanlar').update({lider: _yardimci, uye_sayisi: Math.max(1,(G.klan.uyeler.length))}).eq('ad', _klanAd);
+// SUPA_KALDIRILDI: await supa.from('klanlar').update({lider: _yardimci, uye_sayisi: Math.max(1,(G.klan.uyeler.length))}).eq('ad', _klanAd);
       log('👑 ' + _yardimci + ' yeni lider oldu.','ok');
     } catch(e){}
   } else if(_lider && !_yardimci) {
     // Asist yok → klan silinir
     try {
-      await supa.from('klanlar').delete().eq('ad', _klanAd);
-      await supa.from('klan_mesajlar').delete().eq('klan_ad', _klanAd);
+// SUPA_KALDIRILDI: await supa.from('klanlar').delete().eq('ad', _klanAd);
+// SUPA_KALDIRILDI: await supa.from('klan_mesajlar').delete().eq('klan_ad', _klanAd);
       log('💀 ' + _klanAd + ' klanı silindi (lider ayrıldı, asist yoktu).','er');
     } catch(e){}
   } else {
     // Normal üye çıkışı
     try {
-      await supa.from('klanlar').update({uye_sayisi: Math.max(0,(G.klan.uyeler.length))}).eq('ad', _klanAd);
+// SUPA_KALDIRILDI: await supa.from('klanlar').update({uye_sayisi: Math.max(0,(G.klan.uyeler.length))}).eq('ad', _klanAd);
     } catch(e){}
   }
   // Kullanicinin mesajlarini sil
-  try { await supa.from('klan_mesajlar').delete().eq('klan_ad', _klanAd).eq('oyuncu', G._oyuncuAdi||'Ben'); } catch(e){}
+// SUPA_KALDIRILDI: try { await supa.from('klan_mesajlar').delete().eq('klan_ad', _klanAd).eq('oyuncu', G._oyuncuAdi||'Ben'); } catch(e){}
 
   G._klanCezaBitis = Date.now() + (72 * 60 * 60 * 1000);
   G.klan = {ad:null, kuruldu:false, lider:'Sen', yardimci:null, uyeler:[], seviye:1, xp:0, ihaleler:[], kasaTL:0, banka:0, log:[]};
@@ -108394,7 +108394,7 @@ function klanBankaYatir(miktar){
   // Klan XP: her 1 milyar = 1 XP
   if(typeof klanBankaXpHesapla==='function') klanBankaXpHesapla(miktar);
   // Supabase banka guncelle
-  if(typeof supa !== 'undefined' &&G.klan.ad) supa.from('klanlar').update({banka:G.klan.banka}).eq('ad',G.klan.ad);
+// SUPA_KALDIRILDI: if(typeof supa !== 'undefined' &&G.klan.ad) supa.from('klanlar').update({banka:G.klan.banka}).eq('ad',G.klan.ad);
   save();renderKlan();renderHeader();
 }
 
@@ -108429,7 +108429,7 @@ async function klanLiderYapOnayla(isim) {
   log('👑 '+isim+' yeni lider oldu. Sen asist oldun.','ok');
   klanLog('👑 '+isim+' yeni lider oldu.','ok');
   save();
-  try{await supa.from('klanlar').update({lider:isim}).eq('ad',G.klan.ad);}catch(e){}
+// SUPA_KALDIRILDI: try{await supa.from('klanlar').update({lider:isim}).eq('ad',G.klan.ad);}catch(e){}
   renderKlan();
 }
 async function klanSustur(isim) {
@@ -108444,7 +108444,7 @@ async function klanSustur(isim) {
     log('🔇 '+isim+' 1 saat susturuldu.','sy');
   }
   save();
-  try{await supa.from('klanlar').update({susturulanlar:G.klan.susturulanlar}).eq('ad',G.klan.ad);}catch(e){}
+// SUPA_KALDIRILDI: try{await supa.from('klanlar').update({susturulanlar:G.klan.susturulanlar}).eq('ad',G.klan.ad);}catch(e){}
   renderKlan();
 }
 async function klanCikart(isim) {
@@ -108456,7 +108456,7 @@ async function klanCikart(isim) {
   log('🚫 '+isim+' klandan çıkarıldı.','er');
   klanLog('🚫 '+isim+' klandan çıkarıldı.','er');
   save();
-  try{await supa.from('klanlar').update({uye_sayisi:G.klan.uyeler.length+1}).eq('ad',G.klan.ad);}catch(e){}
+// SUPA_KALDIRILDI: try{await supa.from('klanlar').update({uye_sayisi:G.klan.uyeler.length+1}).eq('ad',G.klan.ad);}catch(e){}
   renderKlan();
 }
 async function klanBan(isim) {
@@ -108470,7 +108470,7 @@ async function klanBan(isim) {
   log('🔨 '+isim+' banlandı.','er');
   klanLog('🔨 '+isim+' banlandı.','er');
   save();
-  try{await supa.from('klanlar').update({banlilar:G.klan.banlilar}).eq('ad',G.klan.ad);}catch(e){}
+// SUPA_KALDIRILDI: try{await supa.from('klanlar').update({banlilar:G.klan.banlilar}).eq('ad',G.klan.ad);}catch(e){}
   renderKlan();
 }
 async function klanBanKaldir(isim) {
@@ -108481,7 +108481,7 @@ async function klanBanKaldir(isim) {
   log('🔓 '+isim+' banı kaldırıldı.','ok');
   klanLog('🔓 '+isim+' banı kaldırıldı.','ok');
   save();
-  try{await supa.from('klanlar').update({banlilar:G.klan.banlilar}).eq('ad',G.klan.ad);}catch(e){}
+// SUPA_KALDIRILDI: try{await supa.from('klanlar').update({banlilar:G.klan.banlilar}).eq('ad',G.klan.ad);}catch(e){}
   renderKlan();
 }
 function kufurFiltrele(metin) {
@@ -108494,14 +108494,14 @@ async function klanMesajGonder(mesaj) {
   if(!G.klan||!G.klan.ad){log('Klan gerekli!','er');return;}
   var _oyAdi=G._oyuncuAdi||'Ben';
   var _temizMesaj = kufurFiltrele(mesaj.trim());
-  try{await supa.from('klan_mesajlar').insert({klan_ad:G.klan.ad,oyuncu:_oyAdi,mesaj:_temizMesaj});}catch(e){log('Mesaj gönderilemedi!','er');return;}
+// SUPA_KALDIRILDI: try{await supa.from('klan_mesajlar').insert({klan_ad:G.klan.ad,oyuncu:_oyAdi,mesaj:_temizMesaj});}catch(e){log('Mesaj gönderilemedi!','er');return;}
   var inp=document.getElementById('klanSohbetInp');
   if(inp)inp.value='';
   klanMesajlariYukle();
 }
 async function klanMesajlariYukle() {
   if(!G.klan||!G.klan.ad)return;
-  var {data}=await supa.from('klan_mesajlar').select('*').eq('klan_ad',G.klan.ad).order('zaman',{ascending:false}).limit(30);
+// SUPA_KALDIRILDI: var {data}=await supa.from('klan_mesajlar').select('*').eq('klan_ad',G.klan.ad).order('zaman',{ascending:false}).limit(30);
   if(!data)return;
   var el=document.getElementById('klanSohbetList');
   if(!el)return;
@@ -108538,12 +108538,12 @@ async function klanMesajlariYukle() {
 }
 async function klanSohbetiTemizle() {
   if(!G.klan||!G.klan.ad)return;
-  try{await supa.from('klan_mesajlar').delete().eq('klan_ad',G.klan.ad);klanMesajlariYukle();log('🗑 Sohbet temizlendi.','sy');}catch(e){log('Sohbet temizlenemedi!','er');}
+// SUPA_KALDIRILDI: try{await supa.from('klan_mesajlar').delete().eq('klan_ad',G.klan.ad);klanMesajlariYukle();log('🗑 Sohbet temizlendi.','sy');}catch(e){log('Sohbet temizlenemedi!','er');}
 }
 async function klanSohbetiAktar() {
   if(!G.klan||!G.klan.ad){log('Klan gerekli!','er');return;}
   try {
-    var r = await supa.from('klan_mesajlar').select('*').eq('klan_ad',G.klan.ad).order('zaman',{ascending:true});
+// SUPA_KALDIRILDI: var r = await supa.from('klan_mesajlar').select('*').eq('klan_ad',G.klan.ad).order('zaman',{ascending:true});
     if(!r.data||r.data.length===0){log('Sohbet geçmişi boş!','sy');return;}
     var txt = '=== ' + G.klan.ad + ' Klan Sohbeti ===\n';
     txt += 'Dışa Aktarım Tarihi: ' + new Date().toLocaleString('tr-TR') + '\n';
@@ -108582,7 +108582,7 @@ function klanSohbetiTemizleOnayla() {
 }
 async function klanTekMesajSil(id) {
   if(!id)return;
-  try{await supa.from('klan_mesajlar').delete().eq('id',id);klanMesajlariYukle();}catch(e){log('Mesaj silinemedi!','er');}
+// SUPA_KALDIRILDI: try{await supa.from('klan_mesajlar').delete().eq('id',id);klanMesajlariYukle();}catch(e){log('Mesaj silinemedi!','er');}
 }
 function klanMesajDuzenle(id, eskiMesaj) {
   // Inline edit popup
@@ -108604,7 +108604,7 @@ async function klanMesajDuzenleKaydet(id) {
   var yeniMesaj = kufurFiltrele(ta.value.trim());
   if(!yeniMesaj){log('Mesaj boş olamaz!','er');return;}
   try {
-    await supa.from('klan_mesajlar').update({mesaj: yeniMesaj, duzenlendi: true}).eq('id', id);
+// SUPA_KALDIRILDI: await supa.from('klan_mesajlar').update({mesaj: yeniMesaj, duzenlendi: true}).eq('id', id);
     klanMesajlariYukle();
     log('✏️ Mesaj düzenlendi.','sy');
   } catch(e) { log('Düzenleme başarısız!','er'); }
@@ -108617,7 +108617,7 @@ async function klanSeciliMesajlariSil() {
   if(!confirm(secili.length+' mesaj silinsin mi?'))return;
   var ids=Array.from(secili).map(function(x){return x.getAttribute('data-mesaj-id');});
   for(var i=0;i<ids.length;i++){
-    try{await supa.from('klan_mesajlar').delete().eq('id',ids[i]);}catch(e){}
+// SUPA_KALDIRILDI: try{await supa.from('klan_mesajlar').delete().eq('id',ids[i]);}catch(e){}
   }
   klanMesajlariYukle();
   log('🗑 '+ids.length+' mesaj silindi.','sy');
@@ -108655,8 +108655,8 @@ function klanElmasLvAtla(){
     log('Klan Lv'+G.klan.seviye+"'e yukseldi! ⚔️",'ok');
     klanLog('💎 Elmas ile Klan Lv'+G.klan.seviye+"'e yükseldi!",'ok');
     // Supabase guncelle
-    if(typeof supa !== 'undefined' &&G.klan.ad){
-      await supa.from('klanlar').update({seviye: G.klan.seviye, xp: 0}).eq('ad', G.klan.ad);
+    if(false &&G.klan.ad){
+// SUPA_KALDIRILDI: await supa.from('klanlar').update({seviye: G.klan.seviye, xp: 0}).eq('ad', G.klan.ad);
     }
     save(); renderKlan();
   });
@@ -108699,8 +108699,8 @@ function klanIhaleKazandi(urun,tipKisiler,kazanilanTL,madalya) {
 
 // Supabase klan XP ekle + lv kontrol (ortak)
 async function klanSupaXpEkle(xp) {
-  if(!G.klan||!G.klan.ad||typeof supa === 'undefined') return;
-  var {data, error} = await supa.from('klanlar').select('xp,seviye').eq('ad', G.klan.ad).single();
+  if(!G.klan||!G.klan.ad||true) return;
+// SUPA_KALDIRILDI: var {data, error} = await supa.from('klanlar').select('xp,seviye').eq('ad', G.klan.ad).single();
   if(error||!data) return;
   var yeniXp = (data.xp||0) + xp;
   var yeniSeviye = data.seviye||0;
@@ -108712,7 +108712,7 @@ async function klanSupaXpEkle(xp) {
       klanLog('🎉 Klan Lv'+yeniSeviye+"'e yükseldi!",'ok');
     } else break;
   }
-  await supa.from('klanlar').update({xp: yeniXp, seviye: yeniSeviye}).eq('ad', G.klan.ad);
+// SUPA_KALDIRILDI: await supa.from('klanlar').update({xp: yeniXp, seviye: yeniSeviye}).eq('ad', G.klan.ad);
   G.klan.xp = yeniXp; G.klan.seviye = yeniSeviye;
   save(); if(window._activeTab==='klan') renderKlan();
 }
@@ -108725,8 +108725,8 @@ function klanBankaXpHesapla(tlMiktar) {
 
 // Supabase'den klan bilgilerini yukle (her acilista)
 async function klanSupaYukle() {
-  if(!G.klan||!G.klan.ad||typeof supa === 'undefined') return;
-  var {data, error} = await supa.from('klanlar').select('xp,seviye,uye_sayisi').eq('ad', G.klan.ad).single();
+  if(!G.klan||!G.klan.ad||true) return;
+// SUPA_KALDIRILDI: var {data, error} = await supa.from('klanlar').select('xp,seviye,uye_sayisi').eq('ad', G.klan.ad).single();
   if(error||!data) return;
   G.klan.xp = data.xp||0; G.klan.seviye = data.seviye||0;
   save();
@@ -108913,7 +108913,7 @@ function renderKlan() {
     klanMesajlariYukle();
     // Realtime: daha önce subscribe edildiyse iptal et
     if(window._klanSohbetChannel){try{supa.removeChannel(window._klanSohbetChannel);}catch(e){}}
-    window._klanSohbetChannel=supa.channel('klan-sohbet-'+G.klan.ad)
+// SUPA_KALDIRILDI: window._klanSohbetChannel=supa.channel('klan-sohbet-'+G.klan.ad)
       .on('postgres_changes',{event:'INSERT',schema:'public',table:'klan_mesajlar',filter:'klan_ad=eq.'+G.klan.ad},function(){klanMesajlariYukle();})
       .subscribe();
   }
