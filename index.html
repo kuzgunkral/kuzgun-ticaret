@@ -18522,9 +18522,9 @@ function sohbetGonder(){
 
 function gSohbetMuteToggle(){_gMute=!_gMute;var b=document.getElementById("gMuteBtn");if(b){b.textContent=_gMute?"Unmute":"Mute";b.style.color=_gMute?"#ef4444":"#94a3b8";b.style.borderColor=_gMute?"#ef4444":"#334155";}}
 function gSohbetKapatToggle(){_gKapali=!_gKapali;var b=document.getElementById("gKapatBtn");var w=document.getElementById("sohbet-inp-wrap");if(b){b.textContent=_gKapali?"Sohbeti Ac":"Sohbeti Kapat";b.style.color=_gKapali?"#ef4444":"#94a3b8";}if(w)w.style.display=_gKapali?"none":"flex";}
-function gSohbetSeciliSil(){var el=document.getElementById("sohbet-mesajlar");if(!el)return;var ids=[];el.querySelectorAll("div[style*='rgba(30,58,95']").forEach(function(d){if(d.dataset.id)ids.push(d.dataset.id);});if(!ids.length)return;Promise.all(ids.map(function(id){return supa.from("global_sohbet").delete().eq("id",id);})).then(function(){sohbetYukle();});}
+function gSohbetSeciliSil(){var el=document.getElementById("sohbet-mesajlar");if(!el)return;var ids=[];el.querySelectorAll("div[style*='rgba(30,58,95']").forEach(function(d){if(d.dataset.id)ids.push(d.dataset.id);});if(!ids.length)return;var tok=localStorage.getItem('cf_token')||'';Promise.all(ids.map(function(id){return fetch(CF_API+'/sohbet/sil',{method:'DELETE',headers:{'Authorization':'Bearer '+tok,'Content-Type':'application/json'},body:JSON.stringify({id:id})});})).then(function(){sohbetYukle();});}
 function gSohbetTemizle(){if(!confirm('Tum global sohbet silinsin mi?'))return;fetch(CF_API+'/sohbet/temizle',{method:'DELETE',headers:{'Authorization':'Bearer '+(localStorage.getItem('cf_token')||'')}}).then(function(){sohbetYukle();});}
-function gSohbetCtx(e,kadi,id){var old=document.getElementById("gCtxMenu");if(old)old.remove();var m=document.createElement("div");m.id="gCtxMenu";m.style.cssText="position:fixed;z-index:99999;background:#0a1628;border:1px solid #1e3a5f;border-radius:8px;padding:4px;box-shadow:0 4px 16px rgba(0,0,0,.7);min-width:160px;";m.style.left=e.clientX+"px";m.style.top=e.clientY+"px";var s="padding:6px 10px;cursor:pointer;font-size:12px;border-radius:4px;";m.innerHTML="<div style='"+s+"color:#f59e0b' onmouseover='this.style.background=\"#1e3a5f\"' onmouseout='this.style.background=\"\"' onclick='_gBanlilar.push(\""+kadi+"\");sohbetYukle();document.getElementById(\"gCtxMenu\").remove()'>&#x1F6AB; Banla: "+kadi+"</div><div style='"+s+"color:#ef4444' onmouseover='this.style.background=\"#1e3a5f\"' onmouseout='this.style.background=\"\"' onclick='if(true)supa.from(\"global_sohbet\").delete().eq(\"id\",\""+id+"\").then(function(){sohbetYukle();});document.getElementById(\"gCtxMenu\").remove()'>&#x1F5D1; Mesaji Sil</div>";document.body.appendChild(m);setTimeout(function(){document.addEventListener("click",function h(){m.remove();document.removeEventListener("click",h);},true);},100);}
+function gSohbetCtx(e,kadi,id){var old=document.getElementById("gCtxMenu");if(old)old.remove();var m=document.createElement("div");m.id="gCtxMenu";m.style.cssText="position:fixed;z-index:99999;background:#0a1628;border:1px solid #1e3a5f;border-radius:8px;padding:4px;box-shadow:0 4px 16px rgba(0,0,0,.7);min-width:160px;";m.style.left=e.clientX+"px";m.style.top=e.clientY+"px";var s="padding:6px 10px;cursor:pointer;font-size:12px;border-radius:4px;";m.innerHTML="<div style='"+s+"color:#f59e0b' onmouseover='this.style.background=\"#1e3a5f\"' onmouseout='this.style.background=\"\"' onclick='_gBanlilar.push(\""+kadi+"\");sohbetYukle();document.getElementById(\"gCtxMenu\").remove()'>&#x1F6AB; Banla: "+kadi+"</div><div style='"+s+"color:#ef4444' onmouseover='this.style.background=\"#1e3a5f\"' onmouseout='this.style.background=\"\"' onclick='fetch(CF_API+\"/sohbet/sil\",{method:\"DELETE\",headers:{\"Authorization\":\"Bearer \"+(localStorage.getItem(\"cf_token\")||\"\"),\"Content-Type\":\"application/json\"},body:JSON.stringify({id:\""+id+"\"})}).then(function(){sohbetYukle();});document.getElementById(\"gCtxMenu\").remove()'>&#x1F5D1; Mesaji Sil</div>";document.body.appendChild(m);setTimeout(function(){document.addEventListener("click",function h(){m.remove();document.removeEventListener("click",h);},true);},100);}
 // Anasayfa acilinca sohbeti yukle
 var _origSwitchTab=window.switchTab;
 </script>
@@ -81589,19 +81589,9 @@ window.history.replaceState(null,'',window.location.pathname);
       }
     } catch(e){}
   })();
-  // Supabase oturumu kontrol et - aciksa loginWrap gosterme
-  if(false) {
-// SUPA_KALDIRILDI: supa.auth.getSession().then(function(r){
-      if(!r.data || !r.data.session) {
-        var _lw = document.getElementById('loginWrap');
-        if (_lw) _lw.style.display = 'flex';
-      }
-      // Oturum aciksa onAuthStateChange zaten loadUserGame cagiracak
-    });
-  } else {
-    var _lw = document.getElementById('loginWrap');
-    if (_lw) _lw.style.display = 'flex';
-  }
+  // CF token yoksa loginWrap goster
+  var _lw = document.getElementById('loginWrap');
+  if (_lw) _lw.style.display = 'flex';
 
   // Beni hatirla - onceki giris bilgilerini doldur (sifre haric)
   var _rem = localStorage.getItem('kuz_remember');
@@ -108524,7 +108514,7 @@ async function klanMesajlariYukle() {
     h+='<div style="position:relative;display:inline-block;max-width:80%" class="klan-mesaj-wrap" data-id="'+m.id+'">';
     h+='<span style="font-size:11px;background:'+(_isMe?'#0d2a1a':_mBan?'#1a0505':'#202a42')+';border:1px solid '+(_isMe?'#10b981':_mBan?'#991b1b':'#2e4060')+';border-radius:0 10px 10px 10px;padding:5px 10px;color:'+(_mBan?'#fca5a5':'#d8e8f8')+';display:block;word-break:break-word;'+_mBanStyle+'">'+m.mesaj+_mDuzenlendi+'</span>';
     if(_isMe && !_mBan){
-      h+='<span onclick="klanMesajDuzenle(\''+m.id+'\',\''+m.mesaj.replace(/'/g,"\\'").replace(/"/g,"&quot;")+'\');" style="position:absolute;top:2px;right:2px;font-size:10px;cursor:pointer;opacity:0;transition:opacity 0.2s;background:#d8e8f8;border-radius:3px;padding:1px 3px" class="klan-mesaj-kalem" title="Düzenle">✏️</span>';
+      h+='<span onclick="klanMesajDuzenle(\''+m.id+'\',\''+m.mesaj.replace(/'/g,"\\'").replace(/"/g,""")+'\');" style="position:absolute;top:2px;right:2px;font-size:10px;cursor:pointer;opacity:0;transition:opacity 0.2s;background:#d8e8f8;border-radius:3px;padding:1px 3px" class="klan-mesaj-kalem" title="Düzenle">✏️</span>';
     }
     h+='</div>';
     h+='<span style="font-size:9px;color:#6080a0;white-space:nowrap;align-self:flex-end">'+ts+'</span>';
@@ -108910,10 +108900,7 @@ function renderKlan() {
   if(G.klan&&G.klan.kuruldu&&G.klan.ad){
     klanMesajlariYukle();
     // Realtime: daha önce subscribe edildiyse iptal et
-    if(window._klanSohbetChannel){try{supa.removeChannel(window._klanSohbetChannel);}catch(e){}}
-// SUPA_KALDIRILDI: window._klanSohbetChannel=supa.channel('klan-sohbet-'+G.klan.ad)
-      .on('postgres_changes',{event:'INSERT',schema:'public',table:'klan_mesajlar',filter:'klan_ad=eq.'+G.klan.ad},function(){klanMesajlariYukle();})
-      .subscribe();
+    window._klanSohbetChannel = null;
   }
 KRIPTO_LISTESI.forEach(function(k){
   var cv=document.getElementById('spk-'+k.id);if(!cv)return;
@@ -112703,7 +112690,7 @@ var _storeOrder=['market','manav','kasap','sarkuteri','giyim','mobilya','elektro
       var _skIcon={'market':(typeof getStoreIcon==='function'?getStoreIcon('market'):'🏪'),'manav':'🥦','kasap':'🥩','sarkuteri':'🥓','giyim':'👗','mobilya':'🛋️','elektronik':'📱','beyazesya':'🧺','kuyumcu':'💍','galeri':'🚗'}[sk]||'🏬';
       var _skName={'market':(typeof getStoreName==='function'?getStoreName('market'):'Market'),'manav':'Manav','kasap':'Kasap','sarkuteri':'Sarküteri','giyim':'Giyim','mobilya':'Mobilya','elektronik':'Elektronik','beyazesya':'Beyaz Eşya','kuyumcu':'Kuyumcu','galeri':'Galeri'}[sk]||(G.stores[sk]&&G.stores[sk].name?G.stores[sk].name:sk);
       var _skColors={'market':'#10b981','manav':'#22c55e','kasap':'#ef4444','sarkuteri':'#e879f9','giyim':'#a855f7','mobilya':'#f59e0b','elektronik':'#5a8ec8','beyazesya':'#67e8f9','kuyumcu':'#fbbf24','galeri':'#f97316'}[sk]||'#6080a0';
-      h += '<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;cursor:pointer;background:transparent;border:none;padding:8px 4px;width:100%;min-height:160px;'+(_isPasifSt?'opacity:0.45;filter:grayscale(0.5)':'')+'" onclick="selectStore(&quot;'+sk+'&quot;)">' + '';
+      h += '<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;cursor:pointer;background:transparent;border:none;padding:8px 4px;width:100%;min-height:160px;'+(_isPasifSt?'opacity:0.45;filter:grayscale(0.5)':'')+'" onclick="selectStore("'+sk+'")">' + '';
       h += '<div style="width:72px;height:72px;border-radius:18px;background:linear-gradient(135deg,'+_skColors+'22,'+_skColors+'44);border:2px solid '+_skColors+';display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:6px;box-shadow:0 4px 12px '+_skColors+'33;position:relative">';
       h += '<span style="font-size:36px;line-height:1">'+_skIcon+'</span>';
       h += '<span style="position:absolute;top:-4px;right:-4px;background:#2e4060;border:1px solid '+_skColors+';border-radius:8px;font-size:9px;font-weight:800;color:'+_skColors+';padding:1px 4px">Lv'+st.level+'</span>';
@@ -113680,7 +113667,7 @@ var _storeOrder=['market','manav','kasap','sarkuteri','giyim','mobilya','elektro
 
 
       // Kilitli/Acilabilir kart - yeni Android tasarim
-      h += '<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:8px 4px;width:100%;min-height:160px;cursor:'+(canUnlock?'pointer':'default')+'" onclick="'+(canUnlock?'openStore(&quot;'+sk+'&quot;)':'')+'">';
+      h += '<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:8px 4px;width:100%;min-height:160px;cursor:'+(canUnlock?'pointer':'default')+'" onclick="'+(canUnlock?'openStore("'+sk+'")':'')+'">';
       h += '<div style="width:80px;height:80px;border-radius:18px;background:linear-gradient(135deg,'+(canUnlock?'#f97306'+'22':'#202a42')+','+(canUnlock?'#f97306'+'44':'#2e4060')+');border:2px solid '+(canUnlock?'#f97306':'#2e4060')+';display:flex;align-items:center;justify-content:center;font-size:38px;margin-bottom:6px;position:relative;opacity:'+(canUnlock?'1':'0.45')+';filter:'+(canUnlock?'none':'grayscale(1)')+'" '+(canUnlock?'onclick="openStore(\''+sk+'\')" style2="cursor:pointer"':'')+' >';
       h += '<span style="font-size:38px;line-height:1">'+_skIcon+'</span>';
       if(!canUnlock) h += '<span style="position:absolute;top:-5px;right:-5px;font-size:15px">🔒</span>';
