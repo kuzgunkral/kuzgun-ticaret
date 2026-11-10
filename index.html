@@ -230,69 +230,55 @@
 // ============================================================
 
 // Mevcut giriş yapmış kullanıcı
-window._cfUser = null;
+window._supaUser = null;
 
 // ---- KAYIT OL ----
 async function supaKayitOl(kullaniciAdi, sifre, gercekEmail) {
-  if (/[^a-zA-Z0-9_\-\.]/  .test(kullaniciAdi)) {
-    return {hata: 'Kullanici adinda sadece Ingilizce harf, rakam, _ - . kullanilabilir!'};
+  // 1) Turkce karakter ve gecersiz karakter kontrolu
+  if (/[^a-zA-Z0-9_\-\.]/.test(kullaniciAdi)) {
+    return {hata: "Kullanıcı adında sadece İngilizce harf, rakam, _ - . kullanılabilir!"};
   }
-  if (kullaniciAdi.length < 4 || kullaniciAdi.length > 20) {
-    return {hata: 'Kullanici adi 4-20 karakter arasinda olmalidir!'};
+  if (kullaniciAdi.length < 3 || kullaniciAdi.length > 20) {
+    return {hata: "Kullanıcı adı 3-20 karakter arasında olmalıdır!"};
   }
-  if (!gercekEmail || gercekEmail.length === 0) {
-    return {hata: 'Email zorunludur!'};
+  // 2) Kullanici adi benzersizlik kontrolu
+  var {data: _kaditKontrol, error: _kaditHata} = await supa.from("oyun_kayitlari")
+    .select("kullanici_id")
+    .ilike("kullanici_adi", kullaniciAdi)
+    .maybeSingle();
+  if (_kaditKontrol) return {hata: "Bu kullanıcı adı zaten alınmış!"};
+  // Email varsa gerçek email kullan, yoksa sahte email oluştur
+  var email = gercekEmail && gercekEmail.length > 0 ? gercekEmail : kullaniciAdi.toLowerCase().replace(/[^a-z0-9]/g,'') + '@kuzgun.game';
+  var {data, error} = await supa.auth.signUp({email: email, password: sifre, options:{emailRedirectTo: 'https://kuzgunkral.github.io/kuzgun-ticaret/', data:{kullanici_adi: kullaniciAdi}}});
+  if(error) return {hata: error.message};
+  window._supaUser = data.user;
+  // Oyun kaydı oluştur
+  if(data.user) {
+    await supa.from('oyun_kayitlari').insert({kullanici_id: data.user.id, kullanici_adi: kullaniciAdi, veri: {}});
   }
-  try {
-    var r = await fetch(CF_API + '/kayit', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({kullanici_adi: kullaniciAdi, sifre: sifre, email: gercekEmail})
-    });
-    var d = await r.json();
-    if (d.hata) return {hata: d.hata};
-    window._cfToken = d.token;
-    window._cfUser = {id: d.kullanici_id, kullanici_adi: kullaniciAdi};
-    window._currentUser = kullaniciAdi;
-    localStorage.setItem('cf_token', d.token);
-    localStorage.setItem('cf_kullanici', kullaniciAdi);
-    localStorage.setItem('cf_uid', d.kullanici_id);
-    return {basari: true};
-  } catch(e) {
-    return {hata: 'Baglanti hatasi: ' + e.message};
-  }
+  var onayGerekli = data.user && !data.user.confirmed_at && gercekEmail && gercekEmail.length > 0;
+  return {basari: true, user: data.user, onayGerekli: onayGerekli};
 }
 
+// ---- GİRİŞ YAP ----
 async function supaGirisYap(kullaniciAdi, sifre, gercekEmail) {
-  try {
-    var r = await fetch(CF_API + '/giris', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({kullanici_adi: kullaniciAdi, sifre: sifre})
-    });
-    var d = await r.json();
-    if (d.hata) return {hata: d.hata};
-    window._cfToken = d.token;
-    window._cfUser = {id: d.kullanici_id, kullanici_adi: kullaniciAdi};
-    window._currentUser = kullaniciAdi;
-    localStorage.setItem('cf_token', d.token);
-    localStorage.setItem('cf_kullanici', kullaniciAdi);
-    localStorage.setItem('cf_uid', d.kullanici_id);
-    return {basari: true, user: {id: d.kullanici_id}};
-  } catch(e) {
-    return {hata: 'Baglanti hatasi: ' + e.message};
+  var email = (gercekEmail && gercekEmail.length > 0) ? gercekEmail : kullaniciAdi.toLowerCase().replace(/[^a-z0-9]/g,'') + '@kuzgun.game';
+  var {data, error} = await supa.auth.signInWithPassword({email: email, password: sifre});
+  if(error) return {hata: 'Kullanıcı adı veya şifre yanlış!'};
+  window._supaUser = data.user;
+  if(data.user && data.user.user_metadata && data.user.user_metadata.kullanici_adi) {
+    if(typeof G !== 'undefined') G._oyuncuAdi = data.user.user_metadata.kullanici_adi;
   }
+  if(data.user) startOturumKanal(data.user.id); return {basari: true, user: data.user};
 }
 
+// ---- ÇIKIŞ YAP ----
 async function supaGirisYapCikis() {
+  // Cikis oncesi son kaydi yap
   try { if(typeof save === 'function') save(); } catch(e) {}
-  try { if(window._cfUser && typeof supaKaydet === 'function' && typeof G !== 'undefined') { await supaKaydet(window._currentUser, G); } } catch(e) {}
-  window._cfToken = null;
-  window._cfUser = null;
-  window._currentUser = null;
-  localStorage.removeItem('cf_token');
-  localStorage.removeItem('cf_kullanici');
-  localStorage.removeItem('cf_uid');
+  try { if(window._supaUser && typeof supaKaydet === 'function' && typeof G !== 'undefined') { await supaKaydet(window._currentUser, G); } } catch(e) {}
+  await supa.auth.signOut();
+  stopOturumKanal(); window._supaUser = null;
 }
 
 // ---- OYUN KAYDET ----
@@ -306,7 +292,7 @@ function getCFToken() {
 }
 
 async function supaKaydet(kullaniciAdi, veri) {
-  if(!window._cfUser || !getCFToken()) return;
+  if(!window._supaUser || !getCFToken()) return;
   var _g = veri || (typeof G !== 'undefined' ? G : null);
   if(!_g) return;
   var _saveData = {
@@ -328,7 +314,7 @@ async function supaKaydet(kullaniciAdi, veri) {
     kredilerSaniye: _g.kredilerSaniye, lastDay: _g.lastDay,
     gunlukBonus: _g.gunlukBonus
   };
-  var kadi = window._currentUser || kullaniciAdi || '';
+  var kadi = window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi || kullaniciAdi || '';
   var token = getCFToken();
   var headers = {'Content-Type':'application/json', 'Authorization':'Bearer '+token};
   // Oyun verisini kaydet
@@ -350,7 +336,7 @@ async function supaKaydet(kullaniciAdi, veri) {
 
 // ---- OYUN YUKLE ----
 async function supaYukle(kullaniciAdi) {
-  if(!window._cfUser || !getCFToken()) return null;
+  if(!window._supaUser || !getCFToken()) return null;
   var r = await fetch(CF_API+'/load', {
     headers: {'Authorization':'Bearer '+getCFToken()}
   });
@@ -365,40 +351,87 @@ async function supaKaydetDelta(kullaniciAdi, delta) {
   await supaKaydet(kullaniciAdi, G);
 }
 
-// ---- OTURUM KONTROL - CLOUDFLARE ----
-(function() {
-  var _tok = localStorage.getItem('cf_token');
-  var _uname = localStorage.getItem('cf_user');
-  if(_tok && _uname) {
-    window._cfToken = _tok;
-    window._currentUser = _uname;
-    window._cfUser = {id: _uname};
-    setTimeout(function(){ loadUserGame(_uname); }, 100);
+// ---- OTURUM KONTROL ----
+supa.auth.onAuthStateChange(function(event, session) {
+  if(session) {
+    window._supaUser = session.user;
+    // JWT token'i Cloudflare API icin sakla
+    window._cfToken = session.access_token || '';
+    // F5 / sayfa yenilemede otomatik oyunu yukle
+    if((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && !window._gameOpen) {
+      var _uname = session.user.user_metadata && session.user.user_metadata.kullanici_adi;
+      if(_uname) {
+        window._currentUser = _uname;
+        // setTimeout: loadUserGame henuz tanimlanmamis olabilir
+        setTimeout(function(){ loadUserGame(_uname); }, 100);
+      }
+    }
   } else {
+    window._supaUser = null;
+    window._gameOpen = false;
+    window._currentUser = null;
+    // Oturum kapandiysa login ekranini goster
     var gw = document.getElementById('gameWrap'); if(gw) gw.style.display = 'none';
     var sw = document.getElementById('setupWrap'); if(sw) sw.style.display = 'none';
     var lw = document.getElementById('loginWrap'); if(lw) lw.style.display = 'flex';
   }
-})();
+});
 
-// DC SISTEMI - Cloudflare polling
+// ============================================================
+// DC SISTEMI - Ayni hesapla cift giris engeli
+// ============================================================
 window._sessionId = Math.random().toString(36).substr(2,9) + Date.now();
+window._oturumKanal = null;
 
 function startOturumKanal(userId) {
-  if(window._dcTimer) clearInterval(window._dcTimer);
-  if(!getCFToken()) return;
-  // Session kaydet
-  fetch(CF_API+'/session/ping',{method:'POST',headers:{'Authorization':'Bearer '+getCFToken(),'Content-Type':'application/json'},body:JSON.stringify({session_id:window._sessionId})}).catch(function(){});
-  window._dcTimer = setInterval(function(){
-    if(!getCFToken()) return;
-    fetch(CF_API+'/session/ping',{method:'POST',headers:{'Authorization':'Bearer '+getCFToken(),'Content-Type':'application/json'},body:JSON.stringify({session_id:window._sessionId})}).catch(function(){});
-  }, 25000);
+  if (window._oturumKanal) {
+    window._oturumKanal.unsubscribe();
+    window._oturumKanal = null;
+  }
+  var kanal = supa.channel("oturum_" + userId, {
+    config: { broadcast: { self: false } }
+  });
+  kanal.on("broadcast", { event: "yeni_giris" }, function(payload) {
+    // Baska bir session ayni hesapla girdi - bizi DC et
+    if (payload.payload && payload.payload.session_id !== window._sessionId) {
+      window._oturumKanal.unsubscribe();
+      window._oturumKanal = null;
+      // Oyunu durdur
+      G.started = false;
+      if (typeof custTimer !== "undefined" && custTimer) clearInterval(custTimer);
+      if (typeof mktTimer !== "undefined" && mktTimer) clearInterval(mktTimer);
+      if (typeof buyBotTimer !== "undefined" && buyBotTimer) clearInterval(buyBotTimer);
+      // Ekrani kilitle
+      var gw = document.getElementById("gameWrap");
+      if (gw) {
+        gw.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:20px;background:#07111f">' +
+          '<div style="font-size:48px">🔒</div>' +
+          '<div style="color:#ef4444;font-size:20px;font-weight:700">Başka bir cihazdan giriş yapıldı!</div>' +
+          '<div style="color:#6080a0;font-size:14px">Bu oturum sonlandırıldı.</div>' +
+          '<button onclick="supa.auth.signOut().then(function(){var gw=document.getElementById(\'gameWrap\');if(gw)gw.style.display=\'none\';var lw=document.getElementById(\'loginWrap\');if(lw)lw.style.display=\'\';})" style="padding:10px 24px;background:#283858;color:#d8e8f8;border:none;border-radius:8px;cursor:pointer;font-size:14px">Yeniden Giriş Yap</button>' +
+          '</div>';
+      }
+    }
+  });
+  kanal.subscribe(function(status) {
+    if (status === "SUBSCRIBED") {
+      // Kanala katildigimi duyur - diger sessionlari DC et
+      kanal.send({
+        type: "broadcast",
+        event: "yeni_giris",
+        payload: { session_id: window._sessionId, zaman: Date.now() }
+      });
+    }
+  });
+  window._oturumKanal = kanal;
 }
 
 function stopOturumKanal() {
-  if(window._dcTimer){ clearInterval(window._dcTimer); window._dcTimer = null; }
+  if (window._oturumKanal) {
+    window._oturumKanal.unsubscribe();
+    window._oturumKanal = null;
+  }
 }
-
 </script>
 
 
@@ -18519,8 +18552,8 @@ function anasayfaGuncelle(){if(!window.G)return;var p=document.getElementById("a
 setInterval(function(){var t=document.getElementById("tab-anasayfa");if(t&&t.style.display!=="none"){anasayfaGuncelle();sohbetYukle();}},3000);
 var _gMute=false; var _gKapali=false; var _gBanlilar=[];
 function sohbetYukle(){
-  if(!window._cfUser)return;
-  fetch(CF_API+"/global-sohbet",{headers:{"Authorization":"Bearer "+getCFToken()}}).then(function(r){return r.json();}).then(function(r){
+  if(!window.supa)return;
+  supa.from("global_sohbet").select("*").order("zaman",{ascending:true}).limit(50).then(function(r){
     if(r.error){console.warn("sohbet hata:",r.error);return;}
     var el=document.getElementById("sohbet-mesajlar");
     if(!el)return;
@@ -18532,7 +18565,7 @@ function sohbetYukle(){
       d.style.padding="3px 2px";d.style.borderBottom="1px solid #0d1927";d.style.cursor="pointer";
       d.dataset.id=m.id;d.dataset.kadi=m.kullanici_adi;
       var t=new Date(m.zaman).toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});
-      var kadi=(window._currentUser||(window._currentUser))||"?";
+      var kadi=(window._currentUser||(window._supaUser&&window._supaUser.user_metadata&&window._supaUser.user_metadata.kullanici_adi))||"?";
       var renk=m.kullanici_adi===kadi?"#60a5fa":"#10b981";
       d.innerHTML="<span style='color:"+renk+";font-weight:700'>"+m.kullanici_adi+"</span> <span style='color:#4a7090;font-size:10px'>"+t+"</span><br><span style='color:#d8e8f8'>"+m.mesaj+"</span>";
       d.onclick=function(){this.style.background=this.style.background?"":"rgba(30,58,95,0.6)";};
@@ -18546,19 +18579,19 @@ function sohbetGonder(){
   var inp=document.getElementById("sohbet-inp");
   if(!inp||!inp.value.trim()||_gMute||_gKapali)return;
   var msg=inp.value.trim();
-  var kadi=(window._currentUser||(window._currentUser))||"?";
+  var kadi=(window._currentUser||(window._supaUser&&window._supaUser.user_metadata&&window._supaUser.user_metadata.kullanici_adi))||"?";
   inp.value="";
-  if(!window._cfUser)return;
-  fetch(CF_API+"/global-sohbet",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+getCFToken()},body:JSON.stringify({mesaj:msg})}).then(function(r){return r.json();}).then(function(r){
+  if(!window.supa)return;
+  supa.from("global_sohbet").insert({kullanici_adi:kadi,mesaj:msg}).then(function(r){
     if(!r.error)sohbetYukle();
     else console.warn("sohbet gonder hata:",r.error);
   });
 }
 function gSohbetMuteToggle(){_gMute=!_gMute;var b=document.getElementById("gMuteBtn");if(b){b.textContent=_gMute?"Unmute":"Mute";b.style.color=_gMute?"#ef4444":"#94a3b8";b.style.borderColor=_gMute?"#ef4444":"#334155";}}
 function gSohbetKapatToggle(){_gKapali=!_gKapali;var b=document.getElementById("gKapatBtn");var w=document.getElementById("sohbet-inp-wrap");if(b){b.textContent=_gKapali?"Sohbeti Ac":"Sohbeti Kapat";b.style.color=_gKapali?"#ef4444":"#94a3b8";}if(w)w.style.display=_gKapali?"none":"flex";}
-// SUPA_DISABLED: function gSohbetSeciliSil(){if(!window.supa)return;var el=document.getElementById("sohbet-mesajlar");if(!el)return;var ids=[];el.querySelectorAll("div[style*='rgba(30,58,95']").forEach(function(d){if(d.dataset.id)ids.push(d.dataset.id);});if(!ids.length)return;Promise.all(ids.map(function(id){return supa.from("global_sohbet").delete().eq("id",id);})).then(function(){sohbetYukle();});}
-// SUPA_DISABLED: function gSohbetTemizle(){if(!confirm("Tum global sohbet silinsin mi?"))return;if(!window.supa)return;supa.from("global_sohbet").delete().neq("id","00000000-0000-0000-0000-000000000000").then(function(){sohbetYukle();});}
-// SUPA_DISABLED: function gSohbetCtx(e,kadi,id){var old=document.getElementById("gCtxMenu");if(old)old.remove();var m=document.createElement("div");m.id="gCtxMenu";m.style.cssText="position:fixed;z-index:99999;background:#0a1628;border:1px solid #1e3a5f;border-radius:8px;padding:4px;box-shadow:0 4px 16px rgba(0,0,0,.7);min-width:160px;";m.style.left=e.clientX+"px";m.style.top=e.clientY+"px";var s="padding:6px 10px;cursor:pointer;font-size:12px;border-radius:4px;";m.innerHTML="<div style='"+s+"color:#f59e0b' onmouseover='this.style.background=\"#1e3a5f\"' onmouseout='this.style.background=\"\"' onclick='_gBanlilar.push(\""+kadi+"\");sohbetYukle();document.getElementById(\"gCtxMenu\").remove()'>&#x1F6AB; Banla: "+kadi+"</div><div style='"+s+"color:#ef4444' onmouseover='this.style.background=\"#1e3a5f\"' onmouseout='this.style.background=\"\"' onclick='if(window.supa)supa.from(\"global_sohbet\").delete().eq(\"id\",\""+id+"\").then(function(){sohbetYukle();});document.getElementById(\"gCtxMenu\").remove()'>&#x1F5D1; Mesaji Sil</div>";document.body.appendChild(m);setTimeout(function(){document.addEventListener("click",function h(){m.remove();document.removeEventListener("click",h);},true);},100);}
+function gSohbetSeciliSil(){if(!window.supa)return;var el=document.getElementById("sohbet-mesajlar");if(!el)return;var ids=[];el.querySelectorAll("div[style*='rgba(30,58,95']").forEach(function(d){if(d.dataset.id)ids.push(d.dataset.id);});if(!ids.length)return;Promise.all(ids.map(function(id){return supa.from("global_sohbet").delete().eq("id",id);})).then(function(){sohbetYukle();});}
+function gSohbetTemizle(){if(!confirm("Tum global sohbet silinsin mi?"))return;if(!window.supa)return;supa.from("global_sohbet").delete().neq("id","00000000-0000-0000-0000-000000000000").then(function(){sohbetYukle();});}
+function gSohbetCtx(e,kadi,id){var old=document.getElementById("gCtxMenu");if(old)old.remove();var m=document.createElement("div");m.id="gCtxMenu";m.style.cssText="position:fixed;z-index:99999;background:#0a1628;border:1px solid #1e3a5f;border-radius:8px;padding:4px;box-shadow:0 4px 16px rgba(0,0,0,.7);min-width:160px;";m.style.left=e.clientX+"px";m.style.top=e.clientY+"px";var s="padding:6px 10px;cursor:pointer;font-size:12px;border-radius:4px;";m.innerHTML="<div style='"+s+"color:#f59e0b' onmouseover='this.style.background=\"#1e3a5f\"' onmouseout='this.style.background=\"\"' onclick='_gBanlilar.push(\""+kadi+"\");sohbetYukle();document.getElementById(\"gCtxMenu\").remove()'>&#x1F6AB; Banla: "+kadi+"</div><div style='"+s+"color:#ef4444' onmouseover='this.style.background=\"#1e3a5f\"' onmouseout='this.style.background=\"\"' onclick='if(window.supa)supa.from(\"global_sohbet\").delete().eq(\"id\",\""+id+"\").then(function(){sohbetYukle();});document.getElementById(\"gCtxMenu\").remove()'>&#x1F5D1; Mesaji Sil</div>";document.body.appendChild(m);setTimeout(function(){document.addEventListener("click",function h(){m.remove();document.removeEventListener("click",h);},true);},100);}
 // Anasayfa acilinca sohbeti yukle
 var _origSwitchTab=window.switchTab;
 </script>
@@ -76129,10 +76162,10 @@ function save() {
   
   localStorage.setItem(key, JSON.stringify(G));
   // Supabase'e kaydet - dirty tracking ile sadece degisen alanlar
-  if(!window._currentUser && window._cfUser && window._currentUser) {
-    window._currentUser = window._currentUser;
+  if(!window._currentUser && window._supaUser && window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi) {
+    window._currentUser = window._supaUser.user_metadata.kullanici_adi;
   }
-  if(window._cfUser && window._currentUser){
+  if(window._supaUser && window._currentUser){
     if(window._supaSaveTimer) clearTimeout(window._supaSaveTimer);
     window._supaSaveTimer = setTimeout(function(){
       supaKaydet(window._currentUser, G);
@@ -81602,32 +81635,47 @@ window._satCdTimer = setInterval(function(){
 },1000);
 
 window.onload = function() {
-  // Cloudflare token kontrolu
-  var cfToken = localStorage.getItem('cf_token');
-  var cfUser = localStorage.getItem('cf_user');
-  if (cfToken && cfUser) {
-    fetch(CF_API + '/me', {
-      headers: { 'Authorization': 'Bearer ' + cfToken }
-    }).then(function(r){ return r.json(); }).then(function(d){
-      if (d && d.kullanici_adi) {
-        window._cfToken = cfToken;
-        window._currentUser = d.kullanici_adi;
-        window._cfUser = { id: d.id };
-        loadUserGame(d.kullanici_adi);
-      } else {
-        localStorage.removeItem('cf_token');
-        localStorage.removeItem('cf_user');
+  var savedUser = localStorage.getItem(CURRENT_USER_KEY);
+  if (savedUser) {
+    var users = getUsers();
+    if (users[savedUser]) {
+      window._currentUser = savedUser;
+      loadUserGame(savedUser);
+      return;
+    } else {
+      localStorage.removeItem(CURRENT_USER_KEY);
+    }
+  }
+  // URL hash'ten token inject (Launcher'dan gelince)
+  (function(){
+    try {
+      var h = window.location.hash;
+      if(h && h.indexOf('at=') !== -1) {
+        var params = {};
+        h.replace('#','').split('&').forEach(function(p){ var kv=p.split('='); params[kv[0]]=decodeURIComponent(kv[1]||''); });
+        if(params.at && params.rt && typeof supa !== 'undefined') {
+          supa.auth.setSession({access_token:params.at, refresh_token:params.rt}).then(function(){
+            window.history.replaceState(null,'',window.location.pathname);
+          });
+          return; // onAuthStateChange zaten devralacak
+        }
+      }
+    } catch(e){}
+  })();
+  // Supabase oturumu kontrol et - aciksa loginWrap gosterme
+  if(typeof supa !== 'undefined') {
+    supa.auth.getSession().then(function(r){
+      if(!r.data || !r.data.session) {
         var _lw = document.getElementById('loginWrap');
         if (_lw) _lw.style.display = 'flex';
       }
-    }).catch(function(){
-      var _lw = document.getElementById('loginWrap');
-      if (_lw) _lw.style.display = 'flex';
+      // Oturum aciksa onAuthStateChange zaten loadUserGame cagiracak
     });
   } else {
     var _lw = document.getElementById('loginWrap');
     if (_lw) _lw.style.display = 'flex';
   }
+
   // Beni hatirla - onceki giris bilgilerini doldur (sifre haric)
   var _rem = localStorage.getItem('kuz_remember');
   if(_rem) {
@@ -87194,67 +87242,6 @@ function saveUsers(users) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function loginTab(tab) {
-  document.getElementById('loginFormGiris').style.display = tab === 'giris' ? 'block' : 'none';
-  document.getElementById('loginFormKayit').style.display = tab === 'kayit' ? 'block' : 'none';
-  document.getElementById('ltab-giris').classList.toggle('active', tab === 'giris');
-  document.getElementById('ltab-kayit').classList.toggle('active', tab === 'kayit');
 }
 
 
@@ -87311,6 +87298,7 @@ function loginTab(tab) {
 
 
 
+function loginTab(tab) {
 
 
 
@@ -87366,6 +87354,7 @@ function loginTab(tab) {
 
 
 
+  document.getElementById('ltab-giris').classList.toggle('active', tab === 'giris');
 
 
 
@@ -87421,6 +87410,7 @@ function loginTab(tab) {
 
 
 
+  document.getElementById('ltab-kayit').classList.toggle('active', tab === 'kayit');
 
 
 
@@ -87476,10 +87466,63 @@ function loginTab(tab) {
 
 
 
+  document.getElementById('loginForm').style.display = tab === 'giris' ? '' : 'none';
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  document.getElementById('registerForm').style.display = tab === 'kayit' ? '' : 'none';
 
 
 
@@ -87647,7 +87690,7 @@ function loginTab(tab) {
 
 
 
-
+}
 
 
 
@@ -89977,7 +90020,7 @@ function loadUserGame(username) {
 
   var raw = localStorage.getItem(key);
 // Supabase'den yükle (öncelikli) — sadece ilk yüklemede, döngüye girmesin
-  if(window._cfUser && !window._supaYuklendi) {
+  if(window._supaUser && !window._supaYuklendi) {
     window._supaYuklendi = true;
     supaYukle(username).then(function(supaVeri) {
       if(supaVeri && Object.keys(supaVeri).length > 0) {
@@ -91650,7 +91693,7 @@ function loadUserGame(username) {
 
 // sonGonderme sifirlanmiyor - kayittan yuklenecek
 
-        if(window._cfUser) startOturumKanal(window._cfUser.id); openGame();
+        if(window._supaUser) startOturumKanal(window._supaUser.id); openGame();
 
 
 
@@ -93613,8 +93656,8 @@ function logoutGame() {
   var _tb = document.getElementById('topbar'); if(_tb) _tb.style.display = 'none';
   var _gw = document.getElementById('gameWrap'); if(_gw) _gw.style.display = 'none';
   // signOut -> sonra reload ile login ekranina git
-  if(false) {
-    fetch(CF_API+'/cikis',{method:'POST',headers:{'Authorization':'Bearer '+getCFToken()}}).then(function(){
+  if(typeof supa !== 'undefined') {
+    supa.auth.signOut().then(function(){
       location.reload();
     });
   } else {
@@ -94380,8 +94423,8 @@ function startGame() {
 
 function openGame() {
   // Oyuncu adını Supabase user metadata'dan set et (her açılışta override)
-  if(window._cfUser && window._currentUser) {
-    G._oyuncuAdi = window._currentUser;
+  if(window._supaUser && window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi) {
+    G._oyuncuAdi = window._supaUser.user_metadata.kullanici_adi;
   }
 
 
@@ -98643,7 +98686,7 @@ function fluctuate() {
 
 // Sayfa kapatilmadan/yenilemeden once Supabase'e aninda kaydet
 window.addEventListener('beforeunload', function() {
-  if(window._cfUser && window._currentUser && typeof G !== 'undefined') {
+  if(window._supaUser && window._currentUser && typeof G !== 'undefined') {
     if(window._supaSaveTimer) { clearTimeout(window._supaSaveTimer); window._supaSaveTimer = null; }
     // Sync kayit (fetch API ile)
     var key = typeof getSaveKey === 'function' ? getSaveKey(window._currentUser) : 'parp_v7';
@@ -99613,17 +99656,17 @@ function doReset() {
   G.started = false;
   var key = window._currentUser ? getSaveKey(window._currentUser) : 'parp_v7';
   localStorage.removeItem(key);
-  if(window._cfUser) {
+  if(window._supaUser && typeof supa !== "undefined") {
     var _klanAdReset = G.klan && G.klan.ad;
     var _liderMi = G.klan && G.klan.kuruldu;
-    var _oyAdiReset = window._currentUser || '';
+    var _oyAdiReset = window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi || '';
     // Once klan ve mesajlari temizle, sonra oyun kaydini sil
     var _sil = [];
     if(_klanAdReset) {
-// SUPA_DISABLED:       _sil.push(supa.from('klan_mesajlar').delete().eq('klan_ad', _klanAdReset));
-// SUPA_DISABLED:       if(_liderMi) _sil.push(supa.from('klanlar').delete().eq('ad', _klanAdReset));
+      _sil.push(supa.from('klan_mesajlar').delete().eq('klan_ad', _klanAdReset));
+      if(_liderMi) _sil.push(supa.from('klanlar').delete().eq('ad', _klanAdReset));
     }
-// SUPA_DISABLED:     _sil.push(supa.from('oyun_kayitlari').delete().eq('kullanici_id', window._cfUser.id));
+    _sil.push(supa.from('oyun_kayitlari').delete().eq('kullanici_id', window._supaUser.id));
     Promise.all(_sil).then(function(){ location.reload(); });
     return;
   }
@@ -110336,11 +110379,20 @@ function klanKur(ad) {
     var _kalan = Math.ceil((G._klanCezaBitis - Date.now()) / 3600000);
     log('⏳ Klandan çıkış cezası! ' + _kalan + ' saat daha klan kuramazsın.', 'er'); return;
   }
-  var _oyAdi = G._oyuncuAdi || (window._currentUser) || 'Lider';
+  var _oyAdi = G._oyuncuAdi || (window._supaUser&&window._supaUser.user_metadata&&window._supaUser.user_metadata.kullanici_adi) || 'Lider';
   G.klan.ad = ad.trim(); G.klan.kuruldu = true; G.klan.lider = _oyAdi; G.klan.uyeler = []; G.klan.yardimci = null;
   // Supabase'e kaydet
-  if(window._cfUser) {
-// SUPA_DISABLED: klan supabase kodu kaldırıldı
+  if(typeof supa !== 'undefined' && window._supaUser) {
+    supa.from('klanlar').upsert({
+      ad: G.klan.ad,
+      lider: _oyAdi,
+      lider_id: window._supaUser.id,
+      uye_sayisi: 1,
+      banka: G.klan.banka||0,
+      seviye: G.klan.seviye||1,
+      aciklama: '',
+      acik: true
+    }, {onConflict:'ad'}).then(function(r){ if(r.error) console.warn('Klan supabase hata:',r.error); });
   }
   save(); renderKlan(); log('Klan kuruldu: '+G.klan.ad+' ⚔️','ok');
   if(typeof renderIhracat==='function') renderIhracat();
@@ -110358,7 +110410,7 @@ async function klanListesiGoster() {
   _modal.innerHTML = '<div style="background:#202a42;border:1px solid #283858;border-radius:12px;padding:24px;min-width:400px;max-width:600px;max-height:80vh;overflow-y:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><span style="font-size:18px;font-weight:800;color:#f59e0b">⚔️ Klan Listesi</span><button onclick="document.getElementById(\'klanListesiModal\').remove()" style="background:none;border:none;color:#ef4444;font-size:18px;cursor:pointer">✕</button></div><div id="klanListesiIcerik" style="color:#6080a0">Yükleniyor...</div></div>';
   document.body.appendChild(_modal);
   // Supabase'den klanları çek
-// SUPA_DISABLED:   var {data, error} = await supa.from('klanlar').select('*').eq('acik', true).order('seviye', {ascending:false}).limit(20);
+  var {data, error} = await supa.from('klanlar').select('*').eq('acik', true).order('seviye', {ascending:false}).limit(20);
   var _ic = document.getElementById('klanListesiIcerik');
   if(!_ic) return;
   if(error || !data || data.length===0) {
@@ -110392,8 +110444,10 @@ function klanKatilSupa(klanAd) {
   var _oyAdi = G._oyuncuAdi || 'Oyuncu';
   G.klan.lider = _oyAdi;
   G.klan.uyeler = [];
-  if(window._cfUser) {
-    // klan uye sayisi CF API ile guncellenir
+  if(typeof supa !== 'undefined') {
+    supa.from('klanlar').select('uye_sayisi').eq('ad', klanAd).single().then(function(r) {
+      if(r.data) supa.from('klanlar').update({uye_sayisi: (r.data.uye_sayisi||1)+1}).eq('ad', klanAd);
+    });
   }
   save(); renderKlan();
   if(typeof renderIhracat==='function') renderIhracat();
@@ -110434,24 +110488,24 @@ async function klandanCikOnayla() {
   if(_lider && _yardimci) {
     // Asist var → asist lider olur
     try {
-// SUPA_DISABLED:       await supa.from('klanlar').update({lider: _yardimci, uye_sayisi: Math.max(1,(G.klan.uyeler.length))}).eq('ad', _klanAd);
+      await supa.from('klanlar').update({lider: _yardimci, uye_sayisi: Math.max(1,(G.klan.uyeler.length))}).eq('ad', _klanAd);
       log('👑 ' + _yardimci + ' yeni lider oldu.','ok');
     } catch(e){}
   } else if(_lider && !_yardimci) {
     // Asist yok → klan silinir
     try {
-// SUPA_DISABLED:       await supa.from('klanlar').delete().eq('ad', _klanAd);
-// SUPA_DISABLED:       await supa.from('klan_mesajlar').delete().eq('klan_ad', _klanAd);
+      await supa.from('klanlar').delete().eq('ad', _klanAd);
+      await supa.from('klan_mesajlar').delete().eq('klan_ad', _klanAd);
       log('💀 ' + _klanAd + ' klanı silindi (lider ayrıldı, asist yoktu).','er');
     } catch(e){}
   } else {
     // Normal üye çıkışı
     try {
-// SUPA_DISABLED:       await supa.from('klanlar').update({uye_sayisi: Math.max(0,(G.klan.uyeler.length))}).eq('ad', _klanAd);
+      await supa.from('klanlar').update({uye_sayisi: Math.max(0,(G.klan.uyeler.length))}).eq('ad', _klanAd);
     } catch(e){}
   }
   // Kullanicinin mesajlarini sil
-// SUPA_DISABLED:   try { await supa.from('klan_mesajlar').delete().eq('klan_ad', _klanAd).eq('oyuncu', G._oyuncuAdi||'Ben'); } catch(e){}
+  try { await supa.from('klan_mesajlar').delete().eq('klan_ad', _klanAd).eq('oyuncu', G._oyuncuAdi||'Ben'); } catch(e){}
 
   G._klanCezaBitis = Date.now() + (72 * 60 * 60 * 1000);
   G.klan = {ad:null, kuruldu:false, lider:'Sen', yardimci:null, uyeler:[], seviye:1, xp:0, ihaleler:[], kasaTL:0, banka:0, log:[]};
@@ -110488,7 +110542,7 @@ function klanBankaYatir(miktar){
   // Klan XP: her 1 milyar = 1 XP
   if(typeof klanBankaXpHesapla==='function') klanBankaXpHesapla(miktar);
   // Supabase banka guncelle
-// SUPA_DISABLED:   if(typeof supa !== 'undefined' &&G.klan.ad) supa.from('klanlar').update({banka:G.klan.banka}).eq('ad',G.klan.ad);
+  if(typeof supa !== 'undefined' &&G.klan.ad) supa.from('klanlar').update({banka:G.klan.banka}).eq('ad',G.klan.ad);
   save();renderKlan();renderHeader();
 }
 
@@ -110523,7 +110577,7 @@ async function klanLiderYapOnayla(isim) {
   log('👑 '+isim+' yeni lider oldu. Sen asist oldun.','ok');
   klanLog('👑 '+isim+' yeni lider oldu.','ok');
   save();
-// SUPA_DISABLED:   try{await supa.from('klanlar').update({lider:isim}).eq('ad',G.klan.ad);}catch(e){}
+  try{await supa.from('klanlar').update({lider:isim}).eq('ad',G.klan.ad);}catch(e){}
   renderKlan();
 }
 async function klanSustur(isim) {
@@ -110538,7 +110592,7 @@ async function klanSustur(isim) {
     log('🔇 '+isim+' 1 saat susturuldu.','sy');
   }
   save();
-// SUPA_DISABLED:   try{await supa.from('klanlar').update({susturulanlar:G.klan.susturulanlar}).eq('ad',G.klan.ad);}catch(e){}
+  try{await supa.from('klanlar').update({susturulanlar:G.klan.susturulanlar}).eq('ad',G.klan.ad);}catch(e){}
   renderKlan();
 }
 async function klanCikart(isim) {
@@ -110550,7 +110604,7 @@ async function klanCikart(isim) {
   log('🚫 '+isim+' klandan çıkarıldı.','er');
   klanLog('🚫 '+isim+' klandan çıkarıldı.','er');
   save();
-// SUPA_DISABLED:   try{await supa.from('klanlar').update({uye_sayisi:G.klan.uyeler.length+1}).eq('ad',G.klan.ad);}catch(e){}
+  try{await supa.from('klanlar').update({uye_sayisi:G.klan.uyeler.length+1}).eq('ad',G.klan.ad);}catch(e){}
   renderKlan();
 }
 async function klanBan(isim) {
@@ -110564,7 +110618,7 @@ async function klanBan(isim) {
   log('🔨 '+isim+' banlandı.','er');
   klanLog('🔨 '+isim+' banlandı.','er');
   save();
-// SUPA_DISABLED:   try{await supa.from('klanlar').update({banlilar:G.klan.banlilar}).eq('ad',G.klan.ad);}catch(e){}
+  try{await supa.from('klanlar').update({banlilar:G.klan.banlilar}).eq('ad',G.klan.ad);}catch(e){}
   renderKlan();
 }
 async function klanBanKaldir(isim) {
@@ -110575,7 +110629,7 @@ async function klanBanKaldir(isim) {
   log('🔓 '+isim+' banı kaldırıldı.','ok');
   klanLog('🔓 '+isim+' banı kaldırıldı.','ok');
   save();
-// SUPA_DISABLED:   try{await supa.from('klanlar').update({banlilar:G.klan.banlilar}).eq('ad',G.klan.ad);}catch(e){}
+  try{await supa.from('klanlar').update({banlilar:G.klan.banlilar}).eq('ad',G.klan.ad);}catch(e){}
   renderKlan();
 }
 function kufurFiltrele(metin) {
@@ -110588,14 +110642,14 @@ async function klanMesajGonder(mesaj) {
   if(!G.klan||!G.klan.ad){log('Klan gerekli!','er');return;}
   var _oyAdi=G._oyuncuAdi||'Ben';
   var _temizMesaj = kufurFiltrele(mesaj.trim());
-// SUPA_DISABLED:   try{await supa.from('klan_mesajlar').insert({klan_ad:G.klan.ad,oyuncu:_oyAdi,mesaj:_temizMesaj});}catch(e){log('Mesaj gönderilemedi!','er');return;}
+  try{await supa.from('klan_mesajlar').insert({klan_ad:G.klan.ad,oyuncu:_oyAdi,mesaj:_temizMesaj});}catch(e){log('Mesaj gönderilemedi!','er');return;}
   var inp=document.getElementById('klanSohbetInp');
   if(inp)inp.value='';
   klanMesajlariYukle();
 }
 async function klanMesajlariYukle() {
   if(!G.klan||!G.klan.ad)return;
-// SUPA_DISABLED:   var {data}=await supa.from('klan_mesajlar').select('*').eq('klan_ad',G.klan.ad).order('zaman',{ascending:false}).limit(30);
+  var {data}=await supa.from('klan_mesajlar').select('*').eq('klan_ad',G.klan.ad).order('zaman',{ascending:false}).limit(30);
   if(!data)return;
   var el=document.getElementById('klanSohbetList');
   if(!el)return;
@@ -110632,12 +110686,12 @@ async function klanMesajlariYukle() {
 }
 async function klanSohbetiTemizle() {
   if(!G.klan||!G.klan.ad)return;
-// SUPA_DISABLED:   try{await supa.from('klan_mesajlar').delete().eq('klan_ad',G.klan.ad);klanMesajlariYukle();log('🗑 Sohbet temizlendi.','sy');}catch(e){log('Sohbet temizlenemedi!','er');}
+  try{await supa.from('klan_mesajlar').delete().eq('klan_ad',G.klan.ad);klanMesajlariYukle();log('🗑 Sohbet temizlendi.','sy');}catch(e){log('Sohbet temizlenemedi!','er');}
 }
 async function klanSohbetiAktar() {
   if(!G.klan||!G.klan.ad){log('Klan gerekli!','er');return;}
   try {
-// SUPA_DISABLED:     var r = await supa.from('klan_mesajlar').select('*').eq('klan_ad',G.klan.ad).order('zaman',{ascending:true});
+    var r = await supa.from('klan_mesajlar').select('*').eq('klan_ad',G.klan.ad).order('zaman',{ascending:true});
     if(!r.data||r.data.length===0){log('Sohbet geçmişi boş!','sy');return;}
     var txt = '=== ' + G.klan.ad + ' Klan Sohbeti ===\n';
     txt += 'Dışa Aktarım Tarihi: ' + new Date().toLocaleString('tr-TR') + '\n';
@@ -110676,7 +110730,7 @@ function klanSohbetiTemizleOnayla() {
 }
 async function klanTekMesajSil(id) {
   if(!id)return;
-// SUPA_DISABLED:   try{await supa.from('klan_mesajlar').delete().eq('id',id);klanMesajlariYukle();}catch(e){log('Mesaj silinemedi!','er');}
+  try{await supa.from('klan_mesajlar').delete().eq('id',id);klanMesajlariYukle();}catch(e){log('Mesaj silinemedi!','er');}
 }
 function klanMesajDuzenle(id, eskiMesaj) {
   // Inline edit popup
@@ -110698,7 +110752,7 @@ async function klanMesajDuzenleKaydet(id) {
   var yeniMesaj = kufurFiltrele(ta.value.trim());
   if(!yeniMesaj){log('Mesaj boş olamaz!','er');return;}
   try {
-// SUPA_DISABLED:     await supa.from('klan_mesajlar').update({mesaj: yeniMesaj, duzenlendi: true}).eq('id', id);
+    await supa.from('klan_mesajlar').update({mesaj: yeniMesaj, duzenlendi: true}).eq('id', id);
     klanMesajlariYukle();
     log('✏️ Mesaj düzenlendi.','sy');
   } catch(e) { log('Düzenleme başarısız!','er'); }
@@ -110711,7 +110765,7 @@ async function klanSeciliMesajlariSil() {
   if(!confirm(secili.length+' mesaj silinsin mi?'))return;
   var ids=Array.from(secili).map(function(x){return x.getAttribute('data-mesaj-id');});
   for(var i=0;i<ids.length;i++){
-// SUPA_DISABLED:     try{await supa.from('klan_mesajlar').delete().eq('id',ids[i]);}catch(e){}
+    try{await supa.from('klan_mesajlar').delete().eq('id',ids[i]);}catch(e){}
   }
   klanMesajlariYukle();
   log('🗑 '+ids.length+' mesaj silindi.','sy');
@@ -110749,8 +110803,8 @@ function klanElmasLvAtla(){
     log('Klan Lv'+G.klan.seviye+"'e yukseldi! ⚔️",'ok');
     klanLog('💎 Elmas ile Klan Lv'+G.klan.seviye+"'e yükseldi!",'ok');
     // Supabase guncelle
-    if(window._cfUser && G.klan && G.klan.ad){
-// SUPA_DISABLED:       await supa.from('klanlar').update({seviye: G.klan.seviye, xp: 0}).eq('ad', G.klan.ad);
+    if(typeof supa !== 'undefined' &&G.klan.ad){
+      await supa.from('klanlar').update({seviye: G.klan.seviye, xp: 0}).eq('ad', G.klan.ad);
     }
     save(); renderKlan();
   });
@@ -110793,8 +110847,8 @@ function klanIhaleKazandi(urun,tipKisiler,kazanilanTL,madalya) {
 
 // Supabase klan XP ekle + lv kontrol (ortak)
 async function klanSupaXpEkle(xp) {
-  if(!G.klan||!G.klan.ad||!window._cfUser) return;
-// SUPA_DISABLED:   var {data, error} = await supa.from('klanlar').select('xp,seviye').eq('ad', G.klan.ad).single();
+  if(!G.klan||!G.klan.ad||typeof supa === 'undefined') return;
+  var {data, error} = await supa.from('klanlar').select('xp,seviye').eq('ad', G.klan.ad).single();
   if(error||!data) return;
   var yeniXp = (data.xp||0) + xp;
   var yeniSeviye = data.seviye||0;
@@ -110806,7 +110860,7 @@ async function klanSupaXpEkle(xp) {
       klanLog('🎉 Klan Lv'+yeniSeviye+"'e yükseldi!",'ok');
     } else break;
   }
-// SUPA_DISABLED:   await supa.from('klanlar').update({xp: yeniXp, seviye: yeniSeviye}).eq('ad', G.klan.ad);
+  await supa.from('klanlar').update({xp: yeniXp, seviye: yeniSeviye}).eq('ad', G.klan.ad);
   G.klan.xp = yeniXp; G.klan.seviye = yeniSeviye;
   save(); if(window._activeTab==='klan') renderKlan();
 }
@@ -110819,8 +110873,8 @@ function klanBankaXpHesapla(tlMiktar) {
 
 // Supabase'den klan bilgilerini yukle (her acilista)
 async function klanSupaYukle() {
-  if(!G.klan||!G.klan.ad||!window._cfUser) return;
-// SUPA_DISABLED:   var {data, error} = await supa.from('klanlar').select('xp,seviye,uye_sayisi').eq('ad', G.klan.ad).single();
+  if(!G.klan||!G.klan.ad||typeof supa === 'undefined') return;
+  var {data, error} = await supa.from('klanlar').select('xp,seviye,uye_sayisi').eq('ad', G.klan.ad).single();
   if(error||!data) return;
   G.klan.xp = data.xp||0; G.klan.seviye = data.seviye||0;
   save();
@@ -111006,8 +111060,8 @@ function renderKlan() {
   if(G.klan&&G.klan.kuruldu&&G.klan.ad){
     klanMesajlariYukle();
     // Realtime: daha önce subscribe edildiyse iptal et
-// SUPA_DISABLED:     if(window._klanSohbetChannel){try{supa.removeChannel(window._klanSohbetChannel);}catch(e){}}
-// SUPA_DISABLED:     window._klanSohbetChannel=supa.channel('klan-sohbet-'+G.klan.ad)
+    if(window._klanSohbetChannel){try{supa.removeChannel(window._klanSohbetChannel);}catch(e){}}
+    window._klanSohbetChannel=supa.channel('klan-sohbet-'+G.klan.ad)
       .on('postgres_changes',{event:'INSERT',schema:'public',table:'klan_mesajlar',filter:'klan_ad=eq.'+G.klan.ad},function(){klanMesajlariYukle();})
       .subscribe();
   }
