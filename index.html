@@ -230,7 +230,7 @@
 // ============================================================
 
 // Mevcut giriş yapmış kullanıcı
-window._supaUser = null;
+window._cfUser = null;
 
 // ---- KAYIT OL ----
 async function supaKayitOl(kullaniciAdi, sifre, gercekEmail) {
@@ -252,7 +252,7 @@ async function supaKayitOl(kullaniciAdi, sifre, gercekEmail) {
     var d = await r.json();
     if (d.hata) return {hata: d.hata};
     window._cfToken = d.token;
-    window._supaUser = {id: d.kullanici_id, kullanici_adi: kullaniciAdi};
+    window._cfUser = {id: d.kullanici_id, kullanici_adi: kullaniciAdi};
     window._currentUser = kullaniciAdi;
     localStorage.setItem('cf_token', d.token);
     localStorage.setItem('cf_kullanici', kullaniciAdi);
@@ -273,7 +273,7 @@ async function supaGirisYap(kullaniciAdi, sifre, gercekEmail) {
     var d = await r.json();
     if (d.hata) return {hata: d.hata};
     window._cfToken = d.token;
-    window._supaUser = {id: d.kullanici_id, kullanici_adi: kullaniciAdi};
+    window._cfUser = {id: d.kullanici_id, kullanici_adi: kullaniciAdi};
     window._currentUser = kullaniciAdi;
     localStorage.setItem('cf_token', d.token);
     localStorage.setItem('cf_kullanici', kullaniciAdi);
@@ -286,9 +286,9 @@ async function supaGirisYap(kullaniciAdi, sifre, gercekEmail) {
 
 async function supaGirisYapCikis() {
   try { if(typeof save === 'function') save(); } catch(e) {}
-  try { if(window._supaUser && typeof supaKaydet === 'function' && typeof G !== 'undefined') { await supaKaydet(window._currentUser, G); } } catch(e) {}
+  try { if(window._cfUser && typeof supaKaydet === 'function' && typeof G !== 'undefined') { await supaKaydet(window._currentUser, G); } } catch(e) {}
   window._cfToken = null;
-  window._supaUser = null;
+  window._cfUser = null;
   window._currentUser = null;
   localStorage.removeItem('cf_token');
   localStorage.removeItem('cf_kullanici');
@@ -306,7 +306,7 @@ function getCFToken() {
 }
 
 async function supaKaydet(kullaniciAdi, veri) {
-  if(!window._supaUser || !getCFToken()) return;
+  if(!window._cfUser || !getCFToken()) return;
   var _g = veri || (typeof G !== 'undefined' ? G : null);
   if(!_g) return;
   var _saveData = {
@@ -328,7 +328,7 @@ async function supaKaydet(kullaniciAdi, veri) {
     kredilerSaniye: _g.kredilerSaniye, lastDay: _g.lastDay,
     gunlukBonus: _g.gunlukBonus
   };
-  var kadi = window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi || kullaniciAdi || '';
+  var kadi = window._currentUser || kullaniciAdi || '';
   var token = getCFToken();
   var headers = {'Content-Type':'application/json', 'Authorization':'Bearer '+token};
   // Oyun verisini kaydet
@@ -350,7 +350,7 @@ async function supaKaydet(kullaniciAdi, veri) {
 
 // ---- OYUN YUKLE ----
 async function supaYukle(kullaniciAdi) {
-  if(!window._supaUser || !getCFToken()) return null;
+  if(!window._cfUser || !getCFToken()) return null;
   var r = await fetch(CF_API+'/load', {
     headers: {'Authorization':'Bearer '+getCFToken()}
   });
@@ -372,7 +372,7 @@ async function supaKaydetDelta(kullaniciAdi, delta) {
   if(_tok && _uname) {
     window._cfToken = _tok;
     window._currentUser = _uname;
-    window._supaUser = {id: _uname};
+    window._cfUser = {id: _uname};
     setTimeout(function(){ loadUserGame(_uname); }, 100);
   } else {
     var gw = document.getElementById('gameWrap'); if(gw) gw.style.display = 'none';
@@ -18520,7 +18520,7 @@ setInterval(function(){var t=document.getElementById("tab-anasayfa");if(t&&t.sty
 var _gMute=false; var _gKapali=false; var _gBanlilar=[];
 function sohbetYukle(){
   if(!window.supa)return;
-  supa.from("global_sohbet").select("*").order("zaman",{ascending:true}).limit(50).then(function(r){
+  fetch(CF_API+"/global-sohbet",{headers:{"Authorization":"Bearer "+getCFToken()}}).then(function(r){return r.json();}).then(function(r){
     if(r.error){console.warn("sohbet hata:",r.error);return;}
     var el=document.getElementById("sohbet-mesajlar");
     if(!el)return;
@@ -18532,7 +18532,7 @@ function sohbetYukle(){
       d.style.padding="3px 2px";d.style.borderBottom="1px solid #0d1927";d.style.cursor="pointer";
       d.dataset.id=m.id;d.dataset.kadi=m.kullanici_adi;
       var t=new Date(m.zaman).toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});
-      var kadi=(window._currentUser||(window._supaUser&&window._supaUser.user_metadata&&window._supaUser.user_metadata.kullanici_adi))||"?";
+      var kadi=(window._currentUser||(window._currentUser))||"?";
       var renk=m.kullanici_adi===kadi?"#60a5fa":"#10b981";
       d.innerHTML="<span style='color:"+renk+";font-weight:700'>"+m.kullanici_adi+"</span> <span style='color:#4a7090;font-size:10px'>"+t+"</span><br><span style='color:#d8e8f8'>"+m.mesaj+"</span>";
       d.onclick=function(){this.style.background=this.style.background?"":"rgba(30,58,95,0.6)";};
@@ -18546,19 +18546,19 @@ function sohbetGonder(){
   var inp=document.getElementById("sohbet-inp");
   if(!inp||!inp.value.trim()||_gMute||_gKapali)return;
   var msg=inp.value.trim();
-  var kadi=(window._currentUser||(window._supaUser&&window._supaUser.user_metadata&&window._supaUser.user_metadata.kullanici_adi))||"?";
+  var kadi=(window._currentUser||(window._currentUser))||"?";
   inp.value="";
   if(!window.supa)return;
-  supa.from("global_sohbet").insert({kullanici_adi:kadi,mesaj:msg}).then(function(r){
+  fetch(CF_API+"/global-sohbet",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+getCFToken()},body:JSON.stringify({mesaj:msg})}).then(function(r){return r.json();}).then(function(r){
     if(!r.error)sohbetYukle();
     else console.warn("sohbet gonder hata:",r.error);
   });
 }
 function gSohbetMuteToggle(){_gMute=!_gMute;var b=document.getElementById("gMuteBtn");if(b){b.textContent=_gMute?"Unmute":"Mute";b.style.color=_gMute?"#ef4444":"#94a3b8";b.style.borderColor=_gMute?"#ef4444":"#334155";}}
 function gSohbetKapatToggle(){_gKapali=!_gKapali;var b=document.getElementById("gKapatBtn");var w=document.getElementById("sohbet-inp-wrap");if(b){b.textContent=_gKapali?"Sohbeti Ac":"Sohbeti Kapat";b.style.color=_gKapali?"#ef4444":"#94a3b8";}if(w)w.style.display=_gKapali?"none":"flex";}
-function gSohbetSeciliSil(){if(!window.supa)return;var el=document.getElementById("sohbet-mesajlar");if(!el)return;var ids=[];el.querySelectorAll("div[style*='rgba(30,58,95']").forEach(function(d){if(d.dataset.id)ids.push(d.dataset.id);});if(!ids.length)return;Promise.all(ids.map(function(id){return supa.from("global_sohbet").delete().eq("id",id);})).then(function(){sohbetYukle();});}
-function gSohbetTemizle(){if(!confirm("Tum global sohbet silinsin mi?"))return;if(!window.supa)return;supa.from("global_sohbet").delete().neq("id","00000000-0000-0000-0000-000000000000").then(function(){sohbetYukle();});}
-function gSohbetCtx(e,kadi,id){var old=document.getElementById("gCtxMenu");if(old)old.remove();var m=document.createElement("div");m.id="gCtxMenu";m.style.cssText="position:fixed;z-index:99999;background:#0a1628;border:1px solid #1e3a5f;border-radius:8px;padding:4px;box-shadow:0 4px 16px rgba(0,0,0,.7);min-width:160px;";m.style.left=e.clientX+"px";m.style.top=e.clientY+"px";var s="padding:6px 10px;cursor:pointer;font-size:12px;border-radius:4px;";m.innerHTML="<div style='"+s+"color:#f59e0b' onmouseover='this.style.background=\"#1e3a5f\"' onmouseout='this.style.background=\"\"' onclick='_gBanlilar.push(\""+kadi+"\");sohbetYukle();document.getElementById(\"gCtxMenu\").remove()'>&#x1F6AB; Banla: "+kadi+"</div><div style='"+s+"color:#ef4444' onmouseover='this.style.background=\"#1e3a5f\"' onmouseout='this.style.background=\"\"' onclick='if(window.supa)supa.from(\"global_sohbet\").delete().eq(\"id\",\""+id+"\").then(function(){sohbetYukle();});document.getElementById(\"gCtxMenu\").remove()'>&#x1F5D1; Mesaji Sil</div>";document.body.appendChild(m);setTimeout(function(){document.addEventListener("click",function h(){m.remove();document.removeEventListener("click",h);},true);},100);}
+// SUPA_DISABLED: function gSohbetSeciliSil(){if(!window.supa)return;var el=document.getElementById("sohbet-mesajlar");if(!el)return;var ids=[];el.querySelectorAll("div[style*='rgba(30,58,95']").forEach(function(d){if(d.dataset.id)ids.push(d.dataset.id);});if(!ids.length)return;Promise.all(ids.map(function(id){return supa.from("global_sohbet").delete().eq("id",id);})).then(function(){sohbetYukle();});}
+// SUPA_DISABLED: function gSohbetTemizle(){if(!confirm("Tum global sohbet silinsin mi?"))return;if(!window.supa)return;supa.from("global_sohbet").delete().neq("id","00000000-0000-0000-0000-000000000000").then(function(){sohbetYukle();});}
+// SUPA_DISABLED: function gSohbetCtx(e,kadi,id){var old=document.getElementById("gCtxMenu");if(old)old.remove();var m=document.createElement("div");m.id="gCtxMenu";m.style.cssText="position:fixed;z-index:99999;background:#0a1628;border:1px solid #1e3a5f;border-radius:8px;padding:4px;box-shadow:0 4px 16px rgba(0,0,0,.7);min-width:160px;";m.style.left=e.clientX+"px";m.style.top=e.clientY+"px";var s="padding:6px 10px;cursor:pointer;font-size:12px;border-radius:4px;";m.innerHTML="<div style='"+s+"color:#f59e0b' onmouseover='this.style.background=\"#1e3a5f\"' onmouseout='this.style.background=\"\"' onclick='_gBanlilar.push(\""+kadi+"\");sohbetYukle();document.getElementById(\"gCtxMenu\").remove()'>&#x1F6AB; Banla: "+kadi+"</div><div style='"+s+"color:#ef4444' onmouseover='this.style.background=\"#1e3a5f\"' onmouseout='this.style.background=\"\"' onclick='if(window.supa)supa.from(\"global_sohbet\").delete().eq(\"id\",\""+id+"\").then(function(){sohbetYukle();});document.getElementById(\"gCtxMenu\").remove()'>&#x1F5D1; Mesaji Sil</div>";document.body.appendChild(m);setTimeout(function(){document.addEventListener("click",function h(){m.remove();document.removeEventListener("click",h);},true);},100);}
 // Anasayfa acilinca sohbeti yukle
 var _origSwitchTab=window.switchTab;
 </script>
@@ -76129,10 +76129,10 @@ function save() {
   
   localStorage.setItem(key, JSON.stringify(G));
   // Supabase'e kaydet - dirty tracking ile sadece degisen alanlar
-  if(!window._currentUser && window._supaUser && window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi) {
-    window._currentUser = window._supaUser.user_metadata.kullanici_adi;
+  if(!window._currentUser && window._cfUser && window._currentUser) {
+    window._currentUser = window._currentUser;
   }
-  if(window._supaUser && window._currentUser){
+  if(window._cfUser && window._currentUser){
     if(window._supaSaveTimer) clearTimeout(window._supaSaveTimer);
     window._supaSaveTimer = setTimeout(function(){
       supaKaydet(window._currentUser, G);
@@ -81612,7 +81612,7 @@ window.onload = function() {
       if (d && d.kullanici_adi) {
         window._cfToken = cfToken;
         window._currentUser = d.kullanici_adi;
-        window._supaUser = { id: d.id };
+        window._cfUser = { id: d.id };
         loadUserGame(d.kullanici_adi);
       } else {
         localStorage.removeItem('cf_token');
@@ -89977,7 +89977,7 @@ function loadUserGame(username) {
 
   var raw = localStorage.getItem(key);
 // Supabase'den yükle (öncelikli) — sadece ilk yüklemede, döngüye girmesin
-  if(window._supaUser && !window._supaYuklendi) {
+  if(window._cfUser && !window._supaYuklendi) {
     window._supaYuklendi = true;
     supaYukle(username).then(function(supaVeri) {
       if(supaVeri && Object.keys(supaVeri).length > 0) {
@@ -91650,7 +91650,7 @@ function loadUserGame(username) {
 
 // sonGonderme sifirlanmiyor - kayittan yuklenecek
 
-        if(window._supaUser) startOturumKanal(window._supaUser.id); openGame();
+        if(window._cfUser) startOturumKanal(window._cfUser.id); openGame();
 
 
 
@@ -93614,7 +93614,7 @@ function logoutGame() {
   var _gw = document.getElementById('gameWrap'); if(_gw) _gw.style.display = 'none';
   // signOut -> sonra reload ile login ekranina git
   if(typeof supa !== 'undefined') {
-    supa.auth.signOut().then(function(){
+    fetch(CF_API+'/cikis',{method:'POST',headers:{'Authorization':'Bearer '+getCFToken()}}).then(function(){
       location.reload();
     });
   } else {
@@ -94380,8 +94380,8 @@ function startGame() {
 
 function openGame() {
   // Oyuncu adını Supabase user metadata'dan set et (her açılışta override)
-  if(window._supaUser && window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi) {
-    G._oyuncuAdi = window._supaUser.user_metadata.kullanici_adi;
+  if(window._cfUser && window._currentUser) {
+    G._oyuncuAdi = window._currentUser;
   }
 
 
@@ -98643,7 +98643,7 @@ function fluctuate() {
 
 // Sayfa kapatilmadan/yenilemeden once Supabase'e aninda kaydet
 window.addEventListener('beforeunload', function() {
-  if(window._supaUser && window._currentUser && typeof G !== 'undefined') {
+  if(window._cfUser && window._currentUser && typeof G !== 'undefined') {
     if(window._supaSaveTimer) { clearTimeout(window._supaSaveTimer); window._supaSaveTimer = null; }
     // Sync kayit (fetch API ile)
     var key = typeof getSaveKey === 'function' ? getSaveKey(window._currentUser) : 'parp_v7';
@@ -99613,17 +99613,17 @@ function doReset() {
   G.started = false;
   var key = window._currentUser ? getSaveKey(window._currentUser) : 'parp_v7';
   localStorage.removeItem(key);
-  if(window._supaUser && typeof supa !== "undefined") {
+  if(window._cfUser && typeof supa !== "undefined") {
     var _klanAdReset = G.klan && G.klan.ad;
     var _liderMi = G.klan && G.klan.kuruldu;
-    var _oyAdiReset = window._supaUser.user_metadata && window._supaUser.user_metadata.kullanici_adi || '';
+    var _oyAdiReset = window._currentUser || '';
     // Once klan ve mesajlari temizle, sonra oyun kaydini sil
     var _sil = [];
     if(_klanAdReset) {
-      _sil.push(supa.from('klan_mesajlar').delete().eq('klan_ad', _klanAdReset));
-      if(_liderMi) _sil.push(supa.from('klanlar').delete().eq('ad', _klanAdReset));
+// SUPA_DISABLED:       _sil.push(supa.from('klan_mesajlar').delete().eq('klan_ad', _klanAdReset));
+// SUPA_DISABLED:       if(_liderMi) _sil.push(supa.from('klanlar').delete().eq('ad', _klanAdReset));
     }
-    _sil.push(supa.from('oyun_kayitlari').delete().eq('kullanici_id', window._supaUser.id));
+// SUPA_DISABLED:     _sil.push(supa.from('oyun_kayitlari').delete().eq('kullanici_id', window._cfUser.id));
     Promise.all(_sil).then(function(){ location.reload(); });
     return;
   }
@@ -110336,14 +110336,14 @@ function klanKur(ad) {
     var _kalan = Math.ceil((G._klanCezaBitis - Date.now()) / 3600000);
     log('⏳ Klandan çıkış cezası! ' + _kalan + ' saat daha klan kuramazsın.', 'er'); return;
   }
-  var _oyAdi = G._oyuncuAdi || (window._supaUser&&window._supaUser.user_metadata&&window._supaUser.user_metadata.kullanici_adi) || 'Lider';
+  var _oyAdi = G._oyuncuAdi || (window._currentUser) || 'Lider';
   G.klan.ad = ad.trim(); G.klan.kuruldu = true; G.klan.lider = _oyAdi; G.klan.uyeler = []; G.klan.yardimci = null;
   // Supabase'e kaydet
-  if(typeof supa !== 'undefined' && window._supaUser) {
-    supa.from('klanlar').upsert({
+  if(typeof supa !== 'undefined' && window._cfUser) {
+// SUPA_DISABLED:     supa.from('klanlar').upsert({
       ad: G.klan.ad,
       lider: _oyAdi,
-      lider_id: window._supaUser.id,
+      lider_id: window._cfUser.id,
       uye_sayisi: 1,
       banka: G.klan.banka||0,
       seviye: G.klan.seviye||1,
@@ -110367,7 +110367,7 @@ async function klanListesiGoster() {
   _modal.innerHTML = '<div style="background:#202a42;border:1px solid #283858;border-radius:12px;padding:24px;min-width:400px;max-width:600px;max-height:80vh;overflow-y:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><span style="font-size:18px;font-weight:800;color:#f59e0b">⚔️ Klan Listesi</span><button onclick="document.getElementById(\'klanListesiModal\').remove()" style="background:none;border:none;color:#ef4444;font-size:18px;cursor:pointer">✕</button></div><div id="klanListesiIcerik" style="color:#6080a0">Yükleniyor...</div></div>';
   document.body.appendChild(_modal);
   // Supabase'den klanları çek
-  var {data, error} = await supa.from('klanlar').select('*').eq('acik', true).order('seviye', {ascending:false}).limit(20);
+// SUPA_DISABLED:   var {data, error} = await supa.from('klanlar').select('*').eq('acik', true).order('seviye', {ascending:false}).limit(20);
   var _ic = document.getElementById('klanListesiIcerik');
   if(!_ic) return;
   if(error || !data || data.length===0) {
@@ -110402,8 +110402,8 @@ function klanKatilSupa(klanAd) {
   G.klan.lider = _oyAdi;
   G.klan.uyeler = [];
   if(typeof supa !== 'undefined') {
-    supa.from('klanlar').select('uye_sayisi').eq('ad', klanAd).single().then(function(r) {
-      if(r.data) supa.from('klanlar').update({uye_sayisi: (r.data.uye_sayisi||1)+1}).eq('ad', klanAd);
+// SUPA_DISABLED:     supa.from('klanlar').select('uye_sayisi').eq('ad', klanAd).single().then(function(r) {
+// SUPA_DISABLED:       if(r.data) supa.from('klanlar').update({uye_sayisi: (r.data.uye_sayisi||1)+1}).eq('ad', klanAd);
     });
   }
   save(); renderKlan();
@@ -110445,24 +110445,24 @@ async function klandanCikOnayla() {
   if(_lider && _yardimci) {
     // Asist var → asist lider olur
     try {
-      await supa.from('klanlar').update({lider: _yardimci, uye_sayisi: Math.max(1,(G.klan.uyeler.length))}).eq('ad', _klanAd);
+// SUPA_DISABLED:       await supa.from('klanlar').update({lider: _yardimci, uye_sayisi: Math.max(1,(G.klan.uyeler.length))}).eq('ad', _klanAd);
       log('👑 ' + _yardimci + ' yeni lider oldu.','ok');
     } catch(e){}
   } else if(_lider && !_yardimci) {
     // Asist yok → klan silinir
     try {
-      await supa.from('klanlar').delete().eq('ad', _klanAd);
-      await supa.from('klan_mesajlar').delete().eq('klan_ad', _klanAd);
+// SUPA_DISABLED:       await supa.from('klanlar').delete().eq('ad', _klanAd);
+// SUPA_DISABLED:       await supa.from('klan_mesajlar').delete().eq('klan_ad', _klanAd);
       log('💀 ' + _klanAd + ' klanı silindi (lider ayrıldı, asist yoktu).','er');
     } catch(e){}
   } else {
     // Normal üye çıkışı
     try {
-      await supa.from('klanlar').update({uye_sayisi: Math.max(0,(G.klan.uyeler.length))}).eq('ad', _klanAd);
+// SUPA_DISABLED:       await supa.from('klanlar').update({uye_sayisi: Math.max(0,(G.klan.uyeler.length))}).eq('ad', _klanAd);
     } catch(e){}
   }
   // Kullanicinin mesajlarini sil
-  try { await supa.from('klan_mesajlar').delete().eq('klan_ad', _klanAd).eq('oyuncu', G._oyuncuAdi||'Ben'); } catch(e){}
+// SUPA_DISABLED:   try { await supa.from('klan_mesajlar').delete().eq('klan_ad', _klanAd).eq('oyuncu', G._oyuncuAdi||'Ben'); } catch(e){}
 
   G._klanCezaBitis = Date.now() + (72 * 60 * 60 * 1000);
   G.klan = {ad:null, kuruldu:false, lider:'Sen', yardimci:null, uyeler:[], seviye:1, xp:0, ihaleler:[], kasaTL:0, banka:0, log:[]};
@@ -110499,7 +110499,7 @@ function klanBankaYatir(miktar){
   // Klan XP: her 1 milyar = 1 XP
   if(typeof klanBankaXpHesapla==='function') klanBankaXpHesapla(miktar);
   // Supabase banka guncelle
-  if(typeof supa !== 'undefined' &&G.klan.ad) supa.from('klanlar').update({banka:G.klan.banka}).eq('ad',G.klan.ad);
+// SUPA_DISABLED:   if(typeof supa !== 'undefined' &&G.klan.ad) supa.from('klanlar').update({banka:G.klan.banka}).eq('ad',G.klan.ad);
   save();renderKlan();renderHeader();
 }
 
@@ -110534,7 +110534,7 @@ async function klanLiderYapOnayla(isim) {
   log('👑 '+isim+' yeni lider oldu. Sen asist oldun.','ok');
   klanLog('👑 '+isim+' yeni lider oldu.','ok');
   save();
-  try{await supa.from('klanlar').update({lider:isim}).eq('ad',G.klan.ad);}catch(e){}
+// SUPA_DISABLED:   try{await supa.from('klanlar').update({lider:isim}).eq('ad',G.klan.ad);}catch(e){}
   renderKlan();
 }
 async function klanSustur(isim) {
@@ -110549,7 +110549,7 @@ async function klanSustur(isim) {
     log('🔇 '+isim+' 1 saat susturuldu.','sy');
   }
   save();
-  try{await supa.from('klanlar').update({susturulanlar:G.klan.susturulanlar}).eq('ad',G.klan.ad);}catch(e){}
+// SUPA_DISABLED:   try{await supa.from('klanlar').update({susturulanlar:G.klan.susturulanlar}).eq('ad',G.klan.ad);}catch(e){}
   renderKlan();
 }
 async function klanCikart(isim) {
@@ -110561,7 +110561,7 @@ async function klanCikart(isim) {
   log('🚫 '+isim+' klandan çıkarıldı.','er');
   klanLog('🚫 '+isim+' klandan çıkarıldı.','er');
   save();
-  try{await supa.from('klanlar').update({uye_sayisi:G.klan.uyeler.length+1}).eq('ad',G.klan.ad);}catch(e){}
+// SUPA_DISABLED:   try{await supa.from('klanlar').update({uye_sayisi:G.klan.uyeler.length+1}).eq('ad',G.klan.ad);}catch(e){}
   renderKlan();
 }
 async function klanBan(isim) {
@@ -110575,7 +110575,7 @@ async function klanBan(isim) {
   log('🔨 '+isim+' banlandı.','er');
   klanLog('🔨 '+isim+' banlandı.','er');
   save();
-  try{await supa.from('klanlar').update({banlilar:G.klan.banlilar}).eq('ad',G.klan.ad);}catch(e){}
+// SUPA_DISABLED:   try{await supa.from('klanlar').update({banlilar:G.klan.banlilar}).eq('ad',G.klan.ad);}catch(e){}
   renderKlan();
 }
 async function klanBanKaldir(isim) {
@@ -110586,7 +110586,7 @@ async function klanBanKaldir(isim) {
   log('🔓 '+isim+' banı kaldırıldı.','ok');
   klanLog('🔓 '+isim+' banı kaldırıldı.','ok');
   save();
-  try{await supa.from('klanlar').update({banlilar:G.klan.banlilar}).eq('ad',G.klan.ad);}catch(e){}
+// SUPA_DISABLED:   try{await supa.from('klanlar').update({banlilar:G.klan.banlilar}).eq('ad',G.klan.ad);}catch(e){}
   renderKlan();
 }
 function kufurFiltrele(metin) {
@@ -110599,14 +110599,14 @@ async function klanMesajGonder(mesaj) {
   if(!G.klan||!G.klan.ad){log('Klan gerekli!','er');return;}
   var _oyAdi=G._oyuncuAdi||'Ben';
   var _temizMesaj = kufurFiltrele(mesaj.trim());
-  try{await supa.from('klan_mesajlar').insert({klan_ad:G.klan.ad,oyuncu:_oyAdi,mesaj:_temizMesaj});}catch(e){log('Mesaj gönderilemedi!','er');return;}
+// SUPA_DISABLED:   try{await supa.from('klan_mesajlar').insert({klan_ad:G.klan.ad,oyuncu:_oyAdi,mesaj:_temizMesaj});}catch(e){log('Mesaj gönderilemedi!','er');return;}
   var inp=document.getElementById('klanSohbetInp');
   if(inp)inp.value='';
   klanMesajlariYukle();
 }
 async function klanMesajlariYukle() {
   if(!G.klan||!G.klan.ad)return;
-  var {data}=await supa.from('klan_mesajlar').select('*').eq('klan_ad',G.klan.ad).order('zaman',{ascending:false}).limit(30);
+// SUPA_DISABLED:   var {data}=await supa.from('klan_mesajlar').select('*').eq('klan_ad',G.klan.ad).order('zaman',{ascending:false}).limit(30);
   if(!data)return;
   var el=document.getElementById('klanSohbetList');
   if(!el)return;
@@ -110643,12 +110643,12 @@ async function klanMesajlariYukle() {
 }
 async function klanSohbetiTemizle() {
   if(!G.klan||!G.klan.ad)return;
-  try{await supa.from('klan_mesajlar').delete().eq('klan_ad',G.klan.ad);klanMesajlariYukle();log('🗑 Sohbet temizlendi.','sy');}catch(e){log('Sohbet temizlenemedi!','er');}
+// SUPA_DISABLED:   try{await supa.from('klan_mesajlar').delete().eq('klan_ad',G.klan.ad);klanMesajlariYukle();log('🗑 Sohbet temizlendi.','sy');}catch(e){log('Sohbet temizlenemedi!','er');}
 }
 async function klanSohbetiAktar() {
   if(!G.klan||!G.klan.ad){log('Klan gerekli!','er');return;}
   try {
-    var r = await supa.from('klan_mesajlar').select('*').eq('klan_ad',G.klan.ad).order('zaman',{ascending:true});
+// SUPA_DISABLED:     var r = await supa.from('klan_mesajlar').select('*').eq('klan_ad',G.klan.ad).order('zaman',{ascending:true});
     if(!r.data||r.data.length===0){log('Sohbet geçmişi boş!','sy');return;}
     var txt = '=== ' + G.klan.ad + ' Klan Sohbeti ===\n';
     txt += 'Dışa Aktarım Tarihi: ' + new Date().toLocaleString('tr-TR') + '\n';
@@ -110687,7 +110687,7 @@ function klanSohbetiTemizleOnayla() {
 }
 async function klanTekMesajSil(id) {
   if(!id)return;
-  try{await supa.from('klan_mesajlar').delete().eq('id',id);klanMesajlariYukle();}catch(e){log('Mesaj silinemedi!','er');}
+// SUPA_DISABLED:   try{await supa.from('klan_mesajlar').delete().eq('id',id);klanMesajlariYukle();}catch(e){log('Mesaj silinemedi!','er');}
 }
 function klanMesajDuzenle(id, eskiMesaj) {
   // Inline edit popup
@@ -110709,7 +110709,7 @@ async function klanMesajDuzenleKaydet(id) {
   var yeniMesaj = kufurFiltrele(ta.value.trim());
   if(!yeniMesaj){log('Mesaj boş olamaz!','er');return;}
   try {
-    await supa.from('klan_mesajlar').update({mesaj: yeniMesaj, duzenlendi: true}).eq('id', id);
+// SUPA_DISABLED:     await supa.from('klan_mesajlar').update({mesaj: yeniMesaj, duzenlendi: true}).eq('id', id);
     klanMesajlariYukle();
     log('✏️ Mesaj düzenlendi.','sy');
   } catch(e) { log('Düzenleme başarısız!','er'); }
@@ -110722,7 +110722,7 @@ async function klanSeciliMesajlariSil() {
   if(!confirm(secili.length+' mesaj silinsin mi?'))return;
   var ids=Array.from(secili).map(function(x){return x.getAttribute('data-mesaj-id');});
   for(var i=0;i<ids.length;i++){
-    try{await supa.from('klan_mesajlar').delete().eq('id',ids[i]);}catch(e){}
+// SUPA_DISABLED:     try{await supa.from('klan_mesajlar').delete().eq('id',ids[i]);}catch(e){}
   }
   klanMesajlariYukle();
   log('🗑 '+ids.length+' mesaj silindi.','sy');
@@ -110761,7 +110761,7 @@ function klanElmasLvAtla(){
     klanLog('💎 Elmas ile Klan Lv'+G.klan.seviye+"'e yükseldi!",'ok');
     // Supabase guncelle
     if(typeof supa !== 'undefined' &&G.klan.ad){
-      await supa.from('klanlar').update({seviye: G.klan.seviye, xp: 0}).eq('ad', G.klan.ad);
+// SUPA_DISABLED:       await supa.from('klanlar').update({seviye: G.klan.seviye, xp: 0}).eq('ad', G.klan.ad);
     }
     save(); renderKlan();
   });
@@ -110805,7 +110805,7 @@ function klanIhaleKazandi(urun,tipKisiler,kazanilanTL,madalya) {
 // Supabase klan XP ekle + lv kontrol (ortak)
 async function klanSupaXpEkle(xp) {
   if(!G.klan||!G.klan.ad||typeof supa === 'undefined') return;
-  var {data, error} = await supa.from('klanlar').select('xp,seviye').eq('ad', G.klan.ad).single();
+// SUPA_DISABLED:   var {data, error} = await supa.from('klanlar').select('xp,seviye').eq('ad', G.klan.ad).single();
   if(error||!data) return;
   var yeniXp = (data.xp||0) + xp;
   var yeniSeviye = data.seviye||0;
@@ -110817,7 +110817,7 @@ async function klanSupaXpEkle(xp) {
       klanLog('🎉 Klan Lv'+yeniSeviye+"'e yükseldi!",'ok');
     } else break;
   }
-  await supa.from('klanlar').update({xp: yeniXp, seviye: yeniSeviye}).eq('ad', G.klan.ad);
+// SUPA_DISABLED:   await supa.from('klanlar').update({xp: yeniXp, seviye: yeniSeviye}).eq('ad', G.klan.ad);
   G.klan.xp = yeniXp; G.klan.seviye = yeniSeviye;
   save(); if(window._activeTab==='klan') renderKlan();
 }
@@ -110831,7 +110831,7 @@ function klanBankaXpHesapla(tlMiktar) {
 // Supabase'den klan bilgilerini yukle (her acilista)
 async function klanSupaYukle() {
   if(!G.klan||!G.klan.ad||typeof supa === 'undefined') return;
-  var {data, error} = await supa.from('klanlar').select('xp,seviye,uye_sayisi').eq('ad', G.klan.ad).single();
+// SUPA_DISABLED:   var {data, error} = await supa.from('klanlar').select('xp,seviye,uye_sayisi').eq('ad', G.klan.ad).single();
   if(error||!data) return;
   G.klan.xp = data.xp||0; G.klan.seviye = data.seviye||0;
   save();
@@ -111017,8 +111017,8 @@ function renderKlan() {
   if(G.klan&&G.klan.kuruldu&&G.klan.ad){
     klanMesajlariYukle();
     // Realtime: daha önce subscribe edildiyse iptal et
-    if(window._klanSohbetChannel){try{supa.removeChannel(window._klanSohbetChannel);}catch(e){}}
-    window._klanSohbetChannel=supa.channel('klan-sohbet-'+G.klan.ad)
+// SUPA_DISABLED:     if(window._klanSohbetChannel){try{supa.removeChannel(window._klanSohbetChannel);}catch(e){}}
+// SUPA_DISABLED:     window._klanSohbetChannel=supa.channel('klan-sohbet-'+G.klan.ad)
       .on('postgres_changes',{event:'INSERT',schema:'public',table:'klan_mesajlar',filter:'klan_ad=eq.'+G.klan.ad},function(){klanMesajlariYukle();})
       .subscribe();
   }
